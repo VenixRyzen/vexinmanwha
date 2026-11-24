@@ -1061,6 +1061,88 @@
       READER_PREFS: 'vexin_manwha_reader_prefs_v1',
     };
 
+    const POPULAR_STARTERS = [
+      { label: 'Solo Leveling', query: 'Solo Leveling' },
+      { label: 'Omniscient Reader', query: 'Omniscient Reader' },
+      { label: 'The Beginning After the End', query: 'The Beginning After the End' },
+      { label: 'Legend of the Northern Blade', query: 'Legend of the Northern Blade' },
+      { label: 'SSS-Class Revival Hunter', query: 'SSS-Class Revival Hunter' },
+      { label: 'Villains Are Destined to Die', query: 'Villains Are Destined to Die' },
+      { label: 'Tower of God', query: 'Tower of God' },
+      { label: 'Eleceed', query: 'Eleceed' },
+    ];
+
+    const EXTRA_GENRES = [
+      'Action',
+      'Adventure',
+      'Comedy',
+      'Drama',
+      'Ecchi',
+      'Fantasy',
+      'Horror',
+      'Mahou Shoujo',
+      'Mecha',
+      'Music',
+      'Mystery',
+      'Psychological',
+      'Romance',
+      'Sci-Fi',
+      'Slice of Life',
+      'Sports',
+      'Supernatural',
+      'Thriller',
+    ];
+
+    const COLLECTOR_NOTES = [
+      {
+        id: 'chapters100',
+        icon: '📚',
+        label: '100+ Chapters',
+        sub: 'Long-running binge-worthy series',
+      },
+      {
+        id: 'peakArt',
+        icon: '🎨',
+        label: 'High Rated / Peak Art',
+        sub: 'Community score 80%+ masterpieces',
+      },
+      {
+        id: 'fullColor',
+        icon: '🌈',
+        label: 'Full Color Webtoon',
+        sub: 'Vertical full-color digital strip',
+      },
+      {
+        id: 'completedOnly',
+        icon: '🏁',
+        label: 'Completed Only',
+        sub: 'Finished main story — no cliffhangers',
+      },
+      {
+        id: 'hiddenGems',
+        icon: '💎',
+        label: 'Hidden Gems',
+        sub: 'High score with lower mainstream count',
+      },
+    ];
+
+    const BAN_PRESETS = [
+      { id: 'bl', label: "BL / Boys' Love", apiGenres: ["Boys' Love"], apiTags: ["Boys' Love"], keywords: ['yaoi', 'shounen ai', 'boys love'] },
+      { id: 'gl', label: "GL / Girls' Love", apiGenres: ["Girls' Love"], apiTags: ["Girls' Love"], keywords: ['yuri', 'shoujo ai', 'girls love'] },
+      { id: 'gay_mlm', label: 'Gay / MLM', apiGenres: ["Boys' Love"], apiTags: ["Boys' Love", 'LGBTQ+ Themes'], keywords: ['gay', 'mlm', 'male/male'] },
+      { id: 'lesbian_wlw', label: 'Lesbian / WLW', apiGenres: ["Girls' Love"], apiTags: ["Girls' Love", 'LGBTQ+ Themes'], keywords: ['lesbian', 'wlw', 'female/female'] },
+      { id: 'harem', label: 'Harem', apiGenres: [], apiTags: ['Male Harem', 'Harem'], keywords: ['harem'] },
+      { id: 'reverse_harem', label: 'Reverse Harem', apiGenres: [], apiTags: ['Female Harem', 'Reverse Harem'], keywords: ['reverse harem'] },
+      { id: 'ecchi', label: 'Ecchi / Smut', apiGenres: ['Ecchi'], apiTags: ['Ecchi', 'Smut'], keywords: ['ecchi', 'smut', 'nsfw'] },
+      { id: 'tragedy', label: 'Tragedy', apiGenres: [], apiTags: ['Tragedy'], keywords: ['tragedy'] },
+      { id: 'horror', label: 'Horror', apiGenres: ['Horror'], apiTags: ['Horror', 'Gore'], keywords: ['horror'] },
+      { id: 'psychological', label: 'Psychological', apiGenres: ['Psychological'], apiTags: ['Psychological'], keywords: ['psychological'] },
+      { id: 'romance', label: 'Romance', apiGenres: ['Romance'], apiTags: ['Romance'], keywords: [] },
+      { id: 'mecha', label: 'Mecha', apiGenres: ['Mecha'], apiTags: ['Mecha'], keywords: ['mecha'] },
+      { id: 'sports', label: 'Sports', apiGenres: ['Sports'], apiTags: ['Sports'], keywords: [] },
+      { id: 'slice_of_life', label: 'Slice of Life', apiGenres: ['Slice of Life'], apiTags: ['Slice of Life'], keywords: [] },
+    ];
+
     /**
      * Built-in Verified Metadata Index for Top OEL / Tapas / WEBTOON Titles
      * Guarantees 0ms instant resolution for titles like "The Beginning After the End" (TBATE)
@@ -1203,14 +1285,13 @@
       },
     ];
 
-    // In-Memory LRU GraphQL Response Cache for 0ms Repeat Queries
+    // In-Memory LRU Response Cache for 0ms Repeat Queries
     const apiCache = new Map();
     const MAX_CACHE_ENTRIES = 120;
 
     function getCachedResponse(cacheKey) {
       if (!apiCache.has(cacheKey)) return null;
       const value = apiCache.get(cacheKey);
-      // Refresh LRU position
       apiCache.delete(cacheKey);
       apiCache.set(cacheKey, value);
       return value;
@@ -1249,15 +1330,13 @@
       isLoading: false,
       searchResults: [],
       loadingStarters: new Set(),
-      // Chapter Continuity Log per series ID: { [seriesId]: "1-3, 5-6" }
       continuityLogs: {},
-      // Built-in Local Vertical Webtoon Reader State
-      activeView: 'discovery', // 'discovery' | 'reader'
+      activeView: 'discovery',
       readerBatchTitle: 'Local Vertical Webtoon Reader',
-      readerChapters: [], // [{ chapterNum, label, fileName, pages: [{ name, url }] }]
+      readerChapters: [],
       readerActiveIndex: 0,
       readerWidth: 760,
-      readerLastReadMap: {}, // { [batchKey]: chapterNum }
+      readerLastReadMap: {},
     };
 
     // Cached DOM References
@@ -1309,7 +1388,6 @@
       closeModalBtn: document.getElementById('close-modal-btn'),
       modalContent: document.getElementById('modal-content'),
       toastContainer: document.getElementById('toast-container'),
-      // Reader & Workspace View Elements
       discoveryWorkspace: document.getElementById('discovery-workspace'),
       webtoonReaderView: document.getElementById('webtoon-reader-view'),
       readerNavToggle: document.getElementById('reader-nav-toggle'),
@@ -1341,7 +1419,7 @@
       readerScrollTopBtn: document.getElementById('reader-scroll-top-btn'),
     };
 
-    // AniList GraphQL Field Fragment (includes synonyms & native Korean title)
+    // AniList GraphQL Field Fragment
     const MEDIA_FIELDS_FRAGMENT = `
       id
       siteUrl
@@ -1438,9 +1516,6 @@
       }
     }
 
-    /**
-     * Source Badge Renderer ('AniList KR', 'Kitsu / OEL', 'MAL Manhwa')
-     */
     function getSourceBadgeHtml(sourceLabel) {
       const src = sourceLabel || 'AniList KR';
       if (src.includes('Kitsu') || src.includes('OEL')) {
@@ -1452,9 +1527,6 @@
       return `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/35">${escapeHtml(src)}</span>`;
     }
 
-    /**
-     * Normalize Kitsu JSON:API Manga Item into Unified Media Object
-     */
     function normalizeKitsuMedia(item) {
       const attrs = item?.attributes || {};
       const titles = attrs.titles || {};
@@ -1471,7 +1543,6 @@
       const coverLarge = poster.large || poster.original || poster.medium || '';
       const coverMed = poster.medium || poster.small || coverLarge;
 
-      // Infer helpful tags from synopsis/subtype so Taste DNA works seamlessly
       const inferredTags = [{ name: 'Full Color', rank: 90, isMediaSpoiler: false, isGeneralSpoiler: false }];
       const synLower = (attrs.synopsis || '').toLowerCase();
       if (synLower.includes('reincarnat')) inferredTags.push({ name: 'Reincarnation', rank: 92, isMediaSpoiler: false, isGeneralSpoiler: false });
@@ -1513,9 +1584,6 @@
       };
     }
 
-    /**
-     * Normalize Jikan v4 (MyAnimeList) Manga/Manhwa Item into Unified Media Object
-     */
     function normalizeJikanMedia(item) {
       const genres = [
         ...(item.genres || []).map((g) => g.name),
@@ -1561,9 +1629,6 @@
       };
     }
 
-    /**
-     * Deduplicate Media Across AniList KR, Kitsu / OEL, and MAL Manhwa
-     */
     function deduplicateMediaList(items) {
       const seenKeys = new Set();
       const unique = [];
@@ -1580,7 +1645,6 @@
       }
 
       return unique;
-    }
     }
 
     /**
@@ -1648,13 +1712,9 @@
       if (trimmed.length < 2) return false;
       if (KOREAN_CHAR_REGEX.test(trimmed) || JAPANESE_CHAR_REGEX.test(trimmed)) return false;
       if (isLikelyJapaneseRomaji(trimmed)) return false;
-      // Ensure it contains Latin letters
       return /[a-zA-Z]{2,}/.test(trimmed);
     }
 
-    /**
-     * Resolves primary display title, Korean Hangul native title, and up to 2 alternate titles
-     */
     function resolveManhwaTitles(media) {
       const english = (media.title?.english || '').trim();
       const romaji = (media.title?.romaji || '').trim();
@@ -1666,9 +1726,7 @@
       let primary = '';
 
       if (state.preferScanlationTitles) {
-        // Priority 1: Official English title (unless it looks like Japanese romaji and we have a clean English synonym)
         if (english && !isLikelyJapaneseRomaji(english)) {
-          // Check if a well-known extended scanlation synonym exists (e.g. "Omniscient Reader's Viewpoint" vs "Omniscient Reader")
           const extendedScanlation = cleanEnglishSynonyms.find(
             (syn) =>
               syn.toLowerCase() !== english.toLowerCase() &&
@@ -1677,7 +1735,6 @@
           );
           primary = extendedScanlation || english;
         } else if (cleanEnglishSynonyms.length > 0) {
-          // Priority 2: Best clean English / scanlation synonym instead of Japanese romaji
           primary = cleanEnglishSynonyms[0];
         } else if (english) {
           primary = english;
@@ -1687,11 +1744,9 @@
           primary = nativeKorean || 'Untitled Manhwa';
         }
       } else {
-        // Official Romaji / English Mode
         primary = english || romaji || nativeKorean || 'Untitled Manhwa';
       }
 
-      // Build deduplicated alternate titles list (up to 2 alternates)
       const seenLower = new Set([primary.toLowerCase()]);
       const alternates = [];
 
@@ -1705,14 +1760,12 @@
         if (!alt) continue;
         const lower = alt.toLowerCase();
         if (seenLower.has(lower)) continue;
-        // Skip pure Hangul here since Korean native is displayed explicitly
         if (KOREAN_CHAR_REGEX.test(alt)) continue;
         seenLower.add(lower);
         alternates.push(alt);
         if (alternates.length >= 2) break;
       }
 
-      // Build compact subtitle combining Korean Hangul + alternates
       const subtitleParts = [];
       if (nativeKorean && nativeKorean.toLowerCase() !== primary.toLowerCase()) {
         subtitleParts.push(nativeKorean);
@@ -1782,7 +1835,6 @@
         const clean = rawKw.trim();
         if (!clean) return;
         keywords.add(clean.toLowerCase());
-        // If custom keyword matches an official AniList genre, also pass it to API
         const matchedGenre = EXTRA_GENRES.find((g) => g.toLowerCase() === clean.toLowerCase());
         if (matchedGenre) apiGenres.add(matchedGenre);
       });
@@ -1798,9 +1850,6 @@
       return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
-    /**
-     * Strict client-side verification that a media item contains ZERO banned genres, tags, or keywords
-     */
     function isMediaBanned(media, banConfig = getActiveBanConfig()) {
       if (banConfig.apiGenres.length === 0 && banConfig.apiTags.length === 0 && banConfig.keywords.length === 0) {
         return false;
@@ -1809,7 +1858,6 @@
       const mediaGenres = (media.genres || []).map((g) => g.toLowerCase());
       const mediaTags = (media.tags || []).map((t) => t.name.toLowerCase());
 
-      // 1. Exact API genre/tag check
       for (const bg of banConfig.apiGenres) {
         if (mediaGenres.includes(bg.toLowerCase())) return true;
       }
@@ -1817,7 +1865,6 @@
         if (mediaTags.includes(bt.toLowerCase())) return true;
       }
 
-      // 2. Keyword word-boundary check across genres, tags, titles, synonyms & description
       if (banConfig.keywords.length > 0) {
         const searchableText = [
           ...mediaGenres,
@@ -1843,7 +1890,7 @@
 
     /**
      * =====================================================================
-     * PERSISTENCE (localStorage for Shelf, Theme, Bans, Title Mode)
+     * PERSISTENCE (localStorage for Shelf, Theme, Bans, Title Mode, Reader)
      * =====================================================================
      */
     function saveStateToStorage() {
@@ -1945,7 +1992,6 @@
           if (t.isMediaSpoiler || t.isGeneralSpoiler) return false;
           if ((t.rank || 0) < 45) return false;
           if (ignoredMetaTags.has(t.name)) return false;
-          // Exclude any tag that the user has banned
           if (banConfig.apiTags.some((bt) => bt.toLowerCase() === t.name.toLowerCase())) return false;
           return true;
         });
@@ -2024,6 +2070,7 @@
         const titles = resolveManhwaTitles(m);
         return {
           id: m.id,
+          source: m.source || 'AniList KR',
           title: titles.primary,
           koreanTitle: titles.korean,
           alternates: titles.alternates,
@@ -2031,7 +2078,7 @@
           status: m.status,
           score: m.averageScore,
           genres: m.genres,
-          anilistUrl: m.siteUrl,
+          sourceUrl: m.siteUrl,
         };
       });
 
@@ -2075,7 +2122,7 @@
       const banConfig = getActiveBanConfig();
       const qLower = trimmed.toLowerCase();
 
-      // 1. Instant 0ms match from Built-in Verified OEL Index (e.g., "The Beginning After the End" / "TBATE")
+      // 1. Instant 0ms match from Built-in Verified OEL Index
       const localMatches = VERIFIED_OEL_MANHWA_INDEX.filter((item) => {
         if (isMediaBanned(item, banConfig)) return false;
         const searchable = [
@@ -2089,7 +2136,6 @@
         return searchable.includes(qLower);
       });
 
-      // Render local hits immediately if found so user feels 0ms responsiveness
       if (localMatches.length > 0) {
         state.searchResults = localMatches;
         renderSearchDropdown(localMatches);
@@ -2132,7 +2178,6 @@
       if (banConfig.apiGenres.length > 0) vars.genreNotIn = banConfig.apiGenres;
       if (banConfig.apiTags.length > 0) vars.tagNotIn = banConfig.apiTags;
 
-      // 3. Cached Kitsu JSON:API & Jikan v4 Fetchers
       const kitsuUrl = `${KITSU_ENDPOINT}?filter[text]=${encodeURIComponent(trimmed)}&page[limit]=6`;
       const jikanUrl = `${JIKAN_ENDPOINT}?q=${encodeURIComponent(trimmed)}&limit=6&sfw=true`;
 
@@ -2213,7 +2258,6 @@
         return;
       }
 
-      // Check Verified OEL Index first (resolves "The Beginning After the End" in 0ms!)
       const localOelHit = VERIFIED_OEL_MANHWA_INDEX.find((m) =>
         m.title.english.toLowerCase().includes(starter.label.toLowerCase())
       );
@@ -2370,7 +2414,6 @@
         });
       }
 
-      // Inject matching Verified OEL / Tapas titles into recommendation candidates when criteria align
       function injectVerifiedOelCandidates() {
         VERIFIED_OEL_MANHWA_INDEX.forEach((oel) => {
           if (excludeIds.includes(oel.id) || candidateMap.has(oel.id)) return;
@@ -2397,7 +2440,6 @@
       try {
         injectVerifiedOelCandidates();
 
-        // TIER 1: Precision Query (Top 2 active tags + selected genres + note filters + bans)
         const tier1Vars = { ...baseVars };
         if (precisionTags.length > 0) tier1Vars.tagIn = precisionTags;
         if (selectedGenreArr.length > 0) tier1Vars.genreIn = selectedGenreArr;
@@ -2405,7 +2447,6 @@
         await runTierQuery(tier1Vars);
         if (fetchToken !== activeFetchToken) return;
 
-        // TIER 2: Broaden if fewer than 12 valid non-banned results
         if (candidateMap.size < 12 && (precisionTags.length > 1 || (precisionTags.length > 0 && selectedGenreArr.length > 0))) {
           const tier2Vars = { ...baseVars };
           tier2Vars.tagIn = [precisionTags[0]];
@@ -2416,7 +2457,6 @@
           if (fetchToken !== activeFetchToken) return;
         }
 
-        // TIER 3: Fallback discovery if still < 12 results
         if (candidateMap.size < 12 && (precisionTags.length > 0 || selectedGenreArr.length > 1)) {
           const tier3Vars = { ...baseVars };
           if (selectedGenreArr.length > 0) {
@@ -2580,760 +2620,17 @@
             ${isAdded ? '✓ Read' : '+ Add'}
           </span>
         `;
-              <!-- Bottom Chapter Count & Source Badge Overlay -->
-              <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-1.5 pointer-events-none">
-                <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-black/85 text-cyan-300 border border-cyan-400/35 truncate">
-                  ${escapeHtml(chapterInfo.full)}
-                </span>
-                ${getSourceBadgeHtml(media.source)}
-              </div>
-            </div>
 
-            <!-- Card Title, Korean/Alt Subtitle & Matching Chips -->
-            <div class="p-4 space-y-2">
-              <div>
-                <h3
-                  class="js-open-modal text-sm sm:text-base font-bold v-text-primary leading-snug line-clamp-2 cursor-pointer hover:underline"
-                  title="${escapeHtml(titles.primary)}"
-                >
-                  ${escapeHtml(titles.primary)}
-                </h3>
-                ${
-                  titles.subtitle
-                    ? `<p class="text-[11px] v-text-muted line-clamp-1 mt-0.5" title="${escapeHtml(titles.subtitle)}">${escapeHtml(titles.subtitle)}</p>`
-                    : ''
-                }
-              </div>
-
-              <div class="flex flex-wrap gap-1.5 pt-1">
-                ${tagPillsHtml}
-                ${genrePillsHtml}
-              </div>
-            </div>
-          </div>
-
-          <!-- Quick Action Footer -->
-          <div class="px-4 pb-4 pt-1 grid grid-cols-3 gap-1.5">
-            <button
-              type="button"
-              class="js-open-modal v-pill px-2 py-2 rounded-xl text-[11px] font-semibold cursor-pointer truncate"
-              title="View Synopsis, Chapter Continuity Log & Official Links"
-            >
-              Details
-            </button>
-            <button
-              type="button"
-              class="js-open-reader v-pill-active-2 px-2 py-2 rounded-xl text-[11px] font-semibold cursor-pointer truncate"
-              title="Open Local Vertical Webtoon Reader for this series"
-            >
-              📖 Read
-            </button>
-            <button
-              type="button"
-              class="js-mark-read v-pill-active px-2 py-2 rounded-xl text-[11px] font-semibold cursor-pointer truncate"
-            >
-              + Shelf
-            </button>
-          </div>
-        `;
-
-        article.querySelectorAll('.js-open-modal').forEach((el) => {
-          el.addEventListener('click', () => openDetailModal(entry));
-        });
-        article.querySelector('.js-open-reader').addEventListener('click', () => {
-          openWebtoonReaderForSeries(titles.primary);
-        });
-        article.querySelector('.js-mark-read').addEventListener('click', () => addToShelf(media));
-
-        fragment.appendChild(article);
-      });
-
-      dom.recommendationsGrid.innerHTML = '';
-      dom.recommendationsGrid.appendChild(fragment);
-    }
-
-    /**
-     * =====================================================================
-     * CHAPTER CONTINUITY RANGE PARSER (e.g., "1-3, 5-6" -> Missing Ch. 4)
-     * =====================================================================
-     */
-    function analyzeChapterRangeString(rangeStr) {
-      if (!rangeStr || !rangeStr.trim()) {
-        return { readSet: new Set(), minCh: 0, maxCh: 0, missing: [], count: 0 };
-      }
-
-      const readSet = new Set();
-      const parts = rangeStr.split(/[,;\s]+/).filter(Boolean);
-
-      for (const part of parts) {
-        const rangeMatch = part.match(/^(\d+(?:\.\d+)?)\s*[-–~to]+\s*(\d+(?:\.\d+)?)$/i);
-        if (rangeMatch) {
-          const start = Math.floor(parseFloat(rangeMatch[1]));
-          const end = Math.floor(parseFloat(rangeMatch[2]));
-          const low = Math.min(start, end);
-          const high = Math.min(Math.max(start, end), low + 2000);
-          for (let c = low; c <= high; c++) {
-            if (c >= 0) readSet.add(c);
-          }
-        } else if (/^\d+(\.\d+)?$/.test(part)) {
-          readSet.add(Math.floor(parseFloat(part)));
-        }
-      }
-
-      if (readSet.size === 0) {
-        return { readSet, minCh: 0, maxCh: 0, missing: [], count: 0 };
-      }
-
-      const sorted = Array.from(readSet).sort((a, b) => a - b);
-      const minCh = sorted[0];
-      const maxCh = sorted[sorted.length - 1];
-      const missing = [];
-
-      // Check continuity from Chapter 1 up to maxCh
-      const startBaseline = minCh > 1 ? 1 : minCh;
-      for (let c = startBaseline; c <= maxCh; c++) {
-        if (!readSet.has(c)) {
-          missing.push(c);
-        }
-      }
-
-      return {
-        readSet,
-        minCh,
-        maxCh,
-        missing,
-        count: readSet.size,
-      };
-    }
-
-    function formatMissingChaptersSummary(missing) {
-      if (!missing || missing.length === 0) return '';
-      // Group consecutive missing numbers into compact ranges (e.g., [4, 7, 8, 9] -> "Ch. 4, Ch. 7–9")
-      const groups = [];
-      let start = missing[0];
-      let prev = missing[0];
-
-      for (let i = 1; i < missing.length; i++) {
-        const curr = missing[i];
-        if (curr === prev + 1) {
-          prev = curr;
-        } else {
-          groups.push(start === prev ? `Ch. ${start}` : `Ch. ${start}–${prev}`);
-          start = curr;
-          prev = curr;
-        }
-      }
-      groups.push(start === prev ? `Ch. ${start}` : `Ch. ${start}–${prev}`);
-      return groups.slice(0, 8).join(', ') + (groups.length > 8 ? ` (+${groups.length - 8} more)` : '');
-    }
-
-    /**
-     * Open Detail Modal with Synopsis, Alternate Titles, Chapter Continuity Log & Official Platform Links
-     */
-    function openDetailModal(entry) {
-      const { media, matchPercent, matchedTags } = entry;
-      const titles = resolveManhwaTitles(media);
-      const chapterInfo = formatChapterInfo(media);
-      const cover = media.coverImage?.extraLarge || media.coverImage?.large || '';
-      const coverBg = media.coverImage?.color || 'var(--bg-surface-alt)';
-      const banner = media.bannerImage || cover;
-      const synopsis = formatSynopsis(media.description);
-      const isRead = state.shelf.some((s) => s.id === media.id);
-
-      const matchedNames = new Set(matchedTags.map((t) => t.name));
-      const allNonSpoilerTags = (media.tags || []).filter((t) => !t.isMediaSpoiler && !t.isGeneralSpoiler);
-
-      const allTitleVariants = Array.from(
-        new Set(
-          [
-            media.title?.english,
-            ...(media.synonyms || []),
-            media.title?.romaji,
-            media.title?.native,
-          ].filter(Boolean)
-        )
-      );
-
-      const encodedQuery = encodeURIComponent(titles.primary);
-      const savedRange = state.continuityLogs[media.id] || '';
-      const continuityAnalysis = analyzeChapterRangeString(savedRange);
-
-      function buildContinuityStatusHtml(analysis) {
-        if (analysis.count === 0) {
-          return `<span class="text-[11px] v-text-muted">Enter read chapter ranges (e.g. <span class="font-mono v-text-primary">1-3, 5-6</span>) to verify continuity and flag missing chapters.</span>`;
-        }
-        if (analysis.missing.length === 0) {
-          return `<span class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-emerald-400">✅ Continuous: Ch. 1–${analysis.maxCh} (${analysis.count} chapters logged, 0 gaps)</span>`;
-        }
-        return `<span class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-amber-400">⚠️ Missing in your log: ${escapeHtml(formatMissingChaptersSummary(analysis.missing))}</span>`;
-      }
-
-      dom.modalContent.innerHTML = `
-        <!-- Banner Header -->
-        <div class="relative h-36 sm:h-48 w-full overflow-hidden" style="background-color: ${escapeHtml(coverBg)};">
-          <img
-            src="${escapeHtml(banner)}"
-            alt=""
-            decoding="async"
-            class="w-full h-full object-cover ${media.bannerImage ? 'opacity-70' : 'opacity-25'}"
-          />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent"></div>
-        </div>
-
-        <!-- Modal Body -->
-        <div class="px-5 sm:px-8 pb-8 -mt-16 sm:-mt-20 relative z-10 space-y-5">
-          <div class="flex flex-col sm:flex-row gap-5 items-start">
-            <div class="w-32 sm:w-36 aspect-[2/3] rounded-2xl overflow-hidden border-2 v-border shadow-xl flex-shrink-0" style="background-color: ${escapeHtml(coverBg)};">
-              <img
-                src="${escapeHtml(cover)}"
-                alt="${escapeHtml(titles.primary)}"
-                decoding="async"
-                onerror="this.src='https://placehold.co/300x450/11182c/818cf8?text=KR'"
-                class="w-full h-full object-cover"
-              />
-            </div>
-
-            <div class="space-y-2.5 pt-1 sm:pt-10 min-w-0 flex-1">
-              <div class="flex flex-wrap items-center gap-2">
-                ${getSourceBadgeHtml(media.source)}
-                <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-400/35">
-                  ${matchPercent}% Taste Match
-                </span>
-                <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-400/35">
-                  ★ ${media.averageScore ? `${media.averageScore}% Score` : 'Unrated'}
-                </span>
-                <span class="v-pill-active-2 px-2.5 py-1 rounded-lg text-xs font-mono">
-                  ${escapeHtml(chapterInfo.full)}
-                </span>
-              </div>
-
-              <div>
-                <h2 id="modal-title" class="text-xl sm:text-2xl font-extrabold v-text-primary leading-tight">
-                  ${escapeHtml(titles.primary)}
-                </h2>
-                ${
-                  titles.korean
-                    ? `<p class="text-xs font-semibold v-text-muted mt-1">Korean: ${escapeHtml(titles.korean)}</p>`
-                    : ''
-                }
-              </div>
-
-              <div class="flex flex-wrap gap-1.5">
-                ${(media.genres || [])
-                  .map((g) => `<span class="v-pill px-2.5 py-1 rounded-lg text-xs font-medium">${escapeHtml(g)}</span>`)
-                  .join('')}
-              </div>
-            </div>
-          </div>
-
-          <!-- CHAPTER CONTINUITY LOG & OFFICIAL LICENSED PLATFORMS -->
-          <div class="rounded-xl v-surface-alt p-4 space-y-3 border v-border">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div class="text-xs font-mono uppercase tracking-wider font-bold" style="color: var(--accent-text-2);">
-                📑 Chapter Continuity Tracker &amp; Official Platforms
-              </div>
-              <button
-                type="button"
-                id="modal-open-reader-btn"
-                class="v-pill-active inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer"
-              >
-                <span>📖</span>
-                <span>Open in Local Reader</span>
-              </button>
-            </div>
-
-            <!-- Read Chapter Range Logger -->
-            <div class="flex flex-col sm:flex-row gap-2">
-              <input
-                id="modal-continuity-input"
-                type="text"
-                value="${escapeHtml(savedRange)}"
-                placeholder="Log read chapters (e.g. 1-3, 5-6 or 1-120)..."
-                class="v-input flex-1 px-3 py-2 rounded-xl text-xs font-mono"
-              />
-              <button
-                type="button"
-                id="modal-log-next-ch-btn"
-                class="v-pill px-3 py-2 rounded-xl text-xs font-mono font-bold cursor-pointer flex-shrink-0"
-              >
-                +1 Next Ch
-              </button>
-            </div>
-            <div id="modal-continuity-status">${buildContinuityStatusHtml(continuityAnalysis)}</div>
-
-            <!-- Official Licensed Webtoon Platforms & Database Links -->
-            <div class="pt-2 border-t v-border space-y-1.5">
-              <div class="text-[11px] font-mono uppercase tracking-wider v-text-muted font-bold">
-                Official Licensed Platforms &amp; Databases
-              </div>
-              <div class="flex flex-wrap gap-1.5">
-                <a href="https://tapas.io/search?q=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="v-pill px-2.5 py-1 rounded-lg text-xs font-semibold">Tapas ↗</a>
-                <a href="https://www.webtoons.com/en/search?keyword=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="v-pill px-2.5 py-1 rounded-lg text-xs font-semibold">WEBTOON ↗</a>
-                <a href="https://www.tappytoon.com/en/search?q=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="v-pill px-2.5 py-1 rounded-lg text-xs font-semibold">Tappytoon ↗</a>
-                <a href="https://manta.net/en/search?query=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="v-pill px-2.5 py-1 rounded-lg text-xs font-semibold">Manta ↗</a>
-                <a href="https://www.lezhinus.com/en/search?q=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="v-pill px-2.5 py-1 rounded-lg text-xs font-semibold">Lezhin ↗</a>
-                <a href="https://anilist.co/search/manga?search=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="v-pill px-2.5 py-1 rounded-lg text-xs font-mono">AniList ↗</a>
-                <a href="https://kitsu.app/manga?text=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="v-pill px-2.5 py-1 rounded-lg text-xs font-mono">Kitsu ↗</a>
-                <a href="https://myanimelist.net/manga.php?q=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="v-pill px-2.5 py-1 rounded-lg text-xs font-mono">MyAnimeList ↗</a>
-              </div>
-            </div>
-          </div>
-
-          <!-- All Known English / Scanlation / Romaji / Korean Titles -->
-          ${
-            allTitleVariants.length > 1
-              ? `
-            <div class="rounded-xl v-surface-alt p-3.5 space-y-1.5">
-              <div class="text-[11px] font-mono uppercase tracking-wider v-text-muted font-bold">
-                Known Titles &amp; Scanlation Aliases
-              </div>
-              <div class="flex flex-wrap gap-1.5">
-                ${allTitleVariants
-                  .map((t) => `<span class="v-pill px-2.5 py-1 rounded-lg text-xs">${escapeHtml(t)}</span>`)
-                  .join('')}
-              </div>
-            </div>
-          `
-              : ''
-          }
-
-          <!-- Shared Taste DNA Tropes -->
-          ${
-            matchedTags.length > 0
-              ? `
-            <div class="rounded-xl p-3.5 space-y-1.5" style="background-color: var(--accent-soft); border: 1px solid var(--border-strong);">
-              <div class="text-[11px] font-mono uppercase tracking-wider font-bold" style="color: var(--accent-text);">
-                ⚡ Shared Taste DNA Tropes
-              </div>
-              <div class="flex flex-wrap gap-1.5">
-                ${matchedTags
-                  .map(
-                    (t) =>
-                      `<span class="v-pill-active px-2.5 py-1 rounded-lg text-xs">${escapeHtml(t.name)} <span class="font-mono text-[10px]">(${t.rank}%)</span></span>`
-                  )
-                  .join('')}
-              </div>
-            </div>
-          `
-              : ''
-          }
-
-          <!-- Synopsis -->
-          <div class="space-y-1.5">
-            <h3 class="text-xs font-mono uppercase tracking-wider v-text-muted font-bold">Synopsis</h3>
-            <p class="text-xs sm:text-sm v-text-secondary leading-relaxed whitespace-pre-line">
-              ${escapeHtml(synopsis)}
-            </p>
-          </div>
-
-          <!-- All Community Tags -->
-          ${
-            allNonSpoilerTags.length > 0
-              ? `
-            <div class="space-y-1.5">
-              <h3 class="text-xs font-mono uppercase tracking-wider v-text-muted font-bold">
-                Community Tags (${allNonSpoilerTags.length})
-              </h3>
-              <div class="flex flex-wrap gap-1.5">
-                ${allNonSpoilerTags
-                  .map((t) => {
-                    const isMatch = matchedNames.has(t.name);
-                    return `
-                      <span class="${isMatch ? 'v-pill-active' : 'v-pill'} px-2.5 py-1 rounded-lg text-xs">
-                        ${escapeHtml(t.name)} <span class="font-mono text-[10px] opacity-75">${t.rank || 0}%</span>
-                      </span>
-                    `;
-                  })
-                  .join('')}
-              </div>
-            </div>
-          `
-              : ''
-          }
-
-          <!-- Modal Footer Actions -->
-          <div class="pt-4 border-t v-border flex flex-wrap items-center justify-between gap-3">
-            <button
-              type="button"
-              id="modal-mark-read-btn"
-              ${isRead ? 'disabled' : ''}
-              class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold ${
-                isRead
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-400/35 cursor-default'
-                  : 'v-btn-primary cursor-pointer'
-              }"
-            >
-              ${isRead ? '✓ On Your Read & Loved Shelf' : '+ Add to Read & Loved Shelf'}
-            </button>
-
-            <a
-              href="${escapeHtml(media.siteUrl || `https://anilist.co/manga/${media.id}`)}"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="v-pill inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold"
-            >
-              <span>Open Source Entry</span>
-              <span>↗</span>
-            </a>
-          </div>
-        </div>
-      `;
-
-      dom.detailModal.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-
-      const continuityInput = document.getElementById('modal-continuity-input');
-      const continuityStatus = document.getElementById('modal-continuity-status');
-      const logNextBtn = document.getElementById('modal-log-next-ch-btn');
-
-      if (continuityInput) {
-        continuityInput.addEventListener('input', (e) => {
-          const val = e.target.value;
-          state.continuityLogs[media.id] = val;
-          saveStateToStorage();
-          const parsed = analyzeChapterRangeString(val);
-          continuityStatus.innerHTML = buildContinuityStatusHtml(parsed);
-        });
-      }
-
-      if (logNextBtn && continuityInput) {
-        logNextBtn.addEventListener('click', () => {
-          const currentAnalysis = analyzeChapterRangeString(continuityInput.value);
-          const nextCh = currentAnalysis.count === 0 ? 1 : currentAnalysis.maxCh + 1;
-          const updatedStr = continuityInput.value.trim()
-            ? `${continuityInput.value.trim()}, ${nextCh}`
-            : `1-${nextCh}`;
-          continuityInput.value = updatedStr;
-          state.continuityLogs[media.id] = updatedStr;
-          saveStateToStorage();
-          continuityStatus.innerHTML = buildContinuityStatusHtml(analyzeChapterRangeString(updatedStr));
-          showToast(`Logged Chapter ${nextCh} for "${titles.primary}"`, 'success');
-        });
-      }
-
-      const openReaderBtn = document.getElementById('modal-open-reader-btn');
-      if (openReaderBtn) {
-        openReaderBtn.addEventListener('click', () => {
-          closeDetailModal();
-          openWebtoonReaderForSeries(titles.primary);
-        });
-      }
-
-      const modalMarkBtn = document.getElementById('modal-mark-read-btn');
-      if (modalMarkBtn && !isRead) {
-        modalMarkBtn.addEventListener('click', () => {
+        btn.addEventListener('click', () => {
           addToShelf(media);
-          closeDetailModal();
+          dom.searchDropdown.classList.add('hidden');
         });
-      }
-    }
 
-    function closeDetailModal() {
-      dom.detailModal.classList.add('hidden');
-      document.body.style.overflow = '';
-    }
-
-    /**
-     * =====================================================================
-     * BUILT-IN LOCAL VERTICAL WEBTOON READER (.CBZ / .ZIP / IMAGE FOLDERS)
-     * 100% Client-Side, Auto-Sorted Chapters, Missing Chapter Gap Detector
-     * =====================================================================
-     */
-    const IMAGE_EXT_REGEX = /\.(jpe?g|png|webp|gif|avif|bmp)$/i;
-    const ARCHIVE_EXT_REGEX = /\.(cbz|zip)$/i;
-
-    function naturalSortStrings(a, b) {
-      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
-    }
-
-    /**
-     * Extracts chapter number from filenames or folder paths (e.g., "Ch. 04", "Chapter_12", "c003", "Ep 5")
-     */
-    function extractChapterNumber(rawName, fallbackIndex) {
-      const clean = rawName.replace(/\.[^/.]+$/, '');
-      const patterns = [
-        /(?:chapter|ch|ep|episode|c)[\s._-]*0*(\d+(?:\.\d+)?)/i,
-        /(?:^|[\s._-])0*(\d+(?:\.\d+)?)(?:$|[\s._-])/,
-      ];
-
-      for (const regex of patterns) {
-        const match = clean.match(regex);
-        if (match && match[1]) {
-          const num = parseFloat(match[1]);
-          if (!Number.isNaN(num)) return num;
-        }
-      }
-      return fallbackIndex;
-    }
-
-    function switchWorkspaceView(viewName) {
-      state.activeView = viewName;
-      if (viewName === 'reader') {
-        dom.discoveryWorkspace.classList.add('hidden');
-        dom.webtoonReaderView.classList.remove('hidden');
-        dom.readerNavLabel.textContent = 'Back to Discovery';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
-        dom.webtoonReaderView.classList.add('hidden');
-        dom.discoveryWorkspace.classList.remove('hidden');
-        dom.readerNavLabel.textContent = 'Webtoon Reader';
-      }
-    }
-
-    function openWebtoonReaderForSeries(seriesTitle) {
-      state.readerBatchTitle = seriesTitle;
-      dom.readerSeriesTitle.textContent = `${seriesTitle} — Local Reader`;
-      switchWorkspaceView('reader');
-      showToast(`Reader ready for "${seriesTitle}". Load your .CBZ/.ZIP or chapter folder!`, 'info');
-    }
-
-    function revokeAllReaderUrls() {
-      state.readerChapters.forEach((ch) => {
-        (ch.pages || []).forEach((p) => {
-          if (p.url && p.url.startsWith('blob:')) {
-            URL.revokeObjectURL(p.url);
-          }
-        });
-      });
-    }
-
-    async function processReaderFileList(fileList) {
-      const files = Array.from(fileList || []);
-      if (files.length === 0) return;
-
-      showToast(`Processing ${files.length} local file(s)...`, 'info');
-      revokeAllReaderUrls();
-
-      const chapterBuckets = new Map(); // key -> { chapterNum, label, pages: [{ name, url }] }
-
-      const archiveFiles = files.filter((f) => ARCHIVE_EXT_REGEX.test(f.name));
-      const imageFiles = files.filter((f) => IMAGE_EXT_REGEX.test(f.name));
-
-      // 1. Extract .CBZ / .ZIP archives client-side via JSZip
-      if (archiveFiles.length > 0) {
-        if (typeof window.JSZip === 'undefined') {
-          showToast('JSZip library is still loading. Please try again in 2 seconds.', 'warning');
-          return;
-        }
-
-        archiveFiles.sort((a, b) => naturalSortStrings(a.name, b.name));
-
-        for (let i = 0; i < archiveFiles.length; i++) {
-          const archive = archiveFiles[i];
-          try {
-            const zip = await window.JSZip.loadAsync(archive);
-            const entries = [];
-            zip.forEach((relativePath, zipEntry) => {
-              if (!zipEntry.dir && !relativePath.startsWith('__MACOSX') && IMAGE_EXT_REGEX.test(relativePath)) {
-                entries.push({ path: relativePath, entry: zipEntry });
-              }
-            });
-
-            entries.sort((a, b) => naturalSortStrings(a.path, b.path));
-            const pages = [];
-            for (const item of entries) {
-              const blob = await item.entry.async('blob');
-              pages.push({
-                name: item.path,
-                url: URL.createObjectURL(blob),
-              });
-            }
-
-            if (pages.length > 0) {
-              const chNum = extractChapterNumber(archive.name, i + 1);
-              chapterBuckets.set(`archive_${i}_${chNum}`, {
-                chapterNum: chNum,
-                label: `Ch. ${chNum}`,
-                sourceName: archive.name,
-                pages,
-              });
-            }
-          } catch (err) {
-            console.warn('Archive extraction error:', archive.name, err);
-            showToast(`Could not extract "${archive.name}". Ensure it is a valid ZIP/CBZ.`, 'warning');
-          }
-        }
-      }
-
-      // 2. Group loose or folder-nested image files by subfolder
-      if (imageFiles.length > 0) {
-        const folderGroups = new Map();
-        for (const img of imageFiles) {
-          const relPath = img.webkitRelativePath || img.name;
-          const parts = relPath.split('/');
-          // Use parent folder name if inside a folder, otherwise 'Chapter 1'
-          const folderName = parts.length >= 2 ? parts[parts.length - 2] : 'Chapter 1';
-          if (!folderGroups.has(folderName)) {
-            folderGroups.set(folderName, []);
-          }
-          folderGroups.get(folderName).push(img);
-        }
-
-        const sortedFolders = Array.from(folderGroups.keys()).sort(naturalSortStrings);
-        sortedFolders.forEach((folderName, idx) => {
-          const imgs = folderGroups.get(folderName).sort((a, b) => naturalSortStrings(a.name, b.name));
-          const chNum = extractChapterNumber(folderName, chapterBuckets.size + idx + 1);
-          const pages = imgs.map((f) => ({
-            name: f.name,
-            url: URL.createObjectURL(f),
-          }));
-
-          chapterBuckets.set(`folder_${idx}_${chNum}`, {
-            chapterNum: chNum,
-            label: `Ch. ${chNum}`,
-            sourceName: folderName,
-            pages,
-          });
-        });
-      }
-
-      // Sort all chapters in strict ascending numerical order (Ch. 1 -> 2 -> 3 -> 4 -> 5 -> 6...)
-      const sortedChapters = Array.from(chapterBuckets.values()).sort((a, b) => a.chapterNum - b.chapterNum);
-
-      if (sortedChapters.length === 0) {
-        showToast('No supported images (.jpg, .png, .webp) found in selected files.', 'warning');
-        return;
-      }
-
-      state.readerChapters = sortedChapters;
-      state.readerActiveIndex = 0;
-
-      // Update header badge
-      dom.readerNavBadge.textContent = String(sortedChapters.length);
-      dom.readerNavBadge.classList.remove('hidden');
-
-      renderReaderBatchUI();
-      selectReaderChapter(0);
-      showToast(`Loaded ${sortedChapters.length} chapter(s) sorted in ascending order!`, 'success');
-    }
-
-    function renderReaderBatchUI() {
-      const chapters = state.readerChapters;
-      if (chapters.length === 0) {
-        dom.readerDropzone.classList.remove('hidden');
-        dom.readerCanvasWrapper.classList.add('hidden');
-        dom.readerContinuityStripWrap.classList.add('hidden');
-        dom.readerClearBatchBtn.classList.add('hidden');
-        dom.readerNavBadge.classList.add('hidden');
-        dom.readerContinuityBanner.innerHTML = `<span class="px-2 py-0.5 rounded-md v-surface-alt">No batch loaded</span><span>Supports multi-chapter .CBZ/.ZIP archives or nested chapter folders.</span>`;
-        return;
-      }
-
-      dom.readerDropzone.classList.add('hidden');
-      dom.readerCanvasWrapper.classList.remove('hidden');
-      dom.readerContinuityStripWrap.classList.remove('hidden');
-      dom.readerClearBatchBtn.classList.remove('hidden');
-
-      const intNums = chapters.map((c) => Math.floor(c.chapterNum));
-      const minCh = Math.min(...intNums);
-      const maxCh = Math.max(...intNums);
-      const presentSet = new Set(intNums);
-
-      // Detect any missing chapter gaps between minCh and maxCh
-      const gaps = [];
-      for (let c = minCh; c <= maxCh; c++) {
-        if (!presentSet.has(c)) {
-          gaps.push({
-            missingCh: c,
-            prevCh: c - 1,
-            nextCh: c + 1,
-          });
-        }
-      }
-
-      if (gaps.length === 0) {
-        dom.readerContinuityBanner.innerHTML = `
-          <span class="px-2.5 py-1 rounded-lg font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/35">
-            ✅ Continuous: Ch. ${minCh} → Ch. ${maxCh} (No Missing Chapters)
-          </span>
-        `;
-      } else {
-        const firstGap = gaps[0];
-        const gapMsg =
-          gaps.length === 1
-            ? `⚠️ Gap detected: Ch. ${firstGap.missingCh} missing between Ch. ${firstGap.prevCh} and Ch. ${firstGap.nextCh}`
-            : `⚠️ ${gaps.length} chapter gaps detected (Missing: ${formatMissingChaptersSummary(gaps.map((g) => g.missingCh))})`;
-        dom.readerContinuityBanner.innerHTML = `
-          <span class="px-2.5 py-1 rounded-lg font-bold bg-amber-500/20 text-amber-300 border border-amber-500/35">
-            ${escapeHtml(gapMsg)}
-          </span>
-        `;
-      }
-
-      dom.readerChapterCounter.textContent = `${chapters.length} loaded • ${gaps.length} gap${gaps.length === 1 ? '' : 's'}`;
-
-      // Build Visual Chapter Continuity Strip (interleaving loaded chapter pills and missing gap badges)
-      const stripFragment = document.createDocumentFragment();
-      const chapterByInt = new Map();
-      chapters.forEach((ch, idx) => {
-        chapterByInt.set(Math.floor(ch.chapterNum), { ch, idx });
+        fragment.appendChild(btn);
       });
 
-      for (let c = minCh; c <= maxCh; c++) {
-        if (chapterByInt.has(c)) {
-          const { ch, idx } = chapterByInt.get(c);
-          const isCurrent = idx === state.readerActiveIndex;
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = `px-2.5 py-1 rounded-lg text-xs font-mono cursor-pointer ${
-            isCurrent ? 'v-btn-primary font-bold' : 'v-pill'
-          }`;
-          btn.textContent = `${ch.label} (${ch.pages.length}p)`;
-          btn.title = ch.sourceName;
-          btn.addEventListener('click', () => selectReaderChapter(idx));
-          stripFragment.appendChild(btn);
-        } else {
-          const gapPill = document.createElement('span');
-          gapPill.className = 'px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-amber-500/15 text-amber-400 border border-dashed border-amber-500/40';
-          gapPill.textContent = `⚠️ Ch. ${c} Missing`;
-          gapPill.title = `Chapter ${c} is missing from your loaded archive batch`;
-          stripFragment.appendChild(gapPill);
-        }
-      }
-
-      dom.readerContinuityStrip.innerHTML = '';
-      dom.readerContinuityStrip.appendChild(stripFragment);
-    }
-
-    function selectReaderChapter(index) {
-      const chapters = state.readerChapters;
-      if (index < 0 || index >= chapters.length) return;
-
-      state.readerActiveIndex = index;
-      const currentChapter = chapters[index];
-
-      // Persist last read chapter for this batch
-      state.readerLastReadMap[state.readerBatchTitle] = currentChapter.chapterNum;
-      saveStateToStorage();
-
-      dom.readerActiveChapterTitle.textContent = `${currentChapter.label} — ${currentChapter.sourceName}`;
-      dom.readerActivePageCount.textContent = `${currentChapter.pages.length} seamless vertical pages • Chapter ${index + 1} of ${chapters.length}`;
-
-      const isFirst = index === 0;
-      const isLast = index === chapters.length - 1;
-      dom.readerPrevTopBtn.disabled = isFirst;
-      dom.readerPrevBottomBtn.disabled = isFirst;
-      dom.readerNextTopBtn.disabled = isLast;
-      dom.readerNextBottomBtn.disabled = isLast;
-
-      // Render seamless zero-gap vertical strip using DocumentFragment
-      const frag = document.createDocumentFragment();
-      currentChapter.pages.forEach((page, pIdx) => {
-        const img = document.createElement('img');
-        img.src = page.url;
-        img.alt = `${currentChapter.label} Page ${pIdx + 1}`;
-        img.loading = pIdx < 4 ? 'eager' : 'lazy';
-        img.decoding = 'async';
-        img.className = 'webtoon-page-img';
-        frag.appendChild(img);
-      });
-
-      dom.webtoonStripCanvas.style.maxWidth = `${state.readerWidth}px`;
-      dom.webtoonStripCanvas.innerHTML = '';
-      dom.webtoonStripCanvas.appendChild(frag);
-
-      renderReaderBatchUI();
-      dom.readerCanvasWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      dom.searchDropdown.appendChild(fragment);
+      dom.searchDropdown.classList.remove('hidden');
     }
 
     function renderQuickAddPills() {
@@ -3578,7 +2875,6 @@
         dom.clearBansBtn.classList.add('hidden');
       }
 
-      // Render Preset Ban Toggle Pills
       const presetFragment = document.createDocumentFragment();
       BAN_PRESETS.forEach((preset) => {
         const isBanned = state.bannedPresetIds.has(preset.id);
@@ -3597,7 +2893,6 @@
             state.bannedPresetIds.delete(preset.id);
           } else {
             state.bannedPresetIds.add(preset.id);
-            // Automatically remove from Include Genres if user just banned it
             preset.apiGenres.forEach((g) => state.selectedGenres.delete(g));
           }
           saveStateToStorage();
@@ -3615,7 +2910,6 @@
       dom.banPresetsContainer.innerHTML = '';
       dom.banPresetsContainer.appendChild(presetFragment);
 
-      // Render Custom Banned Chips
       const customFragment = document.createDocumentFragment();
       state.customBannedKeywords.forEach((kw) => {
         const chip = document.createElement('span');
@@ -3698,7 +2992,8 @@
               <div class="h-5 w-16 rounded-md skeleton"></div>
               <div class="h-5 w-20 rounded-md skeleton"></div>
             </div>
-            <div class="grid grid-cols-2 gap-2 pt-2">
+            <div class="grid grid-cols-3 gap-2 pt-2">
+              <div class="h-9 rounded-xl skeleton"></div>
               <div class="h-9 rounded-xl skeleton"></div>
               <div class="h-9 rounded-xl skeleton"></div>
             </div>
@@ -3794,14 +3089,12 @@
                 </span>
               </div>
 
-              <!-- Bottom Chapter Count & Status Overlay -->
-              <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-none">
+              <!-- Bottom Chapter Count & Source Badge Overlay -->
+              <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-1.5 pointer-events-none">
                 <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-black/85 text-cyan-300 border border-cyan-400/35 truncate">
                   ${escapeHtml(chapterInfo.full)}
                 </span>
-                <span class="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-black/75 text-slate-200 border border-white/10 flex-shrink-0">
-                  ${escapeHtml(chapterInfo.status)}
-                </span>
+                ${getSourceBadgeHtml(media.source)}
               </div>
             </div>
 
@@ -3829,24 +3122,35 @@
           </div>
 
           <!-- Quick Action Footer -->
-          <div class="px-4 pb-4 pt-1 grid grid-cols-2 gap-2">
+          <div class="px-4 pb-4 pt-1 grid grid-cols-3 gap-1.5">
             <button
               type="button"
-              class="js-open-modal v-pill px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer"
+              class="js-open-modal v-pill px-2 py-2 rounded-xl text-[11px] font-semibold cursor-pointer truncate"
+              title="View Synopsis, Chapter Continuity Log & Official Links"
             >
-              Details &amp; Titles
+              Details
             </button>
             <button
               type="button"
-              class="js-mark-read v-pill-active px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer"
+              class="js-open-reader v-pill-active-2 px-2 py-2 rounded-xl text-[11px] font-semibold cursor-pointer truncate"
+              title="Open Local Vertical Webtoon Reader for this series"
             >
-              + Mark Read
+              📖 Read
+            </button>
+            <button
+              type="button"
+              class="js-mark-read v-pill-active px-2 py-2 rounded-xl text-[11px] font-semibold cursor-pointer truncate"
+            >
+              + Shelf
             </button>
           </div>
         `;
 
         article.querySelectorAll('.js-open-modal').forEach((el) => {
           el.addEventListener('click', () => openDetailModal(entry));
+        });
+        article.querySelector('.js-open-reader').addEventListener('click', () => {
+          openWebtoonReaderForSeries(titles.primary);
         });
         article.querySelector('.js-mark-read').addEventListener('click', () => addToShelf(media));
 
@@ -3858,7 +3162,80 @@
     }
 
     /**
-     * Open Detail Modal with Full Synopsis, Korean + All Alternate Titles, Genres & Tags
+     * =====================================================================
+     * CHAPTER CONTINUITY RANGE PARSER (e.g., "1-3, 5-6" -> Missing Ch. 4)
+     * =====================================================================
+     */
+    function analyzeChapterRangeString(rangeStr) {
+      if (!rangeStr || !rangeStr.trim()) {
+        return { readSet: new Set(), minCh: 0, maxCh: 0, missing: [], count: 0 };
+      }
+
+      const readSet = new Set();
+      const parts = rangeStr.split(/[,;\s]+/).filter(Boolean);
+
+      for (const part of parts) {
+        const rangeMatch = part.match(/^(\d+(?:\.\d+)?)\s*[-–~to]+\s*(\d+(?:\.\d+)?)$/i);
+        if (rangeMatch) {
+          const start = Math.floor(parseFloat(rangeMatch[1]));
+          const end = Math.floor(parseFloat(rangeMatch[2]));
+          const low = Math.min(start, end);
+          const high = Math.min(Math.max(start, end), low + 2000);
+          for (let c = low; c <= high; c++) {
+            if (c >= 0) readSet.add(c);
+          }
+        } else if (/^\d+(\.\d+)?$/.test(part)) {
+          readSet.add(Math.floor(parseFloat(part)));
+        }
+      }
+
+      if (readSet.size === 0) {
+        return { readSet, minCh: 0, maxCh: 0, missing: [], count: 0 };
+      }
+
+      const sorted = Array.from(readSet).sort((a, b) => a - b);
+      const minCh = sorted[0];
+      const maxCh = sorted[sorted.length - 1];
+      const missing = [];
+
+      const startBaseline = minCh > 1 ? 1 : minCh;
+      for (let c = startBaseline; c <= maxCh; c++) {
+        if (!readSet.has(c)) {
+          missing.push(c);
+        }
+      }
+
+      return {
+        readSet,
+        minCh,
+        maxCh,
+        missing,
+        count: readSet.size,
+      };
+    }
+
+    function formatMissingChaptersSummary(missing) {
+      if (!missing || missing.length === 0) return '';
+      const groups = [];
+      let start = missing[0];
+      let prev = missing[0];
+
+      for (let i = 1; i < missing.length; i++) {
+        const curr = missing[i];
+        if (curr === prev + 1) {
+          prev = curr;
+        } else {
+          groups.push(start === prev ? `Ch. ${start}` : `Ch. ${start}–${prev}`);
+          start = curr;
+          prev = curr;
+        }
+      }
+      groups.push(start === prev ? `Ch. ${start}` : `Ch. ${start}–${prev}`);
+      return groups.slice(0, 8).join(', ') + (groups.length > 8 ? ` (+${groups.length - 8} more)` : '');
+    }
+
+    /**
+     * Open Detail Modal with Synopsis, Alternate Titles, Chapter Continuity Log & Official Platform Links
      */
     function openDetailModal(entry) {
       const { media, matchPercent, matchedTags } = entry;
@@ -3873,7 +3250,6 @@
       const matchedNames = new Set(matchedTags.map((t) => t.name));
       const allNonSpoilerTags = (media.tags || []).filter((t) => !t.isMediaSpoiler && !t.isGeneralSpoiler);
 
-      // Collect all distinct title variants for easy copy/recognition
       const allTitleVariants = Array.from(
         new Set(
           [
@@ -3885,8 +3261,22 @@
         )
       );
 
+      const encodedQuery = encodeURIComponent(titles.primary);
+      const savedRange = state.continuityLogs[media.id] || '';
+      const continuityAnalysis = analyzeChapterRangeString(savedRange);
+
+      function buildContinuityStatusHtml(analysis) {
+        if (analysis.count === 0) {
+          return `<span class="text-[11px] v-text-muted">Enter read chapter ranges (e.g. <span class="font-mono v-text-primary">1-3, 5-6</span>) to verify continuity and flag missing chapters.</span>`;
+        }
+        if (analysis.missing.length === 0) {
+          return `<span class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-emerald-400">✅ Continuous: Ch. 1–${analysis.maxCh} (${analysis.count} chapters logged, 0 gaps)</span>`;
+        }
+        return `<span class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-amber-400">⚠️ Missing in your log: ${escapeHtml(formatMissingChaptersSummary(analysis.missing))}</span>`;
+      }
+
       dom.modalContent.innerHTML = `
-        <!-- Banner Header (No backdrop-blur) -->
+        <!-- Banner Header -->
         <div class="relative h-36 sm:h-48 w-full overflow-hidden" style="background-color: ${escapeHtml(coverBg)};">
           <img
             src="${escapeHtml(banner)}"
@@ -3912,6 +3302,7 @@
 
             <div class="space-y-2.5 pt-1 sm:pt-10 min-w-0 flex-1">
               <div class="flex flex-wrap items-center gap-2">
+                ${getSourceBadgeHtml(media.source)}
                 <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-400/35">
                   ${matchPercent}% Taste Match
                 </span>
@@ -3938,6 +3329,57 @@
                 ${(media.genres || [])
                   .map((g) => `<span class="v-pill px-2.5 py-1 rounded-lg text-xs font-medium">${escapeHtml(g)}</span>`)
                   .join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- CHAPTER CONTINUITY LOG & OFFICIAL LICENSED PLATFORMS -->
+          <div class="rounded-xl v-surface-alt p-4 space-y-3 border v-border">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="text-xs font-mono uppercase tracking-wider font-bold" style="color: var(--accent-text-2);">
+                📑 Chapter Continuity Tracker &amp; Official Platforms
+              </div>
+              <button
+                type="button"
+                id="modal-open-reader-btn"
+                class="v-pill-active inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer"
+              >
+                <span>📖</span>
+                <span>Open in Local Reader</span>
+              </button>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input
+                id="modal-continuity-input"
+                type="text"
+                value="${escapeHtml(savedRange)}"
+                placeholder="Log read chapters (e.g. 1-3, 5-6 or 1-120)..."
+                class="v-input flex-1 px-3 py-2 rounded-xl text-xs font-mono"
+              />
+              <button
+                type="button"
+                id="modal-log-next-ch-btn"
+                class="v-pill px-3 py-2 rounded-xl text-xs font-mono font-bold cursor-pointer flex-shrink-0"
+              >
+                +1 Next Ch
+              </button>
+            </div>
+            <div id="modal-continuity-status">${buildContinuityStatusHtml(continuityAnalysis)}</div>
+
+            <div class="pt-2 border-t v-border space-y-1.5">
+              <div class="text-[11px] font-mono uppercase tracking-wider v-text-muted font-bold">
+                Official Licensed Platforms &amp; Databases
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                <a href="https://tapas.io/search?q=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="v-pill px-2.5 py-1 rounded-lg text-xs font-semibold">Tapas ↗</a>
+                <a href="https://www.webtoons.com/en/search?keyword=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="v-pill px-2.5 py-1 rounded-lg text-xs font-semibold">WEBTOON ↗</a>
+                <a href="https://www.tappytoon.com/en/search?q=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="v-pill px-2.5 py-1 rounded-lg text-xs font-semibold">Tappytoon ↗</a>
+                <a href="https://manta.net/en/search?query=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="v-pill px-2.5 py-1 rounded-lg text-xs font-semibold">Manta ↗</a>
+                <a href="https://www.lezhinus.com/en/search?q=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="v-pill px-2.5 py-1 rounded-lg text-xs font-semibold">Lezhin ↗</a>
+                <a href="https://anilist.co/search/manga?search=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="v-pill px-2.5 py-1 rounded-lg text-xs font-mono">AniList ↗</a>
+                <a href="https://kitsu.app/manga?text=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="v-pill px-2.5 py-1 rounded-lg text-xs font-mono">Kitsu ↗</a>
+                <a href="https://myanimelist.net/manga.php?q=${encodedQuery}" target="_blank" rel="noopener noreferrer" class="v-pill px-2.5 py-1 rounded-lg text-xs font-mono">MyAnimeList ↗</a>
               </div>
             </div>
           </div>
@@ -3995,7 +3437,7 @@
               ? `
             <div class="space-y-1.5">
               <h3 class="text-xs font-mono uppercase tracking-wider v-text-muted font-bold">
-                AniList Community Tags (${allNonSpoilerTags.length})
+                Community Tags (${allNonSpoilerTags.length})
               </h3>
               <div class="flex flex-wrap gap-1.5">
                 ${allNonSpoilerTags
@@ -4035,7 +3477,7 @@
               rel="noopener noreferrer"
               class="v-pill inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold"
             >
-              <span>Open on AniList</span>
+              <span>Open Source Entry</span>
               <span>↗</span>
             </a>
           </div>
@@ -4044,6 +3486,43 @@
 
       dom.detailModal.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
+
+      const continuityInput = document.getElementById('modal-continuity-input');
+      const continuityStatus = document.getElementById('modal-continuity-status');
+      const logNextBtn = document.getElementById('modal-log-next-ch-btn');
+
+      if (continuityInput) {
+        continuityInput.addEventListener('input', (e) => {
+          const val = e.target.value;
+          state.continuityLogs[media.id] = val;
+          saveStateToStorage();
+          const parsed = analyzeChapterRangeString(val);
+          continuityStatus.innerHTML = buildContinuityStatusHtml(parsed);
+        });
+      }
+
+      if (logNextBtn && continuityInput) {
+        logNextBtn.addEventListener('click', () => {
+          const currentAnalysis = analyzeChapterRangeString(continuityInput.value);
+          const nextCh = currentAnalysis.count === 0 ? 1 : currentAnalysis.maxCh + 1;
+          const updatedStr = continuityInput.value.trim()
+            ? `${continuityInput.value.trim()}, ${nextCh}`
+            : `1-${nextCh}`;
+          continuityInput.value = updatedStr;
+          state.continuityLogs[media.id] = updatedStr;
+          saveStateToStorage();
+          continuityStatus.innerHTML = buildContinuityStatusHtml(analyzeChapterRangeString(updatedStr));
+          showToast(`Logged Chapter ${nextCh} for "${titles.primary}"`, 'success');
+        });
+      }
+
+      const openReaderBtn = document.getElementById('modal-open-reader-btn');
+      if (openReaderBtn) {
+        openReaderBtn.addEventListener('click', () => {
+          closeDetailModal();
+          openWebtoonReaderForSeries(titles.primary);
+        });
+      }
 
       const modalMarkBtn = document.getElementById('modal-mark-read-btn');
       if (modalMarkBtn && !isRead) {
@@ -4057,6 +3536,297 @@
     function closeDetailModal() {
       dom.detailModal.classList.add('hidden');
       document.body.style.overflow = '';
+    }
+
+    /**
+     * =====================================================================
+     * BUILT-IN LOCAL VERTICAL WEBTOON READER (.CBZ / .ZIP / IMAGE FOLDERS)
+     * 100% Client-Side, Auto-Sorted Chapters, Missing Chapter Gap Detector
+     * =====================================================================
+     */
+    const IMAGE_EXT_REGEX = /\.(jpe?g|png|webp|gif|avif|bmp)$/i;
+    const ARCHIVE_EXT_REGEX = /\.(cbz|zip)$/i;
+
+    function naturalSortStrings(a, b) {
+      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+    }
+
+    function extractChapterNumber(rawName, fallbackIndex) {
+      const clean = rawName.replace(/\.[^/.]+$/, '');
+      const patterns = [
+        /(?:chapter|ch|ep|episode|c)[\s._-]*0*(\d+(?:\.\d+)?)/i,
+        /(?:^|[\s._-])0*(\d+(?:\.\d+)?)(?:$|[\s._-])/,
+      ];
+
+      for (const regex of patterns) {
+        const match = clean.match(regex);
+        if (match && match[1]) {
+          const num = parseFloat(match[1]);
+          if (!Number.isNaN(num)) return num;
+        }
+      }
+      return fallbackIndex;
+    }
+
+    function switchWorkspaceView(viewName) {
+      state.activeView = viewName;
+      if (viewName === 'reader') {
+        dom.discoveryWorkspace.classList.add('hidden');
+        dom.webtoonReaderView.classList.remove('hidden');
+        dom.readerNavLabel.textContent = 'Back to Discovery';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        dom.webtoonReaderView.classList.add('hidden');
+        dom.discoveryWorkspace.classList.remove('hidden');
+        dom.readerNavLabel.textContent = 'Webtoon Reader';
+      }
+    }
+
+    function openWebtoonReaderForSeries(seriesTitle) {
+      state.readerBatchTitle = seriesTitle;
+      dom.readerSeriesTitle.textContent = `${seriesTitle} — Local Reader`;
+      switchWorkspaceView('reader');
+      showToast(`Reader ready for "${seriesTitle}". Load your .CBZ/.ZIP or chapter folder!`, 'info');
+    }
+
+    function revokeAllReaderUrls() {
+      state.readerChapters.forEach((ch) => {
+        (ch.pages || []).forEach((p) => {
+          if (p.url && p.url.startsWith('blob:')) {
+            URL.revokeObjectURL(p.url);
+          }
+        });
+      });
+    }
+
+    async function processReaderFileList(fileList) {
+      const files = Array.from(fileList || []);
+      if (files.length === 0) return;
+
+      showToast(`Processing ${files.length} local file(s)...`, 'info');
+      revokeAllReaderUrls();
+
+      const chapterBuckets = new Map();
+
+      const archiveFiles = files.filter((f) => ARCHIVE_EXT_REGEX.test(f.name));
+      const imageFiles = files.filter((f) => IMAGE_EXT_REGEX.test(f.name));
+
+      if (archiveFiles.length > 0) {
+        if (typeof window.JSZip === 'undefined') {
+          showToast('JSZip library is still loading. Please try again in 2 seconds.', 'warning');
+          return;
+        }
+
+        archiveFiles.sort((a, b) => naturalSortStrings(a.name, b.name));
+
+        for (let i = 0; i < archiveFiles.length; i++) {
+          const archive = archiveFiles[i];
+          try {
+            const zip = await window.JSZip.loadAsync(archive);
+            const entries = [];
+            zip.forEach((relativePath, zipEntry) => {
+              if (!zipEntry.dir && !relativePath.startsWith('__MACOSX') && IMAGE_EXT_REGEX.test(relativePath)) {
+                entries.push({ path: relativePath, entry: zipEntry });
+              }
+            });
+
+            entries.sort((a, b) => naturalSortStrings(a.path, b.path));
+            const pages = [];
+            for (const item of entries) {
+              const blob = await item.entry.async('blob');
+              pages.push({
+                name: item.path,
+                url: URL.createObjectURL(blob),
+              });
+            }
+
+            if (pages.length > 0) {
+              const chNum = extractChapterNumber(archive.name, i + 1);
+              chapterBuckets.set(`archive_${i}_${chNum}`, {
+                chapterNum: chNum,
+                label: `Ch. ${chNum}`,
+                sourceName: archive.name,
+                pages,
+              });
+            }
+          } catch (err) {
+            console.warn('Archive extraction error:', archive.name, err);
+            showToast(`Could not extract "${archive.name}". Ensure it is a valid ZIP/CBZ.`, 'warning');
+          }
+        }
+      }
+
+      if (imageFiles.length > 0) {
+        const folderGroups = new Map();
+        for (const img of imageFiles) {
+          const relPath = img.webkitRelativePath || img.name;
+          const parts = relPath.split('/');
+          const folderName = parts.length >= 2 ? parts[parts.length - 2] : 'Chapter 1';
+          if (!folderGroups.has(folderName)) {
+            folderGroups.set(folderName, []);
+          }
+          folderGroups.get(folderName).push(img);
+        }
+
+        const sortedFolders = Array.from(folderGroups.keys()).sort(naturalSortStrings);
+        sortedFolders.forEach((folderName, idx) => {
+          const imgs = folderGroups.get(folderName).sort((a, b) => naturalSortStrings(a.name, b.name));
+          const chNum = extractChapterNumber(folderName, chapterBuckets.size + idx + 1);
+          const pages = imgs.map((f) => ({
+            name: f.name,
+            url: URL.createObjectURL(f),
+          }));
+
+          chapterBuckets.set(`folder_${idx}_${chNum}`, {
+            chapterNum: chNum,
+            label: `Ch. ${chNum}`,
+            sourceName: folderName,
+            pages,
+          });
+        });
+      }
+
+      const sortedChapters = Array.from(chapterBuckets.values()).sort((a, b) => a.chapterNum - b.chapterNum);
+
+      if (sortedChapters.length === 0) {
+        showToast('No supported images (.jpg, .png, .webp) found in selected files.', 'warning');
+        return;
+      }
+
+      state.readerChapters = sortedChapters;
+      state.readerActiveIndex = 0;
+
+      dom.readerNavBadge.textContent = String(sortedChapters.length);
+      dom.readerNavBadge.classList.remove('hidden');
+
+      renderReaderBatchUI();
+      selectReaderChapter(0);
+      showToast(`Loaded ${sortedChapters.length} chapter(s) sorted in ascending order!`, 'success');
+    }
+
+    function renderReaderBatchUI() {
+      const chapters = state.readerChapters;
+      if (chapters.length === 0) {
+        dom.readerDropzone.classList.remove('hidden');
+        dom.readerCanvasWrapper.classList.add('hidden');
+        dom.readerContinuityStripWrap.classList.add('hidden');
+        dom.readerClearBatchBtn.classList.add('hidden');
+        dom.readerNavBadge.classList.add('hidden');
+        dom.readerContinuityBanner.innerHTML = `<span class="px-2 py-0.5 rounded-md v-surface-alt">No batch loaded</span><span>Supports multi-chapter .CBZ/.ZIP archives or nested chapter folders.</span>`;
+        return;
+      }
+
+      dom.readerDropzone.classList.add('hidden');
+      dom.readerCanvasWrapper.classList.remove('hidden');
+      dom.readerContinuityStripWrap.classList.remove('hidden');
+      dom.readerClearBatchBtn.classList.remove('hidden');
+
+      const intNums = chapters.map((c) => Math.floor(c.chapterNum));
+      const minCh = Math.min(...intNums);
+      const maxCh = Math.max(...intNums);
+      const presentSet = new Set(intNums);
+
+      const gaps = [];
+      for (let c = minCh; c <= maxCh; c++) {
+        if (!presentSet.has(c)) {
+          gaps.push({
+            missingCh: c,
+            prevCh: c - 1,
+            nextCh: c + 1,
+          });
+        }
+      }
+
+      if (gaps.length === 0) {
+        dom.readerContinuityBanner.innerHTML = `
+          <span class="px-2.5 py-1 rounded-lg font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/35">
+            ✅ Continuous: Ch. ${minCh} → Ch. ${maxCh} (No Missing Chapters)
+          </span>
+        `;
+      } else {
+        const firstGap = gaps[0];
+        const gapMsg =
+          gaps.length === 1
+            ? `⚠️ Gap detected: Ch. ${firstGap.missingCh} missing between Ch. ${firstGap.prevCh} and Ch. ${firstGap.nextCh}`
+            : `⚠️ ${gaps.length} chapter gaps detected (Missing: ${formatMissingChaptersSummary(gaps.map((g) => g.missingCh))})`;
+        dom.readerContinuityBanner.innerHTML = `
+          <span class="px-2.5 py-1 rounded-lg font-bold bg-amber-500/20 text-amber-300 border border-amber-500/35">
+            ${escapeHtml(gapMsg)}
+          </span>
+        `;
+      }
+
+      dom.readerChapterCounter.textContent = `${chapters.length} loaded • ${gaps.length} gap${gaps.length === 1 ? '' : 's'}`;
+
+      const stripFragment = document.createDocumentFragment();
+      const chapterByInt = new Map();
+      chapters.forEach((ch, idx) => {
+        chapterByInt.set(Math.floor(ch.chapterNum), { ch, idx });
+      });
+
+      for (let c = minCh; c <= maxCh; c++) {
+        if (chapterByInt.has(c)) {
+          const { ch, idx } = chapterByInt.get(c);
+          const isCurrent = idx === state.readerActiveIndex;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `px-2.5 py-1 rounded-lg text-xs font-mono cursor-pointer ${
+            isCurrent ? 'v-btn-primary font-bold' : 'v-pill'
+          }`;
+          btn.textContent = `${ch.label} (${ch.pages.length}p)`;
+          btn.title = ch.sourceName;
+          btn.addEventListener('click', () => selectReaderChapter(idx));
+          stripFragment.appendChild(btn);
+        } else {
+          const gapPill = document.createElement('span');
+          gapPill.className = 'px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-amber-500/15 text-amber-400 border border-dashed border-amber-500/40';
+          gapPill.textContent = `⚠️ Ch. ${c} Missing`;
+          gapPill.title = `Chapter ${c} is missing from your loaded archive batch`;
+          stripFragment.appendChild(gapPill);
+        }
+      }
+
+      dom.readerContinuityStrip.innerHTML = '';
+      dom.readerContinuityStrip.appendChild(stripFragment);
+    }
+
+    function selectReaderChapter(index) {
+      const chapters = state.readerChapters;
+      if (index < 0 || index >= chapters.length) return;
+
+      state.readerActiveIndex = index;
+      const currentChapter = chapters[index];
+
+      state.readerLastReadMap[state.readerBatchTitle] = currentChapter.chapterNum;
+      saveStateToStorage();
+
+      dom.readerActiveChapterTitle.textContent = `${currentChapter.label} — ${currentChapter.sourceName}`;
+      dom.readerActivePageCount.textContent = `${currentChapter.pages.length} seamless vertical pages • Chapter ${index + 1} of ${chapters.length}`;
+
+      const isFirst = index === 0;
+      const isLast = index === chapters.length - 1;
+      dom.readerPrevTopBtn.disabled = isFirst;
+      dom.readerPrevBottomBtn.disabled = isFirst;
+      dom.readerNextTopBtn.disabled = isLast;
+      dom.readerNextBottomBtn.disabled = isLast;
+
+      const frag = document.createDocumentFragment();
+      currentChapter.pages.forEach((page, pIdx) => {
+        const img = document.createElement('img');
+        img.src = page.url;
+        img.alt = `${currentChapter.label} Page ${pIdx + 1}`;
+        img.loading = pIdx < 4 ? 'eager' : 'lazy';
+        img.decoding = 'async';
+        img.className = 'webtoon-page-img';
+        frag.appendChild(img);
+      });
+
+      dom.webtoonStripCanvas.style.maxWidth = `${state.readerWidth}px`;
+      dom.webtoonStripCanvas.innerHTML = '';
+      dom.webtoonStripCanvas.appendChild(frag);
+
+      renderReaderBatchUI();
+      dom.readerCanvasWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     /**
@@ -4115,12 +3885,10 @@
       renderBanPanel();
       updateQueryHint();
 
-      // Theme Selector
       dom.themeSelector.addEventListener('change', (e) => {
         applyTheme(e.target.value);
       });
 
-      // Smart Title Mode Toggle
       dom.titleModeToggle.addEventListener('click', () => {
         state.preferScanlationTitles = !state.preferScanlationTitles;
         saveStateToStorage();
@@ -4136,12 +3904,11 @@
         showToast(
           state.preferScanlationTitles
             ? 'Prioritizing English & scanlation titles.'
-            : 'Showing official AniList English/Romaji titles.',
+            : 'Showing official English/Romaji titles.',
           'info'
         );
       });
 
-      // Search Input Events
       dom.searchInput.addEventListener('input', (e) => {
         debouncedSearch(e.target.value);
       });
@@ -4168,7 +3935,6 @@
         }
       });
 
-      // Shelf Clear & Export
       dom.clearShelfBtn.addEventListener('click', () => {
         state.shelf = [];
         state.extractedTags = [];
@@ -4184,7 +3950,6 @@
 
       dom.exportShelfBtn.addEventListener('click', exportShelfJson);
 
-      // Taste DNA Quick Buttons
       dom.dnaSelectTopBtn.addEventListener('click', () => {
         state.activeTags.clear();
         state.extractedTags.slice(0, 3).forEach((t) => state.activeTags.add(t.name));
@@ -4200,7 +3965,6 @@
         triggerRecommendationsFetch();
       });
 
-      // Custom Ban Keyword Form
       dom.customBanForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const raw = dom.customBanInput.value.trim();
@@ -4236,7 +4000,6 @@
         triggerRecommendationsFetch();
       });
 
-      // Primary Action Buttons
       dom.findPeakBtn.addEventListener('click', () => {
         triggerRecommendationsFetch();
         document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -4246,7 +4009,6 @@
       dom.relaxFiltersBtn.addEventListener('click', resetIncludeFilters);
       dom.retryFetchBtn.addEventListener('click', triggerRecommendationsFetch);
 
-      // Modal Close Listeners
       dom.closeModalBtn.addEventListener('click', closeDetailModal);
       dom.detailModal.addEventListener('click', (e) => {
         if (e.target === dom.detailModal) closeDetailModal();
@@ -4256,7 +4018,6 @@
           closeDetailModal();
           return;
         }
-        // Keyboard navigation inside Local Vertical Webtoon Reader
         if (state.activeView === 'reader' && state.readerChapters.length > 0 && document.activeElement.tagName !== 'INPUT') {
           if (e.key === 'ArrowLeft' || e.key === '[') {
             selectReaderChapter(state.readerActiveIndex - 1);
@@ -4266,7 +4027,6 @@
         }
       });
 
-      // Built-in Local Vertical Webtoon Reader Event Bindings
       dom.readerWidthSlider.value = String(state.readerWidth);
       dom.readerWidthLabel.textContent = `${state.readerWidth}px`;
       dom.webtoonStripCanvas.style.maxWidth = `${state.readerWidth}px`;
@@ -4314,7 +4074,6 @@
         dom.readerCanvasWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
 
-      // Drag-and-Drop support on Reader Dropzone
       dom.readerDropzone.addEventListener('dragover', (e) => {
         e.preventDefault();
         dom.readerDropzone.style.borderColor = 'var(--accent-primary)';
@@ -4330,7 +4089,6 @@
         }
       });
 
-      // Initial Recommendation Fetch
       fetchRecommendations();
     }
 
