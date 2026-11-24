@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" data-theme="moonlight">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VexinManwha — Taste-Matched Korean Manhwa Discovery</title>
-  <meta name="description" content="AI-free taste-matched Korean manhwa discovery engine powered by AniList. Add manhwa you've loved, customize vibe filters, and uncover peak recommendations." />
+  <title>VexinManwha — Taste-Matched Korean Manhwa Discovery Engine</title>
+  <meta name="description" content="High-performance, AI-free taste-matched Korean manhwa discovery engine powered by AniList. Resolve scanlation titles, block unwanted genres/tags, switch themes, and find peak manhwa." />
 
   <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -15,25 +15,11 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
             sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
             mono: ['"JetBrains Mono"', 'monospace'],
-          },
-          colors: {
-            obsidian: '#090b10',
-            surface: '#111520',
-            surfaceElevated: '#171c2b',
-            indigoAccent: '#6366f1',
-            violetAccent: '#8b5cf6',
-            cyanAccent: '#06b6d4',
-          },
-          boxShadow: {
-            'glow-indigo': '0 0 28px -6px rgba(99, 102, 241, 0.45)',
-            'glow-cyan': '0 0 24px -6px rgba(6, 182, 212, 0.35)',
-            'card': '0 10px 30px -10px rgba(0, 0, 0, 0.65)',
           }
         }
       }
@@ -41,65 +27,332 @@
   </script>
 
   <style>
-    /* Custom Editorial Dark-Mode Polish */
-    :root {
+    /* =====================================================================
+       5 COMPLETE CSS-VARIABLE THEMES (Zero-Lag Solid & Layered Surfaces)
+       ===================================================================== */
+
+    /* 1. MOONLIGHT (Default: Deep Midnight Navy, Slate-Blue Cards, Silver-Cyan & Moonlit Indigo) */
+    :root,
+    [data-theme="moonlight"] {
       color-scheme: dark;
+      --bg-app: #090e1a;
+      --bg-header: #0b1120;
+      --bg-surface: #11182c;
+      --bg-surface-alt: #172038;
+      --bg-input: #0a101f;
+      --bg-pill: #0d1426;
+      --bg-pill-hover: #18233f;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-muted: #7c8ba5;
+      --border-subtle: rgba(148, 163, 184, 0.12);
+      --border-strong: rgba(129, 140, 248, 0.35);
+      --accent-primary: #818cf8;
+      --accent-secondary: #7dd3fc;
+      --accent-solid: #6366f1;
+      --accent-solid-hover: #4f46e5;
+      --accent-solid-text: #ffffff;
+      --accent-soft: rgba(129, 140, 248, 0.16);
+      --accent-soft-2: rgba(125, 211, 252, 0.14);
+      --accent-text: #a5b4fc;
+      --accent-text-2: #7dd3fc;
+      --skeleton-base: #11182c;
+      --skeleton-shine: #1c2746;
+      --card-shadow: 0 8px 24px -8px rgba(2, 6, 23, 0.75);
+      --card-shadow-hover: 0 14px 30px -8px rgba(2, 6, 23, 0.9), 0 0 0 1px rgba(125, 211, 252, 0.35);
+      --mesh-1: rgba(129, 140, 248, 0.12);
+      --mesh-2: rgba(125, 211, 252, 0.09);
+    }
+
+    /* 2. CRIMSON RED (Dark Obsidian, Deep Garnet Cards, Vivid Blood-Red & Crimson Accents) */
+    [data-theme="crimson"] {
+      color-scheme: dark;
+      --bg-app: #11080a;
+      --bg-header: #150a0d;
+      --bg-surface: #1c0e12;
+      --bg-surface-alt: #271319;
+      --bg-input: #13090c;
+      --bg-pill: #180b0f;
+      --bg-pill-hover: #29141a;
+      --text-primary: #fff1f2;
+      --text-secondary: #fecdd3;
+      --text-muted: #9f757d;
+      --border-subtle: rgba(251, 113, 133, 0.14);
+      --border-strong: rgba(239, 68, 68, 0.42);
+      --accent-primary: #ef4444;
+      --accent-secondary: #fb7185;
+      --accent-solid: #dc2626;
+      --accent-solid-hover: #b91c1c;
+      --accent-solid-text: #ffffff;
+      --accent-soft: rgba(239, 68, 68, 0.18);
+      --accent-soft-2: rgba(251, 113, 133, 0.15);
+      --accent-text: #fca5a5;
+      --accent-text-2: #fda4af;
+      --skeleton-base: #1c0e12;
+      --skeleton-shine: #2e171e;
+      --card-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.8);
+      --card-shadow-hover: 0 14px 30px -8px rgba(0, 0, 0, 0.92), 0 0 0 1px rgba(239, 68, 68, 0.45);
+      --mesh-1: rgba(239, 68, 68, 0.13);
+      --mesh-2: rgba(251, 113, 133, 0.08);
+    }
+
+    /* 3. SHADOW VIOLET (Deep Void, Dark Plum Cards, Royal Violet Accents) */
+    [data-theme="violet"] {
+      color-scheme: dark;
+      --bg-app: #0c0a14;
+      --bg-header: #100d1b;
+      --bg-surface: #161224;
+      --bg-surface-alt: #201a34;
+      --bg-input: #0e0b18;
+      --bg-pill: #130f20;
+      --bg-pill-hover: #221b38;
+      --text-primary: #f5f3ff;
+      --text-secondary: #ddd6fe;
+      --text-muted: #8b80a8;
+      --border-subtle: rgba(168, 85, 247, 0.14);
+      --border-strong: rgba(168, 85, 247, 0.42);
+      --accent-primary: #a855f7;
+      --accent-secondary: #c084fc;
+      --accent-solid: #9333ea;
+      --accent-solid-hover: #7e22ce;
+      --accent-solid-text: #ffffff;
+      --accent-soft: rgba(168, 85, 247, 0.18);
+      --accent-soft-2: rgba(192, 132, 252, 0.14);
+      --accent-text: #d8b4fe;
+      --accent-text-2: #e9d5ff;
+      --skeleton-base: #161224;
+      --skeleton-shine: #251e3d;
+      --card-shadow: 0 8px 24px -8px rgba(5, 3, 12, 0.8);
+      --card-shadow-hover: 0 14px 30px -8px rgba(5, 3, 12, 0.92), 0 0 0 1px rgba(168, 85, 247, 0.45);
+      --mesh-1: rgba(168, 85, 247, 0.13);
+      --mesh-2: rgba(192, 132, 252, 0.08);
+    }
+
+    /* 4. JADE MURIM (Dark Pine-Slate, Deep Jade Cards, Emerald & Warm Gold Accents) */
+    [data-theme="jade"] {
+      color-scheme: dark;
+      --bg-app: #071210;
+      --bg-header: #0a1714;
+      --bg-surface: #0e1f1b;
+      --bg-surface-alt: #142b26;
+      --bg-input: #081512;
+      --bg-pill: #0b1916;
+      --bg-pill-hover: #152e28;
+      --text-primary: #ecfdf5;
+      --text-secondary: #d1fae5;
+      --text-muted: #6ee7b7;
+      --border-subtle: rgba(16, 185, 129, 0.15);
+      --border-strong: rgba(16, 185, 129, 0.4);
+      --accent-primary: #10b981;
+      --accent-secondary: #f59e0b;
+      --accent-solid: #059669;
+      --accent-solid-hover: #047857;
+      --accent-solid-text: #ffffff;
+      --accent-soft: rgba(16, 185, 129, 0.17);
+      --accent-soft-2: rgba(245, 158, 11, 0.16);
+      --accent-text: #6ee7b7;
+      --accent-text-2: #fcd34d;
+      --skeleton-base: #0e1f1b;
+      --skeleton-shine: #17332c;
+      --card-shadow: 0 8px 24px -8px rgba(2, 10, 8, 0.8);
+      --card-shadow-hover: 0 14px 30px -8px rgba(2, 10, 8, 0.92), 0 0 0 1px rgba(245, 158, 11, 0.4);
+      --mesh-1: rgba(16, 185, 129, 0.12);
+      --mesh-2: rgba(245, 158, 11, 0.08);
+    }
+
+    /* 5. DAYLIGHT (Clean Light Mode, Crisp White Cards, Dark Slate Text, Royal Blue Accents) */
+    [data-theme="daylight"] {
+      color-scheme: light;
+      --bg-app: #f4f6fb;
+      --bg-header: #ffffff;
+      --bg-surface: #ffffff;
+      --bg-surface-alt: #eef2f9;
+      --bg-input: #f8fafc;
+      --bg-pill: #f1f5f9;
+      --bg-pill-hover: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --border-subtle: rgba(15, 23, 42, 0.1);
+      --border-strong: rgba(37, 99, 235, 0.35);
+      --accent-primary: #2563eb;
+      --accent-secondary: #0284c7;
+      --accent-solid: #2563eb;
+      --accent-solid-hover: #1d4ed8;
+      --accent-solid-text: #ffffff;
+      --accent-soft: rgba(37, 99, 235, 0.1);
+      --accent-soft-2: rgba(2, 132, 199, 0.1);
+      --accent-text: #1d4ed8;
+      --accent-text-2: #0369a1;
+      --skeleton-base: #e2e8f0;
+      --skeleton-shine: #f1f5f9;
+      --card-shadow: 0 6px 20px -6px rgba(15, 23, 42, 0.08);
+      --card-shadow-hover: 0 14px 28px -8px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(37, 99, 235, 0.3);
+      --mesh-1: rgba(37, 99, 235, 0.06);
+      --mesh-2: rgba(2, 132, 199, 0.05);
+    }
+
+    /* =====================================================================
+       BASE & PERFORMANCE-OPTIMIZED COMPONENT CLASSES (NO BACKDROP-BLUR)
+       ===================================================================== */
+    * {
+      box-sizing: border-box;
     }
 
     body {
-      background-color: #090b10;
-      color: #f1f5f9;
-      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-primary);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       overflow-x: hidden;
-    }
-
-    /* Ambient Mesh Gradient Backdrop */
-    .ambient-bg {
       background-image:
-        radial-gradient(circle at 15% 0%, rgba(99, 102, 241, 0.14) 0%, transparent 42%),
-        radial-gradient(circle at 85% 8%, rgba(6, 182, 212, 0.10) 0%, transparent 38%),
-        radial-gradient(circle at 50% 100%, rgba(139, 92, 246, 0.08) 0%, transparent 45%);
+        radial-gradient(circle at 12% 0%, var(--mesh-1) 0%, transparent 40%),
+        radial-gradient(circle at 88% 6%, var(--mesh-2) 0%, transparent 36%);
     }
 
-    /* Subtle Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #090b10;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #1e2538;
-      border-radius: 9999px;
-      border: 2px solid #090b10;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #334155;
+    /* Fast Theme Surface Utilities */
+    .v-header {
+      background-color: var(--bg-header);
+      border-bottom: 1px solid var(--border-subtle);
     }
 
-    /* Shimmer Skeleton Animation */
+    .v-surface {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--card-shadow);
+    }
+
+    .v-surface-alt {
+      background-color: var(--bg-surface-alt);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .v-input {
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+    }
+    .v-input::placeholder {
+      color: var(--text-muted);
+    }
+    .v-input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .v-text-primary { color: var(--text-primary); }
+    .v-text-secondary { color: var(--text-secondary); }
+    .v-text-muted { color: var(--text-muted); }
+    .v-border { border-color: var(--border-subtle); }
+
+    /* Pill / Chip States */
+    .v-pill {
+      background-color: var(--bg-pill);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+    .v-pill:hover:not(:disabled) {
+      background-color: var(--bg-pill-hover);
+      color: var(--text-primary);
+    }
+
+    .v-pill-active {
+      background-color: var(--accent-soft);
+      border: 1px solid var(--accent-primary);
+      color: var(--accent-text);
+      font-weight: 600;
+    }
+
+    .v-pill-active-2 {
+      background-color: var(--accent-soft-2);
+      border: 1px solid var(--accent-secondary);
+      color: var(--accent-text-2);
+      font-weight: 600;
+    }
+
+    /* Ban / Block Red Warning Pills */
+    .v-ban-pill {
+      background-color: var(--bg-pill);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+    .v-ban-pill:hover {
+      border-color: rgba(239, 68, 68, 0.45);
+      background-color: rgba(239, 68, 68, 0.08);
+      color: #f87171;
+    }
+    [data-theme="daylight"] .v-ban-pill:hover {
+      color: #dc2626;
+    }
+
+    .v-ban-pill-active {
+      background-color: rgba(220, 38, 38, 0.16);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      font-weight: 700;
+    }
+    [data-theme="daylight"] .v-ban-pill-active {
+      background-color: rgba(220, 38, 38, 0.11);
+      border: 1px solid #dc2626;
+      color: #b91c1c;
+    }
+
+    /* Primary CTA Button */
+    .v-btn-primary {
+      background-color: var(--accent-solid);
+      color: var(--accent-solid-text);
+      transition: background-color 0.15s ease, transform 0.12s ease;
+    }
+    .v-btn-primary:hover {
+      background-color: var(--accent-solid-hover);
+    }
+    .v-btn-primary:active {
+      transform: scale(0.99);
+    }
+
+    /* GPU-Accelerated Recommendation Card + Content Visibility for 60FPS Scrolling */
+    .manhwa-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--card-shadow);
+      content-visibility: auto;
+      contain-intrinsic-size: 360px;
+      will-change: transform;
+      transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .manhwa-card:hover {
+      transform: translate3d(0, -3px, 0);
+      border-color: var(--border-strong);
+      box-shadow: var(--card-shadow-hover);
+    }
+
+    /* Lightweight Skeleton Shimmer */
     @keyframes shimmer {
       0% { background-position: -200% 0; }
       100% { background-position: 200% 0; }
     }
     .skeleton {
-      background: linear-gradient(90deg, #111520 25%, #1b2234 50%, #111520 75%);
+      background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 50%, var(--skeleton-base) 75%);
       background-size: 200% 100%;
-      animation: shimmer 1.6s infinite linear;
+      animation: shimmer 1.4s infinite linear;
     }
 
-    /* Smooth Card Hover Lift */
-    .manhwa-card {
-      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
     }
-    .manhwa-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(99, 102, 241, 0.45);
-      box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.8), 0 0 24px -8px rgba(99, 102, 241, 0.28);
+    ::-webkit-scrollbar-track {
+      background: var(--bg-app);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--bg-surface-alt);
+      border-radius: 9999px;
     }
 
-    /* Line Clamp Utilities */
+    /* Line Clamping */
     .line-clamp-1 {
       display: -webkit-box;
       -webkit-line-clamp: 1;
@@ -114,57 +367,80 @@
     }
   </style>
 </head>
-<body class="min-h-screen ambient-bg antialiased selection:bg-indigo-500/30 selection:text-indigo-200">
+<body class="min-h-screen antialiased">
 
-  <!-- Toast Notification Container -->
-  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+  <!-- Toast Notification Container (No backdrop-blur) -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
 
-  <!-- Top Navigation Header -->
-  <header class="sticky top-0 z-30 border-b border-white/[0.08] bg-[#090b10]/85 backdrop-blur-xl">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+  <!-- Top Navigation Header (Opaque Solid Layer — Zero Lag) -->
+  <header class="sticky top-0 z-30 v-header">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
       <!-- Brand Identity -->
-      <div class="flex items-center gap-3.5 min-w-0">
-        <!-- Custom VexinManwha SVG Emblem -->
-        <div class="relative flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 border border-indigo-400/30 flex items-center justify-center shadow-glow-indigo">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style="background-color: var(--accent-soft); border: 1px solid var(--border-strong);">
           <svg class="w-6 h-6" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <defs>
-              <linearGradient id="vexinGrad" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stop-color="#818cf8" />
-                <stop offset="55%" stop-color="#6366f1" />
-                <stop offset="100%" stop-color="#22d3ee" />
-              </linearGradient>
-            </defs>
-            <!-- Stylized Comic Panel + Sharp 'V' Blade -->
-            <rect x="3.5" y="3.5" width="25" height="25" rx="6" stroke="url(#vexinGrad)" stroke-width="2" stroke-opacity="0.55" />
-            <path d="M9 9.5L16 23.5L23 9.5H19.1L16 16.2L12.9 9.5H9Z" fill="url(#vexinGrad)" />
-            <circle cx="23.5" cy="22.5" r="2" fill="#22d3ee" />
+            <rect x="3.5" y="3.5" width="25" height="25" rx="6" stroke="currentColor" style="color: var(--accent-primary);" stroke-width="2" stroke-opacity="0.65" />
+            <path d="M9 9.5L16 23.5L23 9.5H19.1L16 16.2L12.9 9.5H9Z" fill="currentColor" style="color: var(--accent-primary);" />
+            <circle cx="23.5" cy="22.5" r="2.2" fill="currentColor" style="color: var(--accent-secondary);" />
           </svg>
         </div>
 
         <div class="min-w-0">
           <div class="flex items-center gap-2">
-            <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white truncate">
-              Vexin<span class="bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">Manwha</span>
+            <h1 class="text-lg sm:text-xl font-extrabold tracking-tight v-text-primary truncate">
+              Vexin<span style="color: var(--accent-primary);">Manwha</span>
             </h1>
-            <span class="hidden md:inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold uppercase tracking-wider bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">
+            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider" style="background-color: var(--accent-soft); color: var(--accent-text); border: 1px solid var(--border-strong);">
               KR Engine
             </span>
           </div>
-          <p class="text-xs text-slate-400 truncate">
-            AI-Free Taste-Matched Korean Manhwa Discovery Engine
+          <p class="text-xs v-text-muted truncate">
+            Zero-Lag Taste-Matched Korean Manhwa Discovery
           </p>
         </div>
       </div>
 
-      <!-- Right Status & Quick Stats -->
-      <div class="flex items-center gap-2.5 sm:gap-3 flex-shrink-0">
-        <div id="shelf-counter-pill" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface border border-white/[0.08] text-xs font-medium text-slate-300">
-          <span class="text-indigo-400 font-mono font-bold" id="header-shelf-count">0</span>
+      <!-- Header Right Controls: Title Mode Toggle + 5-Theme Switcher + Status -->
+      <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
+        <!-- Smart Title Preference Toggle -->
+        <button
+          id="title-mode-toggle"
+          type="button"
+          title="Switch between English/Scanlation titles and Official AniList Romaji/English titles"
+          class="v-pill inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer"
+        >
+          <span class="font-mono text-[11px]" style="color: var(--accent-text-2);">Aa</span>
+          <span id="title-mode-label">Scanlation / EN</span>
+        </button>
+
+        <!-- Multi-Theme Selector -->
+        <div class="relative flex items-center">
+          <label for="theme-selector" class="sr-only">Select Theme</label>
+          <select
+            id="theme-selector"
+            aria-label="Select visual theme"
+            class="v-pill pl-3 pr-7 py-1.5 rounded-xl text-xs font-semibold cursor-pointer appearance-none focus:outline-none"
+          >
+            <option value="moonlight">🌙 Moonlight</option>
+            <option value="crimson">🩸 Crimson Red</option>
+            <option value="violet">🔮 Shadow Violet</option>
+            <option value="jade">🐉 Jade Murim</option>
+            <option value="daylight">☀️ Daylight</option>
+          </select>
+          <svg class="w-3.5 h-3.5 v-text-muted absolute right-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+
+        <!-- Shelf Counter Pill -->
+        <div class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl v-surface-alt text-xs font-medium v-text-secondary">
+          <span class="font-mono font-bold" style="color: var(--accent-text);" id="header-shelf-count">0</span>
           <span>Read</span>
         </div>
 
-        <div id="api-status-badge" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface border border-white/[0.08] text-xs font-mono text-slate-300" title="Connected directly to AniList public GraphQL API">
-          <span id="api-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <!-- Live API Status -->
+        <div id="api-status-badge" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl v-surface-alt text-xs font-mono v-text-secondary" title="Connected to AniList public GraphQL API with in-memory instant caching">
+          <span id="api-status-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
           <span id="api-status-text">AniList Live</span>
         </div>
       </div>
@@ -172,49 +448,60 @@
   </header>
 
   <!-- Main Workspace -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
 
-    <!-- Top Control Grid: Step 1 (Shelf) + Step 2 (Taste DNA & Filters) -->
+    <!-- Top Control Grid: Step 1 (Shelf) + Step 2 (Taste DNA, Genres, Notes & Ban Filters) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
       <!-- STEP 1: Manhwa You've Read & Loved -->
-      <section class="lg:col-span-5 bg-surface/90 border border-white/[0.08] rounded-2xl p-5 sm:p-6 shadow-card space-y-5">
-        <div class="flex items-start justify-between gap-3">
+      <section class="lg:col-span-5 v-surface rounded-2xl p-5 sm:p-6 space-y-5">
+        <div class="flex items-start justify-between gap-2">
           <div>
             <div class="flex items-center gap-2">
-              <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 font-mono text-xs font-bold">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg font-mono text-xs font-bold" style="background-color: var(--accent-soft); color: var(--accent-text); border: 1px solid var(--border-strong);">
                 01
               </span>
-              <h2 class="text-base sm:text-lg font-bold text-white">Manhwa You've Read &amp; Loved</h2>
+              <h2 class="text-base sm:text-lg font-bold v-text-primary">Manhwa You've Read &amp; Loved</h2>
             </div>
-            <p class="text-xs text-slate-400 mt-1">
-              Add favorites to extract your trope DNA and exclude already-read titles.
+            <p class="text-xs v-text-muted mt-1">
+              Add favorites to extract your trope DNA and exclude read titles.
             </p>
           </div>
-          <button
-            id="clear-shelf-btn"
-            type="button"
-            class="hidden text-xs font-medium text-slate-400 hover:text-rose-400 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-rose-500/10"
-          >
-            Clear All
-          </button>
+
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <button
+              id="export-shelf-btn"
+              type="button"
+              title="Export your Read & Loved shelf as JSON"
+              class="hidden text-xs font-medium v-text-muted hover:v-text-primary transition-colors px-2 py-1.5 rounded-lg v-pill"
+            >
+              Export
+            </button>
+            <button
+              id="clear-shelf-btn"
+              type="button"
+              class="hidden text-xs font-medium text-rose-400 hover:text-rose-300 transition-colors px-2 py-1.5 rounded-lg hover:bg-rose-500/10"
+            >
+              Clear
+            </button>
+          </div>
         </div>
 
-        <!-- Live Search Box -->
+        <!-- Live Search Box (Debounced 350ms + AbortController) -->
         <div class="relative" id="search-wrapper">
           <div class="relative flex items-center">
-            <svg class="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 v-text-muted absolute left-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
               id="manhwa-search-input"
               type="text"
               autocomplete="off"
-              placeholder="Search Korean manhwa (e.g., Solo Leveling, Eleceed)..."
-              class="w-full pl-10 pr-10 py-3 rounded-xl bg-[#0b0e16] border border-white/[0.1] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+              placeholder="Search Korean manhwa (English, Korean, or Romaji)..."
+              class="v-input w-full pl-10 pr-10 py-3 rounded-xl text-sm transition-colors"
             />
             <div id="search-spinner" class="hidden absolute right-3.5">
-              <svg class="w-4 h-4 text-indigo-400 animate-spin" fill="none" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 animate-spin" style="color: var(--accent-primary);" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
               </svg>
@@ -223,7 +510,7 @@
               id="search-clear-btn"
               type="button"
               aria-label="Clear search"
-              class="hidden absolute right-3 text-slate-400 hover:text-white p-1 rounded-lg"
+              class="hidden absolute right-3 v-text-muted hover:v-text-primary p-1 rounded-lg"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -234,126 +521,176 @@
           <!-- Search Results Dropdown -->
           <div
             id="search-dropdown"
-            class="hidden absolute left-0 right-0 mt-2 bg-[#141927] border border-white/[0.12] rounded-xl shadow-2xl z-40 max-h-80 overflow-y-auto divide-y divide-white/[0.06]"
+            class="hidden absolute left-0 right-0 mt-2 v-surface rounded-xl shadow-2xl z-40 max-h-80 overflow-y-auto divide-y v-border"
           ></div>
         </div>
 
         <!-- Quick Add Popular Starter Pills -->
         <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400">
+            <span class="text-[11px] font-mono uppercase tracking-wider v-text-muted">
               Quick Add Popular Starters
             </span>
-            <span class="text-[11px] text-slate-500">1-click test</span>
+            <span class="text-[11px] v-text-muted">1-click add</span>
           </div>
           <div id="quick-add-container" class="flex flex-wrap gap-1.5"></div>
         </div>
 
         <!-- Selected Shelf List -->
-        <div class="pt-2 border-t border-white/[0.07]">
+        <div class="pt-3 border-t v-border">
           <div class="flex items-center justify-between mb-2.5">
-            <span class="text-xs font-semibold text-slate-300">
+            <span class="text-xs font-semibold v-text-secondary">
               Your Read &amp; Loved Shelf
             </span>
-            <span id="shelf-count-label" class="text-xs font-mono text-indigo-400">0 selected</span>
+            <span id="shelf-count-label" class="text-xs font-mono font-semibold" style="color: var(--accent-text);">0 selected</span>
           </div>
 
           <!-- Empty Shelf State -->
-          <div id="empty-shelf-state" class="rounded-xl border border-dashed border-white/[0.1] bg-[#0b0e16]/60 p-5 text-center space-y-1.5">
-            <p class="text-xs font-medium text-slate-300">Your shelf is empty right now</p>
-            <p class="text-[11px] text-slate-500 leading-relaxed">
-              Search above or tap 1–3 starter manhwa like <span class="text-indigo-400">Solo Leveling</span> or <span class="text-cyan-400">Omniscient Reader</span> to unlock personalized Taste DNA matching.
+          <div id="empty-shelf-state" class="rounded-xl border border-dashed v-border v-surface-alt p-5 text-center space-y-1.5">
+            <p class="text-xs font-semibold v-text-primary">Your shelf is empty right now</p>
+            <p class="text-[11px] v-text-muted leading-relaxed">
+              Search above or tap 1–3 starter manhwa like <span style="color: var(--accent-text);">Solo Leveling</span> or <span style="color: var(--accent-text-2);">Omniscient Reader's Viewpoint</span> to extract your Taste DNA.
             </p>
           </div>
 
           <!-- Shelf Items Grid -->
-          <div id="shelf-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5 max-h-[340px] overflow-y-auto pr-1"></div>
+          <div id="shelf-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 max-h-[360px] overflow-y-auto pr-1"></div>
         </div>
       </section>
 
-      <!-- STEP 2: Taste DNA & Custom Criteria -->
-      <section class="lg:col-span-7 bg-surface/90 border border-white/[0.08] rounded-2xl p-5 sm:p-6 shadow-card space-y-6">
+      <!-- STEP 2: Taste DNA, Extra Genres, Collector Notes & Ban/Block Panel -->
+      <section class="lg:col-span-7 v-surface rounded-2xl p-5 sm:p-6 space-y-6">
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div class="flex items-center gap-2">
-              <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-cyan-500/20 border border-cyan-400/30 text-cyan-300 font-mono text-xs font-bold">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg font-mono text-xs font-bold" style="background-color: var(--accent-soft-2); color: var(--accent-text-2); border: 1px solid var(--border-strong);">
                 02
               </span>
-              <h2 class="text-base sm:text-lg font-bold text-white">Taste DNA &amp; Custom Criteria</h2>
+              <h2 class="text-base sm:text-lg font-bold v-text-primary">Taste DNA, Filters &amp; Blocked Genres</h2>
             </div>
-            <p class="text-xs text-slate-400 mt-1">
-              Fine-tune detected tropes, extra genres, and collector notes to dial in your next binge.
+            <p class="text-xs v-text-muted mt-1">
+              Customize detected tropes, include genres, collector notes, and strict genre/tag bans.
             </p>
           </div>
 
           <button
             id="reset-filters-btn"
             type="button"
-            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium text-slate-300 transition-all"
+            class="v-pill inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer"
           >
-            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Reset Filters
+            Reset Include Filters
           </button>
         </div>
 
         <!-- Extracted Taste DNA Tags -->
-        <div class="space-y-2.5">
+        <div class="space-y-2">
           <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
-              <span class="text-xs font-bold uppercase tracking-wider text-indigo-300 font-mono">
+              <span class="text-xs font-bold uppercase tracking-wider font-mono" style="color: var(--accent-text);">
                 Detected Taste DNA Tropes
               </span>
-              <span id="dna-active-count" class="px-2 py-0.5 rounded-md text-[11px] font-mono bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">
+              <span id="dna-active-count" class="px-2 py-0.5 rounded-md text-[11px] font-mono" style="background-color: var(--accent-soft); color: var(--accent-text);">
                 0 active
               </span>
             </div>
             <div id="dna-quick-actions" class="hidden items-center gap-2 text-[11px]">
-              <button id="dna-select-top-btn" type="button" class="text-cyan-400 hover:text-cyan-300 font-medium">Top 3</button>
-              <span class="text-slate-600">•</span>
-              <button id="dna-clear-btn" type="button" class="text-slate-400 hover:text-slate-200 font-medium">None</button>
+              <button id="dna-select-top-btn" type="button" class="font-semibold hover:underline cursor-pointer" style="color: var(--accent-text-2);">Top 3</button>
+              <span class="v-text-muted">•</span>
+              <button id="dna-clear-btn" type="button" class="v-text-muted hover:v-text-primary font-semibold cursor-pointer">None</button>
             </div>
           </div>
 
-          <div id="taste-dna-container" class="flex flex-wrap gap-2">
-            <div class="w-full rounded-xl bg-[#0b0e16]/70 border border-white/[0.06] px-4 py-3 text-xs text-slate-400">
-              Add at least one manhwa to your shelf to automatically extract top non-spoiler tropes (e.g. <span class="text-slate-300 font-mono">System</span>, <span class="text-slate-300 font-mono">Regression</span>, <span class="text-slate-300 font-mono">Reincarnation</span>).
-            </div>
-          </div>
+          <div id="taste-dna-container" class="flex flex-wrap gap-1.5"></div>
         </div>
 
-        <!-- Extra Genres Multi-Select -->
-        <div class="space-y-2.5">
+        <!-- Extra Genres Multi-Select (Include) -->
+        <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-mono">
-              Extra Genres
+            <span class="text-xs font-bold uppercase tracking-wider v-text-secondary font-mono">
+              Include Extra Genres
             </span>
-            <span id="genre-active-label" class="text-[11px] text-slate-400 font-mono">Any genre</span>
+            <span id="genre-active-label" class="text-[11px] v-text-muted font-mono">Any genre</span>
           </div>
-          <div id="genres-container" class="flex flex-wrap gap-2"></div>
+          <div id="genres-container" class="flex flex-wrap gap-1.5"></div>
         </div>
 
-        <!-- Vibe & Collector Note Toggles -->
-        <div class="space-y-2.5">
+        <!-- Collector Notes & Vibe Toggles -->
+        <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-mono">
+            <span class="text-xs font-bold uppercase tracking-wider v-text-secondary font-mono">
               Collector Notes &amp; Vibe Filters
             </span>
-            <span class="text-[11px] text-slate-400">Toggle criteria</span>
+            <span class="text-[11px] v-text-muted">Toggle criteria</span>
           </div>
-          <div id="notes-container" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5"></div>
+          <div id="notes-container" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2"></div>
+        </div>
+
+        <!-- BAN / BLOCK GENRES & TAGS PANEL (Persisted in localStorage) -->
+        <div class="rounded-xl p-4 space-y-3" style="background-color: rgba(220, 38, 38, 0.06); border: 1px solid rgba(239, 68, 68, 0.28);">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/35">
+                🚫 Ban / Block Filter
+              </span>
+              <h3 class="text-xs sm:text-sm font-bold v-text-primary">
+                Blocked Genres, Tags &amp; Keywords
+              </h3>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="ban-active-count" class="text-[11px] font-mono font-semibold text-red-400">
+                0 blocked
+              </span>
+              <button
+                id="clear-bans-btn"
+                type="button"
+                class="hidden text-[11px] font-semibold text-red-400 hover:underline cursor-pointer"
+              >
+                Unblock All
+              </button>
+            </div>
+          </div>
+
+          <p class="text-[11px] v-text-muted leading-relaxed">
+            Blocked genres and tropes are stripped at both the AniList API level and client-side across search results and recommendations (saved automatically).
+          </p>
+
+          <!-- Preset One-Click Ban Toggle Pills -->
+          <div id="ban-presets-container" class="flex flex-wrap gap-1.5"></div>
+
+          <!-- Custom Banned Keyword / Trope Input -->
+          <div class="pt-1 space-y-2">
+            <form id="custom-ban-form" class="flex items-center gap-2">
+              <input
+                id="custom-ban-input"
+                type="text"
+                placeholder="Type custom banned tag or keyword (e.g., NTR, Zombie, Netorare)..."
+                class="v-input flex-1 px-3 py-2 rounded-xl text-xs"
+              />
+              <button
+                type="submit"
+                class="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition-colors cursor-pointer flex-shrink-0"
+              >
+                + Ban
+              </button>
+            </form>
+
+            <!-- Active Custom Banned Chips -->
+            <div id="custom-bans-container" class="flex flex-wrap gap-1.5"></div>
+          </div>
         </div>
 
         <!-- Action Footer -->
-        <div class="pt-3 border-t border-white/[0.07] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          <p id="query-strategy-hint" class="text-xs text-slate-400 leading-relaxed">
+        <div class="pt-3 border-t v-border flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <p id="query-strategy-hint" class="text-xs v-text-muted leading-relaxed">
             Ready to search AniList's Korean manhwa catalog.
           </p>
           <button
             id="find-peak-btn"
             type="button"
-            class="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-sm shadow-glow-indigo transition-all active:scale-[0.99] cursor-pointer flex-shrink-0"
+            class="v-btn-primary inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-sm cursor-pointer flex-shrink-0"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -365,116 +702,114 @@
     </div>
 
     <!-- STEP 3: Recommended Manhwa Grid -->
-    <section id="results-section" class="space-y-5 pt-2">
+    <section id="results-section" class="space-y-5 pt-1">
       <!-- Results Header -->
-      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/[0.08] pb-4">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b v-border pb-4">
         <div>
           <div class="flex items-center gap-2.5">
-            <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-violet-500/20 border border-violet-400/30 text-violet-300 font-mono text-xs font-bold">
+            <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg font-mono text-xs font-bold" style="background-color: var(--accent-soft); color: var(--accent-text); border: 1px solid var(--border-strong);">
               03
             </span>
-            <h2 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+            <h2 class="text-xl sm:text-2xl font-extrabold v-text-primary tracking-tight">
               Recommended Peak Manhwa
             </h2>
-            <span id="results-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-white/[0.06] text-slate-300 border border-white/[0.08]">
+            <span id="results-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold v-surface-alt v-text-secondary">
               0 titles
             </span>
           </div>
-          <p id="results-subtitle" class="text-xs sm:text-sm text-slate-400 mt-1">
+          <p id="results-subtitle" class="text-xs sm:text-sm v-text-muted mt-1">
             Ranked by Taste DNA overlap, genre alignment, and community score.
           </p>
         </div>
 
-        <!-- Active Criteria Summary -->
+        <!-- Active Criteria & Block Summary -->
         <div id="active-criteria-bar" class="flex flex-wrap items-center gap-1.5"></div>
       </div>
 
       <!-- Error Banner (Hidden by default) -->
-      <div id="error-banner" class="hidden rounded-2xl bg-rose-500/10 border border-rose-500/30 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div id="error-banner" class="hidden rounded-2xl bg-rose-500/10 border border-rose-500/35 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div class="flex items-start gap-3">
           <svg class="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86l-7.5 13A1 1 0 003.65 18h16.7a1 1 0 00.86-1.5l-7.5-13a1 1 0 00-1.72 0z" />
           </svg>
           <div>
-            <h3 class="text-sm font-bold text-rose-200" id="error-title">AniList Connection Interrupted</h3>
+            <h3 class="text-sm font-bold text-rose-300" id="error-title">AniList Connection Interrupted</h3>
             <p class="text-xs text-rose-300/80 mt-0.5" id="error-message">Please wait a moment and try again.</p>
           </div>
         </div>
         <button
           id="retry-fetch-btn"
           type="button"
-          class="px-4 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-xs font-semibold text-rose-100 transition-colors"
+          class="px-4 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/35 text-xs font-semibold text-rose-200 transition-colors cursor-pointer"
         >
           Retry Request
         </button>
       </div>
 
       <!-- Empty Results State -->
-      <div id="empty-results-state" class="hidden rounded-2xl bg-surface border border-white/[0.08] p-10 text-center max-w-xl mx-auto space-y-3">
-        <div class="w-12 h-12 rounded-2xl bg-indigo-500/15 border border-indigo-400/25 flex items-center justify-center mx-auto text-indigo-300">
+      <div id="empty-results-state" class="hidden rounded-2xl v-surface p-10 text-center max-w-xl mx-auto space-y-3">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto" style="background-color: var(--accent-soft); color: var(--accent-text);">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h3 class="text-base font-bold text-white">No Exact Matches Found</h3>
-        <p class="text-xs text-slate-400 leading-relaxed">
-          Your current combination of tropes, genres, and collector notes is super specific! Try relaxing one or two filters to widen the library search.
+        <h3 class="text-base font-bold v-text-primary">No Exact Matches Found</h3>
+        <p class="text-xs v-text-muted leading-relaxed">
+          Your current combination of tropes, genres, collector notes, and blocked tags is super strict! Try relaxing your include filters to widen the search.
         </p>
         <div class="pt-2">
           <button
             id="relax-filters-btn"
             type="button"
-            class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white transition-colors"
+            class="v-btn-primary px-5 py-2.5 rounded-xl text-xs font-bold cursor-pointer"
           >
-            Relax Filters &amp; Search Again
+            Relax Include Filters &amp; Search Again
           </button>
         </div>
       </div>
 
       <!-- Cards Grid -->
-      <div id="recommendations-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6"></div>
+      <div id="recommendations-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
     </section>
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-white/[0.07] mt-16 py-8 bg-[#07090d]">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+  <footer class="border-t v-border mt-16 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs v-text-muted">
       <div class="flex items-center gap-2">
-        <span class="font-bold text-slate-300">VexinManwha</span>
+        <span class="font-bold v-text-primary">VexinManwha</span>
         <span>•</span>
-        <span>Static Korean Manhwa Discovery Engine</span>
+        <span>High-Performance Static Korean Manhwa Discovery Engine</span>
       </div>
       <div>
-        Catalog metadata &amp; cover artwork streamed live from the public <a href="https://anilist.co" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:text-indigo-300 underline underline-offset-2">AniList GraphQL API</a>.
+        Catalog metadata &amp; cover artwork streamed live from the public <a href="https://anilist.co" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2" style="color: var(--accent-text);">AniList GraphQL API</a>.
       </div>
     </div>
   </footer>
 
-  <!-- Detail Modal: Synopsis, Tags & Match Breakdown -->
+  <!-- Detail Modal: Synopsis, Alternate Titles, Tags & Match Breakdown (No backdrop-blur) -->
   <div
     id="detail-modal"
-    class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80"
     role="dialog"
     aria-modal="true"
     aria-labelledby="modal-title"
   >
     <div
       id="detail-modal-panel"
-      class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-[#111520] border border-white/[0.12] shadow-2xl"
+      class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl v-surface shadow-2xl"
     >
-      <!-- Close Button -->
       <button
         id="close-modal-btn"
         type="button"
         aria-label="Close modal"
-        class="fixed sm:absolute top-4 right-4 z-20 w-9 h-9 rounded-xl bg-black/70 hover:bg-black border border-white/15 text-slate-200 flex items-center justify-center transition-colors"
+        class="fixed sm:absolute top-4 right-4 z-20 w-9 h-9 rounded-xl bg-black/75 hover:bg-black border border-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
 
-      <!-- Modal Dynamic Content -->
       <div id="modal-content"></div>
     </div>
   </div>
@@ -482,20 +817,25 @@
   <!-- Application Logic -->
   <script>
     /**
-     * VexinManwha — Client-Side AniList GraphQL Discovery Engine
-     * Designed for 100% static deployment on Render.com
+     * VexinManwha — High-Performance Static Korean Manhwa Discovery Engine
+     * Built for zero-lag execution & static deployment on Render.com
      */
 
     const ANILIST_ENDPOINT = 'https://graphql.anilist.co';
-    const STORAGE_KEY = 'vexin_manwha_shelf_v1';
+    const STORAGE_KEYS = {
+      SHELF: 'vexin_manwha_shelf_v2',
+      THEME: 'vexin_manwha_theme_v1',
+      BANS: 'vexin_manwha_bans_v1',
+      TITLE_MODE: 'vexin_manwha_title_mode_v1',
+    };
 
-    // Curated starter titles for instant 1-click testing
+    // Curated Popular Starters (8 iconic Korean manhwa)
     const POPULAR_STARTERS = [
       { label: 'Solo Leveling', query: 'Solo Leveling' },
-      { label: 'Omniscient Reader', query: 'Omniscient Reader' },
+      { label: "Omniscient Reader's Viewpoint", query: 'Omniscient Reader' },
       { label: 'The Beginning After the End', query: 'The Beginning After the End' },
       { label: 'Legend of the Northern Blade', query: 'Legend of the Northern Blade' },
-      { label: 'SSS-Class Revival Hunter', query: 'SSS-Class Revival Hunter' },
+      { label: 'SSS-Class Suicide Hunter', query: 'SSS-Class Revival Hunter' },
       { label: 'Villains Are Destined to Die', query: 'Villains Are Destined to Die' },
       { label: 'Tower of God', query: 'Tower of God' },
       { label: 'Eleceed', query: 'Eleceed' },
@@ -520,44 +860,150 @@
 
     // Collector Notes & Vibe Filters
     const COLLECTOR_NOTES = [
+      { id: 'chapters100', label: '100+ Chapters', sub: 'Long binge-worthy runs', icon: '📚' },
+      { id: 'peakArt', label: 'High Rated / Peak Art', sub: 'Score 80%+ & top visuals', icon: '✨' },
+      { id: 'fullColor', label: 'Full Color', sub: 'Vibrant webtoon format', icon: '🎨' },
+      { id: 'completedOnly', label: 'Completed Only', sub: 'Finished main story', icon: '✅' },
+      { id: 'hiddenGems', label: 'Hidden Gems', sub: 'Underrated high-score picks', icon: '💎' },
+    ];
+
+    // Comprehensive Preset Ban / Block Definitions
+    // Official AniList genres/tags are sent in GraphQL `genre_not_in` / `tag_not_in`,
+    // while `keywords` enforce strict client-side filtering across genres, tags, titles, synonyms & description.
+    const BAN_PRESETS = [
       {
-        id: 'chapters100',
-        label: '100+ Chapters',
-        sub: 'Long binge-worthy runs',
-        icon: '📚',
+        id: 'bl',
+        label: "BL / Boys' Love",
+        apiGenres: [],
+        apiTags: ["Boys' Love"],
+        keywords: ["boys' love", 'boys love', 'bl', 'yaoi', 'shounen ai', 'shonen ai', 'mlm'],
       },
       {
-        id: 'peakArt',
-        label: 'High Rated / Peak Art',
-        sub: 'Score 80%+ & top visuals',
-        icon: '✨',
+        id: 'gl',
+        label: "GL / Girls' Love",
+        apiGenres: [],
+        apiTags: ["Girls' Love"],
+        keywords: ["girls' love", 'girls love', 'gl', 'yuri', 'shoujo ai', 'shojo ai', 'wlw'],
       },
       {
-        id: 'fullColor',
-        label: 'Full Color',
-        sub: 'Vibrant webtoon format',
-        icon: '🎨',
+        id: 'gay_mlm',
+        label: 'Gay / MLM',
+        apiGenres: [],
+        apiTags: ["Boys' Love"],
+        keywords: ['mlm', 'gay', 'yaoi', 'shounen ai', "boys' love"],
       },
       {
-        id: 'completedOnly',
-        label: 'Completed Only',
-        sub: 'Finished main story',
-        icon: '✅',
+        id: 'lesbian_wlw',
+        label: 'Lesbian / WLW',
+        apiGenres: [],
+        apiTags: ["Girls' Love"],
+        keywords: ['wlw', 'lesbian', 'yuri', 'shoujo ai', "girls' love"],
       },
       {
-        id: 'hiddenGems',
-        label: 'Hidden Gems',
-        sub: 'Underrated high-score picks',
-        icon: '💎',
+        id: 'harem',
+        label: 'Harem',
+        apiGenres: [],
+        apiTags: ['Male Harem'],
+        keywords: ['harem', 'male harem'],
+      },
+      {
+        id: 'reverse_harem',
+        label: 'Reverse Harem',
+        apiGenres: [],
+        apiTags: ['Female Harem'],
+        keywords: ['reverse harem', 'female harem'],
+      },
+      {
+        id: 'ecchi',
+        label: 'Ecchi',
+        apiGenres: ['Ecchi'],
+        apiTags: [],
+        keywords: ['ecchi'],
+      },
+      {
+        id: 'tragedy',
+        label: 'Tragedy',
+        apiGenres: [],
+        apiTags: ['Tragedy'],
+        keywords: ['tragedy'],
+      },
+      {
+        id: 'horror',
+        label: 'Horror',
+        apiGenres: ['Horror'],
+        apiTags: [],
+        keywords: ['horror'],
+      },
+      {
+        id: 'psychological',
+        label: 'Psychological',
+        apiGenres: ['Psychological'],
+        apiTags: [],
+        keywords: ['psychological'],
+      },
+      {
+        id: 'romance',
+        label: 'Romance',
+        apiGenres: ['Romance'],
+        apiTags: [],
+        keywords: ['romance'],
+      },
+      {
+        id: 'mecha',
+        label: 'Mecha',
+        apiGenres: ['Mecha'],
+        apiTags: [],
+        keywords: ['mecha'],
+      },
+      {
+        id: 'sports',
+        label: 'Sports',
+        apiGenres: ['Sports'],
+        apiTags: [],
+        keywords: ['sports'],
+      },
+      {
+        id: 'slice_of_life',
+        label: 'Slice of Life',
+        apiGenres: ['Slice of Life'],
+        apiTags: [],
+        keywords: ['slice of life'],
       },
     ];
 
-    // Application State
+    // In-Memory LRU GraphQL Response Cache for 0ms Repeat Queries
+    const apiCache = new Map();
+    const MAX_CACHE_ENTRIES = 120;
+
+    function getCachedResponse(cacheKey) {
+      if (!apiCache.has(cacheKey)) return null;
+      const value = apiCache.get(cacheKey);
+      // Refresh LRU position
+      apiCache.delete(cacheKey);
+      apiCache.set(cacheKey, value);
+      return value;
+    }
+
+    function setCachedResponse(cacheKey, data) {
+      if (apiCache.size >= MAX_CACHE_ENTRIES) {
+        const oldestKey = apiCache.keys().next().value;
+        apiCache.delete(oldestKey);
+      }
+      apiCache.set(cacheKey, data);
+    }
+
+    // Active AbortControllers for Search & Recommendation Requests
+    let searchAbortController = null;
+    let recommendAbortController = null;
+
+    // Central Application State
     const state = {
-      shelf: [], // Array of normalized AniList media objects
-      extractedTags: [], // [{ name, score, count }]
-      activeTags: new Set(), // Active tag names toggled by user
-      selectedGenres: new Set(), // Active genre strings
+      theme: 'moonlight',
+      preferScanlationTitles: true,
+      shelf: [],
+      extractedTags: [],
+      activeTags: new Set(),
+      selectedGenres: new Set(),
       notes: {
         chapters100: false,
         peakArt: false,
@@ -565,15 +1011,19 @@
         completedOnly: false,
         hiddenGems: false,
       },
-      recommendations: [], // Scored candidate objects
+      bannedPresetIds: new Set(),
+      customBannedKeywords: [],
+      recommendations: [],
       isLoading: false,
       searchResults: [],
       loadingStarters: new Set(),
-      autoSyncTagsOnShelfChange: true,
     };
 
     // Cached DOM References
     const dom = {
+      themeSelector: document.getElementById('theme-selector'),
+      titleModeToggle: document.getElementById('title-mode-toggle'),
+      titleModeLabel: document.getElementById('title-mode-label'),
       headerShelfCount: document.getElementById('header-shelf-count'),
       apiStatusDot: document.getElementById('api-status-dot'),
       apiStatusText: document.getElementById('api-status-text'),
@@ -582,6 +1032,7 @@
       searchClearBtn: document.getElementById('search-clear-btn'),
       searchDropdown: document.getElementById('search-dropdown'),
       quickAddContainer: document.getElementById('quick-add-container'),
+      exportShelfBtn: document.getElementById('export-shelf-btn'),
       clearShelfBtn: document.getElementById('clear-shelf-btn'),
       shelfCountLabel: document.getElementById('shelf-count-label'),
       emptyShelfState: document.getElementById('empty-shelf-state'),
@@ -594,6 +1045,12 @@
       genresContainer: document.getElementById('genres-container'),
       genreActiveLabel: document.getElementById('genre-active-label'),
       notesContainer: document.getElementById('notes-container'),
+      banActiveCount: document.getElementById('ban-active-count'),
+      clearBansBtn: document.getElementById('clear-bans-btn'),
+      banPresetsContainer: document.getElementById('ban-presets-container'),
+      customBanForm: document.getElementById('custom-ban-form'),
+      customBanInput: document.getElementById('custom-ban-input'),
+      customBansContainer: document.getElementById('custom-bans-container'),
       queryStrategyHint: document.getElementById('query-strategy-hint'),
       findPeakBtn: document.getElementById('find-peak-btn'),
       resetFiltersBtn: document.getElementById('reset-filters-btn'),
@@ -613,7 +1070,7 @@
       toastContainer: document.getElementById('toast-container'),
     };
 
-    // GraphQL Field Fragment for Korean Manhwa
+    // AniList GraphQL Field Fragment (includes synonyms & native Korean title)
     const MEDIA_FIELDS_FRAGMENT = `
       id
       siteUrl
@@ -623,6 +1080,7 @@
       averageScore
       popularity
       genres
+      synonyms
       title {
         romaji
         english
@@ -645,9 +1103,16 @@
     `;
 
     /**
-     * Execute a GraphQL query against AniList with clean error handling & status tracking
+     * Execute a cached, abortable GraphQL query against AniList
      */
-    async function anilistRequest(query, variables = {}) {
+    async function anilistRequest(query, variables = {}, signal = undefined) {
+      const cacheKey = JSON.stringify({ query, variables });
+      const cached = getCachedResponse(cacheKey);
+      if (cached) {
+        setApiStatus('cached');
+        return cached;
+      }
+
       try {
         const response = await fetch(ANILIST_ENDPOINT, {
           method: 'POST',
@@ -656,6 +1121,7 @@
             'Accept': 'application/json',
           },
           body: JSON.stringify({ query, variables }),
+          signal,
         });
 
         if (response.status === 429) {
@@ -670,9 +1136,13 @@
           throw new Error(msg);
         }
 
+        setCachedResponse(cacheKey, json.data);
         setApiStatus('live');
         return json.data;
       } catch (err) {
+        if (err.name === 'AbortError') {
+          throw err;
+        }
         if (err.name === 'TypeError') {
           setApiStatus('offline');
           throw new Error('Network error reaching AniList API. Check your internet connection.');
@@ -681,18 +1151,18 @@
       }
     }
 
-    /**
-     * Update live API badge in header
-     */
     function setApiStatus(status) {
       if (status === 'live') {
-        dom.apiStatusDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        dom.apiStatusDot.className = 'w-2 h-2 rounded-full bg-emerald-500';
         dom.apiStatusText.textContent = 'AniList Live';
+      } else if (status === 'cached') {
+        dom.apiStatusDot.className = 'w-2 h-2 rounded-full bg-cyan-400';
+        dom.apiStatusText.textContent = 'Instant Cache';
       } else if (status === 'rate-limited') {
         dom.apiStatusDot.className = 'w-2 h-2 rounded-full bg-amber-400';
         dom.apiStatusText.textContent = 'Rate Limited';
       } else {
-        dom.apiStatusDot.className = 'w-2 h-2 rounded-full bg-rose-400';
+        dom.apiStatusDot.className = 'w-2 h-2 rounded-full bg-rose-500';
         dom.apiStatusText.textContent = 'API Offline';
       }
     }
@@ -701,38 +1171,27 @@
      * Non-intrusive Toast Notification helper (never uses alert())
      */
     function showToast(message, type = 'info') {
-      const colors = {
-        success: 'bg-[#121c22] border-emerald-500/40 text-emerald-200',
-        info: 'bg-[#141928] border-indigo-500/40 text-indigo-100',
-        warning: 'bg-[#211a12] border-amber-500/40 text-amber-200',
+      const styles = {
+        success: 'border-emerald-500/50 text-emerald-300',
+        info: 'border-indigo-500/50 text-indigo-200',
+        warning: 'border-rose-500/50 text-rose-300',
       };
-      const icons = {
-        success: '✓',
-        info: '⚡',
-        warning: '!',
-      };
+      const icons = { success: '✓', info: '⚡', warning: '!' };
 
       const toast = document.createElement('div');
-      toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-xl text-xs font-medium backdrop-blur-md transition-all duration-300 translate-y-2 opacity-0 ${colors[type] || colors.info}`;
+      toast.className = `pointer-events-auto v-surface flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-xl text-xs font-medium transition-opacity duration-200 ${styles[type] || styles.info}`;
       toast.innerHTML = `
-        <span class="w-5 h-5 rounded-lg bg-white/10 flex items-center justify-center font-mono font-bold text-[11px] flex-shrink-0">${icons[type] || icons.info}</span>
-        <span class="leading-snug">${escapeHtml(message)}</span>
+        <span class="w-5 h-5 rounded-lg flex items-center justify-center font-mono font-bold text-[11px] flex-shrink-0" style="background-color: var(--accent-soft);">${icons[type] || icons.info}</span>
+        <span class="leading-snug v-text-primary">${escapeHtml(message)}</span>
       `;
 
       dom.toastContainer.appendChild(toast);
-      requestAnimationFrame(() => {
-        toast.classList.remove('translate-y-2', 'opacity-0');
-      });
-
       setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-y-2');
-        setTimeout(() => toast.remove(), 300);
-      }, 3200);
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 220);
+      }, 3000);
     }
 
-    /**
-     * Escape HTML to safely render API strings
-     */
     function escapeHtml(str) {
       if (!str) return '';
       return String(str)
@@ -743,9 +1202,6 @@
         .replace(/'/g, '&#039;');
     }
 
-    /**
-     * Clean AniList description text into crisp readable paragraphs
-     */
     function formatSynopsis(raw) {
       if (!raw) return 'No synopsis available for this title on AniList yet.';
       return raw
@@ -756,15 +1212,107 @@
     }
 
     /**
-     * Get preferred display title (English first, Romaji fallback)
+     * =====================================================================
+     * SMART TITLE RESOLVER (Fixes Japanese Romaji & Alternate Scanlation Names)
+     * =====================================================================
      */
-    function getDisplayTitle(media) {
-      return media.title?.english || media.title?.romaji || media.title?.native || 'Untitled Manhwa';
+    const JAPANESE_CHAR_REGEX = /[\u3040-\u30ff\u4e00-\u9faf]/;
+    const KOREAN_CHAR_REGEX = /[\uac00-\ud7af\u1100-\u11ff]/;
+    const JAPANESE_ROMAJI_REGEX = /\b(dake|shiten|isekai|tensei|saikyou|maou|yuusha|akuyaku|reijou|ousama|nidome|jinsei|suru|ore|watashi|boku|kimi|kami no|no ken|no tou|wa nani|na ken|na dokusha|monogatari|nichijou|kanojo)\b/i;
+
+    function isLikelyJapaneseRomaji(str) {
+      if (!str) return false;
+      if (JAPANESE_CHAR_REGEX.test(str)) return true;
+      return JAPANESE_ROMAJI_REGEX.test(str);
+    }
+
+    function isCleanLatinEnglish(str) {
+      if (!str || typeof str !== 'string') return false;
+      const trimmed = str.trim();
+      if (trimmed.length < 2) return false;
+      if (KOREAN_CHAR_REGEX.test(trimmed) || JAPANESE_CHAR_REGEX.test(trimmed)) return false;
+      if (isLikelyJapaneseRomaji(trimmed)) return false;
+      // Ensure it contains Latin letters
+      return /[a-zA-Z]{2,}/.test(trimmed);
     }
 
     /**
-     * Format chapter count & publication status cleanly
+     * Resolves primary display title, Korean Hangul native title, and up to 2 alternate titles
      */
+    function resolveManhwaTitles(media) {
+      const english = (media.title?.english || '').trim();
+      const romaji = (media.title?.romaji || '').trim();
+      const nativeKorean = (media.title?.native || '').trim();
+      const rawSynonyms = Array.isArray(media.synonyms) ? media.synonyms.map((s) => s.trim()).filter(Boolean) : [];
+
+      const cleanEnglishSynonyms = rawSynonyms.filter(isCleanLatinEnglish);
+
+      let primary = '';
+
+      if (state.preferScanlationTitles) {
+        // Priority 1: Official English title (unless it looks like Japanese romaji and we have a clean English synonym)
+        if (english && !isLikelyJapaneseRomaji(english)) {
+          // Check if a well-known extended scanlation synonym exists (e.g. "Omniscient Reader's Viewpoint" vs "Omniscient Reader")
+          const extendedScanlation = cleanEnglishSynonyms.find(
+            (syn) =>
+              syn.toLowerCase() !== english.toLowerCase() &&
+              syn.toLowerCase().startsWith(english.toLowerCase()) &&
+              syn.length <= english.length + 18
+          );
+          primary = extendedScanlation || english;
+        } else if (cleanEnglishSynonyms.length > 0) {
+          // Priority 2: Best clean English / scanlation synonym instead of Japanese romaji
+          primary = cleanEnglishSynonyms[0];
+        } else if (english) {
+          primary = english;
+        } else if (romaji) {
+          primary = romaji;
+        } else {
+          primary = nativeKorean || 'Untitled Manhwa';
+        }
+      } else {
+        // Official Romaji / English Mode
+        primary = english || romaji || nativeKorean || 'Untitled Manhwa';
+      }
+
+      // Build deduplicated alternate titles list (up to 2 alternates)
+      const seenLower = new Set([primary.toLowerCase()]);
+      const alternates = [];
+
+      const candidateAlts = [
+        english,
+        ...cleanEnglishSynonyms,
+        romaji,
+      ];
+
+      for (const alt of candidateAlts) {
+        if (!alt) continue;
+        const lower = alt.toLowerCase();
+        if (seenLower.has(lower)) continue;
+        // Skip pure Hangul here since Korean native is displayed explicitly
+        if (KOREAN_CHAR_REGEX.test(alt)) continue;
+        seenLower.add(lower);
+        alternates.push(alt);
+        if (alternates.length >= 2) break;
+      }
+
+      // Build compact subtitle combining Korean Hangul + alternates
+      const subtitleParts = [];
+      if (nativeKorean && nativeKorean.toLowerCase() !== primary.toLowerCase()) {
+        subtitleParts.push(nativeKorean);
+      }
+      if (alternates.length > 0) {
+        subtitleParts.push(...alternates);
+      }
+
+      return {
+        primary,
+        korean: nativeKorean,
+        alternates,
+        subtitle: subtitleParts.join(' • '),
+      };
+    }
+
     function formatChapterInfo(media) {
       const statusMap = {
         FINISHED: 'Completed',
@@ -777,62 +1325,187 @@
 
       if (typeof media.chapters === 'number' && media.chapters > 0) {
         return {
-          primary: `${media.chapters} Chapters`,
+          primary: `${media.chapters} Ch`,
+          full: `${media.chapters} Chapters`,
           status: statusLabel,
-          hasExactCount: true,
         };
       }
       if (typeof media.volumes === 'number' && media.volumes > 0) {
         return {
-          primary: `${media.volumes} Vols • Ongoing`,
+          primary: `${media.volumes} Vols`,
+          full: `${media.volumes} Vols • ${statusLabel}`,
           status: statusLabel,
-          hasExactCount: false,
         };
       }
       return {
-        primary: `${statusLabel} • Chapters TBA`,
+        primary: statusLabel,
+        full: `${statusLabel} • Ch TBA`,
         status: statusLabel,
-        hasExactCount: false,
       };
     }
 
     /**
-     * Persist Read & Loved shelf in localStorage
+     * =====================================================================
+     * COMPREHENSIVE BAN / BLOCK ENGINE (API-Level + Strict Client-Side)
+     * =====================================================================
      */
-    function saveShelfToStorage() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.shelf));
-      } catch (e) {
-        console.warn('Could not save shelf to localStorage:', e);
-      }
+    function getActiveBanConfig() {
+      const apiGenres = new Set();
+      const apiTags = new Set();
+      const keywords = new Set();
+
+      BAN_PRESETS.forEach((preset) => {
+        if (state.bannedPresetIds.has(preset.id)) {
+          preset.apiGenres.forEach((g) => apiGenres.add(g));
+          preset.apiTags.forEach((t) => apiTags.add(t));
+          preset.keywords.forEach((k) => keywords.add(k.toLowerCase()));
+        }
+      });
+
+      state.customBannedKeywords.forEach((rawKw) => {
+        const clean = rawKw.trim();
+        if (!clean) return;
+        keywords.add(clean.toLowerCase());
+        // If custom keyword matches an official AniList genre, also pass it to API
+        const matchedGenre = EXTRA_GENRES.find((g) => g.toLowerCase() === clean.toLowerCase());
+        if (matchedGenre) apiGenres.add(matchedGenre);
+      });
+
+      return {
+        apiGenres: Array.from(apiGenres),
+        apiTags: Array.from(apiTags),
+        keywords: Array.from(keywords),
+      };
     }
 
-    function loadShelfFromStorage() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed)) {
-            state.shelf = parsed;
-          }
-        }
-      } catch (e) {
-        console.warn('Could not load shelf from localStorage:', e);
-      }
+    function escapeRegex(str) {
+      return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
     /**
-     * Extract & rank non-spoiler tags from all manhwa on the Read & Loved shelf
+     * Strict client-side verification that a media item contains ZERO banned genres, tags, or keywords
+     */
+    function isMediaBanned(media, banConfig = getActiveBanConfig()) {
+      if (banConfig.apiGenres.length === 0 && banConfig.apiTags.length === 0 && banConfig.keywords.length === 0) {
+        return false;
+      }
+
+      const mediaGenres = (media.genres || []).map((g) => g.toLowerCase());
+      const mediaTags = (media.tags || []).map((t) => t.name.toLowerCase());
+
+      // 1. Exact API genre/tag check
+      for (const bg of banConfig.apiGenres) {
+        if (mediaGenres.includes(bg.toLowerCase())) return true;
+      }
+      for (const bt of banConfig.apiTags) {
+        if (mediaTags.includes(bt.toLowerCase())) return true;
+      }
+
+      // 2. Keyword word-boundary check across genres, tags, titles, synonyms & description
+      if (banConfig.keywords.length > 0) {
+        const searchableText = [
+          ...mediaGenres,
+          ...mediaTags,
+          media.title?.english || '',
+          media.title?.romaji || '',
+          ...(media.synonyms || []),
+          media.description || '',
+        ]
+          .join(' | ')
+          .toLowerCase();
+
+        for (const kw of banConfig.keywords) {
+          const pattern = new RegExp(`\\b${escapeRegex(kw)}\\b`, 'i');
+          if (pattern.test(searchableText)) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    }
+
+    /**
+     * =====================================================================
+     * PERSISTENCE (localStorage for Shelf, Theme, Bans, Title Mode)
+     * =====================================================================
+     */
+    function saveStateToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEYS.SHELF, JSON.stringify(state.shelf));
+        localStorage.setItem(STORAGE_KEYS.THEME, state.theme);
+        localStorage.setItem(STORAGE_KEYS.TITLE_MODE, JSON.stringify(state.preferScanlationTitles));
+        localStorage.setItem(
+          STORAGE_KEYS.BANS,
+          JSON.stringify({
+            presets: Array.from(state.bannedPresetIds),
+            custom: state.customBannedKeywords,
+          })
+        );
+      } catch (e) {
+        console.warn('localStorage write skipped:', e);
+      }
+    }
+
+    function loadStateFromStorage() {
+      try {
+        const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME);
+        if (savedTheme && ['moonlight', 'crimson', 'violet', 'jade', 'daylight'].includes(savedTheme)) {
+          state.theme = savedTheme;
+        }
+
+        const savedTitleMode = localStorage.getItem(STORAGE_KEYS.TITLE_MODE);
+        if (savedTitleMode !== null) {
+          state.preferScanlationTitles = JSON.parse(savedTitleMode);
+        }
+
+        const savedShelf = localStorage.getItem(STORAGE_KEYS.SHELF);
+        if (savedShelf) {
+          const parsed = JSON.parse(savedShelf);
+          if (Array.isArray(parsed)) state.shelf = parsed;
+        }
+
+        const savedBans = localStorage.getItem(STORAGE_KEYS.BANS);
+        if (savedBans) {
+          const parsedBans = JSON.parse(savedBans);
+          if (Array.isArray(parsedBans.presets)) {
+            state.bannedPresetIds = new Set(parsedBans.presets);
+          }
+          if (Array.isArray(parsedBans.custom)) {
+            state.customBannedKeywords = parsedBans.custom;
+          }
+        }
+      } catch (e) {
+        console.warn('localStorage load skipped:', e);
+      }
+    }
+
+    function applyTheme(themeName) {
+      state.theme = themeName;
+      document.documentElement.setAttribute('data-theme', themeName);
+      dom.themeSelector.value = themeName;
+      saveStateToStorage();
+    }
+
+    /**
+     * =====================================================================
+     * TASTE DNA EXTRACTION & SHELF MANAGEMENT
+     * =====================================================================
      */
     function recomputeTasteDNA(autoSelectTop = false) {
       const tagMap = new Map();
-      // Ignore meta/format tags in DNA pills unless toggled via Collector Notes
       const ignoredMetaTags = new Set(['Full Color', 'Webtoon', 'Adapted to Anime', 'Adapted to Drama']);
+      const banConfig = getActiveBanConfig();
 
       state.shelf.forEach((media) => {
-        const validTags = (media.tags || []).filter(
-          (t) => !t.isMediaSpoiler && !t.isGeneralSpoiler && (t.rank || 0) >= 45 && !ignoredMetaTags.has(t.name)
-        );
+        const validTags = (media.tags || []).filter((t) => {
+          if (t.isMediaSpoiler || t.isGeneralSpoiler) return false;
+          if ((t.rank || 0) < 45) return false;
+          if (ignoredMetaTags.has(t.name)) return false;
+          // Exclude any tag that the user has banned
+          if (banConfig.apiTags.some((bt) => bt.toLowerCase() === t.name.toLowerCase())) return false;
+          return true;
+        });
 
         validTags.forEach((t) => {
           const existing = tagMap.get(t.name) || { name: t.name, totalRank: 0, count: 0 };
@@ -847,7 +1520,6 @@
           name: item.name,
           count: item.count,
           avgRank: Math.round(item.totalRank / item.count),
-          // Weight rewards tropes appearing across multiple loved manhwa + high community rank
           weight: item.count * 100 + item.totalRank / item.count,
         }))
         .sort((a, b) => b.weight - a.weight)
@@ -855,7 +1527,6 @@
 
       state.extractedTags = ranked;
 
-      // Prune any active tags no longer present in extractedTags
       const availableNames = new Set(ranked.map((t) => t.name));
       for (const active of Array.from(state.activeTags)) {
         if (!availableNames.has(active)) {
@@ -863,75 +1534,126 @@
         }
       }
 
-      // When user adds a new manhwa, automatically activate top 2 tropes if none active or autoSelectTop is true
       if (autoSelectTop && ranked.length > 0) {
         state.activeTags.clear();
         ranked.slice(0, 2).forEach((t) => state.activeTags.add(t.name));
       }
     }
 
-    /**
-     * Add a manhwa to the Read & Loved shelf
-     */
     function addToShelf(media) {
       if (!media || !media.id) return;
+      const resolved = resolveManhwaTitles(media);
+
       if (state.shelf.some((item) => item.id === media.id)) {
-        showToast(`"${getDisplayTitle(media)}" is already on your shelf.`, 'info');
+        showToast(`"${resolved.primary}" is already on your shelf.`, 'info');
         return;
       }
 
       state.shelf.unshift(media);
-      saveShelfToStorage();
+      saveStateToStorage();
       recomputeTasteDNA(true);
       renderShelf();
       renderQuickAddPills();
       renderTasteDNA();
       updateQueryHint();
-      showToast(`Added "${getDisplayTitle(media)}" — Taste DNA updated!`, 'success');
+      showToast(`Added "${resolved.primary}" — Taste DNA updated!`, 'success');
       triggerRecommendationsFetch();
     }
 
-    /**
-     * Remove a manhwa from the Read & Loved shelf
-     */
     function removeFromShelf(mediaId) {
       const target = state.shelf.find((m) => m.id === mediaId);
       state.shelf = state.shelf.filter((m) => m.id !== mediaId);
-      saveShelfToStorage();
+      saveStateToStorage();
       recomputeTasteDNA(state.shelf.length > 0 && state.activeTags.size === 0);
       renderShelf();
       renderQuickAddPills();
       renderTasteDNA();
       updateQueryHint();
       if (target) {
-        showToast(`Removed "${getDisplayTitle(target)}" from shelf.`, 'info');
+        showToast(`Removed "${resolveManhwaTitles(target).primary}" from shelf.`, 'info');
       }
       triggerRecommendationsFetch();
     }
 
+    function exportShelfJson() {
+      if (state.shelf.length === 0) return;
+      const exportPayload = state.shelf.map((m) => {
+        const titles = resolveManhwaTitles(m);
+        return {
+          id: m.id,
+          title: titles.primary,
+          koreanTitle: titles.korean,
+          alternates: titles.alternates,
+          chapters: m.chapters,
+          status: m.status,
+          score: m.averageScore,
+          genres: m.genres,
+          anilistUrl: m.siteUrl,
+        };
+      });
+
+      const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const dateStr = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `vexinmanwha-shelf-${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast(`Exported ${state.shelf.length} manhwa to JSON!`, 'success');
+    }
+
     /**
-     * Search AniList for Korean manhwa matching user query
+     * =====================================================================
+     * SEARCH & QUICK STARTERS (AbortController + Ban Filtering)
+     * =====================================================================
      */
     async function searchManhwa(queryText) {
       const trimmed = queryText.trim();
       if (!trimmed) {
+        if (searchAbortController) searchAbortController.abort();
         dom.searchDropdown.classList.add('hidden');
         dom.searchClearBtn.classList.add('hidden');
+        dom.searchSpinner.classList.add('hidden');
         return;
       }
 
       dom.searchClearBtn.classList.remove('hidden');
       dom.searchSpinner.classList.remove('hidden');
 
+      if (searchAbortController) {
+        searchAbortController.abort();
+      }
+      searchAbortController = new AbortController();
+
+      const banConfig = getActiveBanConfig();
+      const varDefs = [
+        '$search: String',
+        banConfig.apiGenres.length > 0 ? '$genreNotIn: [String]' : null,
+        banConfig.apiTags.length > 0 ? '$tagNotIn: [String]' : null,
+      ]
+        .filter(Boolean)
+        .join(', ');
+
+      const mediaArgs = [
+        'type: MANGA',
+        'countryOfOrigin: "KR"',
+        'isAdult: false',
+        'search: $search',
+        banConfig.apiGenres.length > 0 ? 'genre_not_in: $genreNotIn' : null,
+        banConfig.apiTags.length > 0 ? 'tag_not_in: $tagNotIn' : null,
+        'sort: [SEARCH_MATCH, POPULARITY_DESC]',
+      ]
+        .filter(Boolean)
+        .join('\n              ');
+
       const gql = `
-        query SearchKRManhwa($search: String) {
-          Page(page: 1, perPage: 8) {
+        query SearchKRManhwa(${varDefs}) {
+          Page(page: 1, perPage: 10) {
             media(
-              type: MANGA
-              countryOfOrigin: "KR"
-              isAdult: false
-              search: $search
-              sort: [SEARCH_MATCH, POPULARITY_DESC]
+              ${mediaArgs}
             ) {
               ${MEDIA_FIELDS_FRAGMENT}
             }
@@ -939,36 +1661,38 @@
         }
       `;
 
+      const vars = { search: trimmed };
+      if (banConfig.apiGenres.length > 0) vars.genreNotIn = banConfig.apiGenres;
+      if (banConfig.apiTags.length > 0) vars.tagNotIn = banConfig.apiTags;
+
       try {
-        const data = await anilistRequest(gql, { search: trimmed });
-        const results = data?.Page?.media || [];
-        state.searchResults = results;
-        renderSearchDropdown(results);
+        const data = await anilistRequest(gql, vars, searchAbortController.signal);
+        const rawResults = data?.Page?.media || [];
+        // Enforce strict client-side ban check on search results too
+        const filteredResults = rawResults.filter((m) => !isMediaBanned(m, banConfig));
+        state.searchResults = filteredResults;
+        renderSearchDropdown(filteredResults);
       } catch (err) {
-        dom.searchDropdown.innerHTML = `
-          <div class="p-4 text-xs text-rose-300">
-            ${escapeHtml(err.message)}
-          </div>
-        `;
+        if (err.name === 'AbortError') return;
+        dom.searchDropdown.innerHTML = `<div class="p-4 text-xs text-rose-400">${escapeHtml(err.message)}</div>`;
         dom.searchDropdown.classList.remove('hidden');
       } finally {
         dom.searchSpinner.classList.add('hidden');
       }
     }
 
-    /**
-     * Fetch & add a Quick Starter title by name
-     */
     async function handleQuickAddStarter(starter) {
       if (state.loadingStarters.has(starter.query)) return;
 
-      // Check if already in shelf by title match
-      const existing = state.shelf.find((m) =>
-        getDisplayTitle(m).toLowerCase().includes(starter.label.toLowerCase()) ||
-        (m.title?.romaji || '').toLowerCase().includes(starter.label.toLowerCase())
-      );
+      const existing = state.shelf.find((m) => {
+        const resolved = resolveManhwaTitles(m);
+        return (
+          resolved.primary.toLowerCase().includes(starter.label.toLowerCase()) ||
+          resolved.alternates.some((a) => a.toLowerCase().includes(starter.label.toLowerCase()))
+        );
+      });
       if (existing) {
-        showToast(`"${starter.label}" is already in your Read & Loved shelf.`, 'info');
+        showToast(`"${starter.label}" is already on your shelf.`, 'info');
         return;
       }
 
@@ -1008,12 +1732,21 @@
     }
 
     /**
-     * Multi-Step Resilient Recommendation Query + Client-Side Taste Scoring
+     * =====================================================================
+     * MULTI-TIER RECOMMENDATION ENGINE + TASTE SCORING
+     * =====================================================================
      */
     let activeFetchToken = 0;
 
     async function fetchRecommendations() {
       const fetchToken = ++activeFetchToken;
+
+      if (recommendAbortController) {
+        recommendAbortController.abort();
+      }
+      recommendAbortController = new AbortController();
+      const signal = recommendAbortController.signal;
+
       state.isLoading = true;
       dom.errorBanner.classList.add('hidden');
       dom.emptyResultsState.classList.add('hidden');
@@ -1022,8 +1755,8 @@
 
       const excludeIds = state.shelf.map((m) => m.id);
       const selectedGenreArr = Array.from(state.selectedGenres);
+      const banConfig = getActiveBanConfig();
 
-      // Build active tag list (top active DNA tags + Full Color if toggled)
       const rankedActiveDnaTags = state.extractedTags
         .filter((t) => state.activeTags.has(t.name))
         .map((t) => t.name);
@@ -1033,21 +1766,20 @@
         precisionTags.push('Full Color');
       }
 
-      // Base filter variables
       const baseVars = {};
       if (excludeIds.length > 0) baseVars.idNotIn = excludeIds;
+      if (banConfig.apiGenres.length > 0) baseVars.genreNotIn = banConfig.apiGenres;
+      if (banConfig.apiTags.length > 0) baseVars.tagNotIn = banConfig.apiTags;
       if (state.notes.chapters100) baseVars.chaptersGreater = 99;
       if (state.notes.peakArt) baseVars.scoreGreater = 79;
       if (state.notes.completedOnly) baseVars.status = 'FINISHED';
 
-      // Sort order: Hidden Gems surfaces high-rated underrated titles via SCORE_DESC
       baseVars.sort = state.notes.hiddenGems
         ? ['SCORE_DESC', 'TRENDING_DESC']
         : ['POPULARITY_DESC', 'SCORE_DESC'];
 
       const candidateMap = new Map();
 
-      // Helper to execute a dynamic AniList Page query
       async function runTierQuery(tierVars) {
         const varDefs = [
           '$page: Int',
@@ -1055,6 +1787,8 @@
           tierVars.idNotIn ? '$idNotIn: [Int]' : null,
           tierVars.tagIn ? '$tagIn: [String]' : null,
           tierVars.genreIn ? '$genreIn: [String]' : null,
+          tierVars.genreNotIn ? '$genreNotIn: [String]' : null,
+          tierVars.tagNotIn ? '$tagNotIn: [String]' : null,
           tierVars.chaptersGreater !== undefined ? '$chaptersGreater: Int' : null,
           tierVars.scoreGreater !== undefined ? '$scoreGreater: Int' : null,
           tierVars.status ? '$status: MediaStatus' : null,
@@ -1070,6 +1804,8 @@
           tierVars.idNotIn ? 'id_not_in: $idNotIn' : null,
           tierVars.tagIn ? 'tag_in: $tagIn' : null,
           tierVars.genreIn ? 'genre_in: $genreIn' : null,
+          tierVars.genreNotIn ? 'genre_not_in: $genreNotIn' : null,
+          tierVars.tagNotIn ? 'tag_not_in: $tagNotIn' : null,
           tierVars.chaptersGreater !== undefined ? 'chapters_greater: $chaptersGreater' : null,
           tierVars.scoreGreater !== undefined ? 'averageScore_greater: $scoreGreater' : null,
           tierVars.status ? 'status: $status' : null,
@@ -1090,22 +1826,26 @@
           }
         `;
 
-        const data = await anilistRequest(query, {
-          page: 1,
-          perPage: 36,
-          ...tierVars,
-        });
+        const data = await anilistRequest(
+          query,
+          {
+            page: 1,
+            perPage: 40,
+            ...tierVars,
+          },
+          signal
+        );
 
         const list = data?.Page?.media || [];
         list.forEach((m) => {
-          if (!excludeIds.includes(m.id) && !candidateMap.has(m.id)) {
+          if (!excludeIds.includes(m.id) && !candidateMap.has(m.id) && !isMediaBanned(m, banConfig)) {
             candidateMap.set(m.id, m);
           }
         });
       }
 
       try {
-        // TIER 1: Precision query (Top 2 active tags + selected genres + note filters)
+        // TIER 1: Precision Query (Top 2 active tags + selected genres + note filters + bans)
         const tier1Vars = { ...baseVars };
         if (precisionTags.length > 0) tier1Vars.tagIn = precisionTags;
         if (selectedGenreArr.length > 0) tier1Vars.genreIn = selectedGenreArr;
@@ -1113,8 +1853,8 @@
         await runTierQuery(tier1Vars);
         if (fetchToken !== activeFetchToken) return;
 
-        // TIER 2: Broaden if fewer than 10 results (use only top 1 tag + note filters, drop multi-tag AND constraint)
-        if (candidateMap.size < 10 && (precisionTags.length > 1 || (precisionTags.length > 0 && selectedGenreArr.length > 0))) {
+        // TIER 2: Broaden if fewer than 12 valid non-banned results
+        if (candidateMap.size < 12 && (precisionTags.length > 1 || (precisionTags.length > 0 && selectedGenreArr.length > 0))) {
           const tier2Vars = { ...baseVars };
           tier2Vars.tagIn = [precisionTags[0]];
           if (selectedGenreArr.length > 0) {
@@ -1124,8 +1864,8 @@
           if (fetchToken !== activeFetchToken) return;
         }
 
-        // TIER 3: Fallback discovery if still < 10 results (genre-based or top Korean manhwa with active note filters)
-        if (candidateMap.size < 10 && (precisionTags.length > 0 || selectedGenreArr.length > 1)) {
+        // TIER 3: Fallback discovery if still < 12 results
+        if (candidateMap.size < 12 && (precisionTags.length > 0 || selectedGenreArr.length > 1)) {
           const tier3Vars = { ...baseVars };
           if (selectedGenreArr.length > 0) {
             tier3Vars.genreIn = [selectedGenreArr[0]];
@@ -1134,13 +1874,12 @@
           if (fetchToken !== activeFetchToken) return;
         }
 
-        // Score & rank every unique candidate client-side
         const scored = scoreCandidates(Array.from(candidateMap.values()));
         state.recommendations = scored;
         state.isLoading = false;
         renderRecommendations();
       } catch (err) {
-        if (fetchToken !== activeFetchToken) return;
+        if (err.name === 'AbortError' || fetchToken !== activeFetchToken) return;
         state.isLoading = false;
         dom.recommendationsGrid.innerHTML = '';
         dom.errorTitle.textContent = 'Could Not Fetch Recommendations';
@@ -1149,18 +1888,13 @@
       }
     }
 
-    /**
-     * Client-Side Taste DNA Match Scoring Algorithm
-     */
     function scoreCandidates(candidates) {
-      // Build lookup map of user's Taste DNA tags
       const dnaWeightMap = new Map();
       state.extractedTags.forEach((t) => {
         const multiplier = state.activeTags.has(t.name) ? 1.5 : 0.75;
         dnaWeightMap.set(t.name, t.weight * multiplier);
       });
 
-      // Collect genres present in user's Read & Loved shelf
       const shelfGenreCounts = new Map();
       state.shelf.forEach((m) => {
         (m.genres || []).forEach((g) => {
@@ -1190,10 +1924,8 @@
             }
           });
 
-          // Sort matched tags so user-toggled tropes appear first
           matchedTags.sort((a, b) => Number(b.isUserActive) - Number(a.isUserActive) || b.rank - a.rank);
 
-          // Genre alignment points
           let genrePoints = 0;
           const mediaGenres = media.genres || [];
           mediaGenres.forEach((g) => {
@@ -1201,20 +1933,16 @@
             if (shelfGenreCounts.has(g)) genrePoints += Math.min(6, shelfGenreCounts.get(g) * 2.5);
           });
 
-          // Community score & Peak Art alignment
           const avgScore = media.averageScore || 72;
           const scorePoints = Math.max(0, (avgScore - 60) * 0.65);
 
-          // Collector Note bonuses
           let notePoints = 0;
           if (state.notes.chapters100 && (media.chapters || 0) >= 100) notePoints += 4;
           if (state.notes.fullColor && mediaTags.some((t) => t.name === 'Full Color')) notePoints += 4;
           if (state.notes.peakArt && avgScore >= 82) notePoints += 5;
 
-          // Normalize into a crisp 66% - 99% Taste Match percentage
           let rawScore;
           if (!hasShelf && !hasSelectedGenres) {
-            // Discovery mode when shelf is empty: driven by community score & popularity quality
             rawScore = 72 + Math.min(25, (avgScore - 68) * 1.15);
           } else {
             const cappedTags = Math.min(44, tagOverlapPoints);
@@ -1224,8 +1952,6 @@
           }
 
           const matchPercent = Math.max(64, Math.min(99, Math.round(rawScore)));
-
-          // Hidden gems composite ranking boost
           const hiddenGemBoost = state.notes.hiddenGems
             ? avgScore * 2 - Math.log10(Math.max(1000, media.popularity || 10000)) * 8
             : 0;
@@ -1241,116 +1967,113 @@
     }
 
     /**
-     * Render Search Dropdown Items
+     * =====================================================================
+     * BATCH DOCUMENT-FRAGMENT DOM RENDERERS (Zero-Lag 60FPS Updates)
+     * =====================================================================
      */
     function renderSearchDropdown(results) {
+      dom.searchDropdown.innerHTML = '';
+
       if (!results.length) {
         dom.searchDropdown.innerHTML = `
-          <div class="p-4 text-xs text-slate-400 text-center">
-            No Korean manhwa found matching that title.
+          <div class="p-4 text-xs v-text-muted text-center">
+            No matching Korean manhwa found (or hidden by your active Ban filters).
           </div>
         `;
         dom.searchDropdown.classList.remove('hidden');
         return;
       }
 
-      dom.searchDropdown.innerHTML = results
-        .map((media) => {
-          const title = getDisplayTitle(media);
-          const romaji = media.title?.romaji && media.title.romaji !== title ? media.title.romaji : '';
-          const chapterInfo = formatChapterInfo(media);
-          const isAdded = state.shelf.some((s) => s.id === media.id);
-          const cover = media.coverImage?.medium || media.coverImage?.large || '';
+      const fragment = document.createDocumentFragment();
 
-          return `
-            <button
-              type="button"
-              data-add-id="${media.id}"
-              class="w-full text-left px-3.5 py-2.5 hover:bg-white/[0.05] transition-colors flex items-center gap-3 group"
-            >
-              <img
-                src="${escapeHtml(cover)}"
-                alt="${escapeHtml(title)}"
-                onerror="this.src='https://placehold.co/80x120/171c2b/818cf8?text=KR'"
-                class="w-10 h-14 rounded-lg object-cover bg-slate-800 flex-shrink-0 border border-white/10"
-              />
-              <div class="min-w-0 flex-1">
-                <div class="text-xs sm:text-sm font-bold text-white truncate group-hover:text-indigo-300 transition-colors">
-                  ${escapeHtml(title)}
-                </div>
-                ${romaji ? `<div class="text-[11px] text-slate-500 truncate">${escapeHtml(romaji)}</div>` : ''}
-                <div class="flex items-center gap-2 mt-1 text-[11px] font-mono text-slate-400">
-                  <span>${escapeHtml(chapterInfo.primary)}</span>
-                  ${media.averageScore ? `<span class="text-amber-400">★ ${media.averageScore}%</span>` : ''}
-                </div>
-              </div>
-              <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold flex-shrink-0 ${
-                isAdded
-                  ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
-                  : 'bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 group-hover:bg-indigo-500 group-hover:text-white'
-              }">
-                ${isAdded ? '✓ Read' : '+ Add'}
-              </span>
-            </button>
-          `;
-        })
-        .join('');
+      results.forEach((media) => {
+        const titles = resolveManhwaTitles(media);
+        const chapterInfo = formatChapterInfo(media);
+        const isAdded = state.shelf.some((s) => s.id === media.id);
+        const cover = media.coverImage?.medium || media.coverImage?.large || '';
+        const coverBg = media.coverImage?.color || 'var(--bg-surface-alt)';
 
-      dom.searchDropdown.classList.remove('hidden');
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'w-full text-left px-3.5 py-2.5 transition-colors flex items-center gap-3 group hover:bg-black/10 dark:hover:bg-white/5 cursor-pointer';
+        btn.innerHTML = `
+          <div class="w-10 h-14 rounded-lg overflow-hidden flex-shrink-0 border v-border" style="background-color: ${escapeHtml(coverBg)};">
+            <img
+              src="${escapeHtml(cover)}"
+              alt="${escapeHtml(titles.primary)}"
+              loading="lazy"
+              decoding="async"
+              onerror="this.src='https://placehold.co/80x120/172038/818cf8?text=KR'"
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="text-xs sm:text-sm font-bold v-text-primary truncate">
+              ${escapeHtml(titles.primary)}
+            </div>
+            ${titles.subtitle ? `<div class="text-[11px] v-text-muted truncate">${escapeHtml(titles.subtitle)}</div>` : ''}
+            <div class="flex items-center gap-2 mt-1 text-[11px] font-mono v-text-secondary">
+              <span>${escapeHtml(chapterInfo.full)}</span>
+              ${media.averageScore ? `<span class="text-amber-400 font-semibold">★ ${media.averageScore}%</span>` : ''}
+            </div>
+          </div>
+          <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold flex-shrink-0 ${
+            isAdded
+              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+              : 'v-pill-active'
+          }">
+            ${isAdded ? '✓ Read' : '+ Add'}
+          </span>
+        `;
 
-      // Bind click events to dropdown items
-      dom.searchDropdown.querySelectorAll('[data-add-id]').forEach((btn) => {
         btn.addEventListener('click', () => {
-          const id = Number(btn.getAttribute('data-add-id'));
-          const found = state.searchResults.find((m) => m.id === id);
-          if (found) {
-            addToShelf(found);
-            renderSearchDropdown(state.searchResults);
-          }
+          addToShelf(media);
+          renderSearchDropdown(state.searchResults);
         });
+
+        fragment.appendChild(btn);
       });
+
+      dom.searchDropdown.appendChild(fragment);
+      dom.searchDropdown.classList.remove('hidden');
     }
 
-    /**
-     * Render Quick Add Popular Starter Buttons
-     */
     function renderQuickAddPills() {
-      dom.quickAddContainer.innerHTML = POPULAR_STARTERS.map((starter) => {
-        const isAdded = state.shelf.some((m) =>
-          getDisplayTitle(m).toLowerCase().includes(starter.label.toLowerCase()) ||
-          (m.title?.romaji || '').toLowerCase().includes(starter.label.toLowerCase())
-        );
+      const fragment = document.createDocumentFragment();
+
+      POPULAR_STARTERS.forEach((starter) => {
+        const isAdded = state.shelf.some((m) => {
+          const resolved = resolveManhwaTitles(m);
+          return (
+            resolved.primary.toLowerCase().includes(starter.label.toLowerCase()) ||
+            resolved.alternates.some((a) => a.toLowerCase().includes(starter.label.toLowerCase()))
+          );
+        });
         const isLoading = state.loadingStarters.has(starter.query);
 
-        return `
-          <button
-            type="button"
-            data-starter-query="${escapeHtml(starter.query)}"
-            ${isAdded || isLoading ? 'disabled' : ''}
-            class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-all ${
-              isAdded
-                ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-300 cursor-default'
-                : 'bg-[#0c101a] hover:bg-indigo-500/15 border-white/[0.08] hover:border-indigo-400/40 text-slate-300 hover:text-white cursor-pointer'
-            }"
-          >
-            <span>${isLoading ? '⏳' : isAdded ? '✓' : '+'}</span>
-            <span>${escapeHtml(starter.label)}</span>
-          </button>
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.disabled = isAdded || isLoading;
+        btn.className = `inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium ${
+          isAdded
+            ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 cursor-default'
+            : 'v-pill cursor-pointer'
+        }`;
+        btn.innerHTML = `
+          <span>${isLoading ? '⏳' : isAdded ? '✓' : '+'}</span>
+          <span>${escapeHtml(starter.label)}</span>
         `;
-      }).join('');
 
-      dom.quickAddContainer.querySelectorAll('[data-starter-query]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const q = btn.getAttribute('data-starter-query');
-          const starter = POPULAR_STARTERS.find((s) => s.query === q);
-          if (starter) handleQuickAddStarter(starter);
-        });
+        if (!isAdded && !isLoading) {
+          btn.addEventListener('click', () => handleQuickAddStarter(starter));
+        }
+        fragment.appendChild(btn);
       });
+
+      dom.quickAddContainer.innerHTML = '';
+      dom.quickAddContainer.appendChild(fragment);
     }
 
-    /**
-     * Render User's Read & Loved Shelf
-     */
     function renderShelf() {
       const count = state.shelf.length;
       dom.headerShelfCount.textContent = count;
@@ -1358,61 +2081,64 @@
 
       if (count === 0) {
         dom.clearShelfBtn.classList.add('hidden');
+        dom.exportShelfBtn.classList.add('hidden');
         dom.emptyShelfState.classList.remove('hidden');
         dom.shelfList.innerHTML = '';
         return;
       }
 
       dom.clearShelfBtn.classList.remove('hidden');
+      dom.exportShelfBtn.classList.remove('hidden');
       dom.emptyShelfState.classList.add('hidden');
 
-      dom.shelfList.innerHTML = state.shelf
-        .map((media) => {
-          const title = getDisplayTitle(media);
-          const chapterInfo = formatChapterInfo(media);
-          const cover = media.coverImage?.medium || media.coverImage?.large || '';
+      const fragment = document.createDocumentFragment();
 
-          return `
-            <div class="flex items-center gap-3 p-2 rounded-xl bg-[#0c101a] border border-white/[0.07] hover:border-white/[0.15] transition-colors group">
-              <img
-                src="${escapeHtml(cover)}"
-                alt="${escapeHtml(title)}"
-                onerror="this.src='https://placehold.co/80x120/171c2b/818cf8?text=KR'"
-                class="w-9 h-12 rounded-lg object-cover flex-shrink-0 border border-white/10"
-              />
-              <div class="min-w-0 flex-1">
-                <div class="text-xs font-bold text-slate-100 truncate">${escapeHtml(title)}</div>
-                <div class="flex items-center gap-2 mt-0.5 text-[11px] font-mono text-slate-400">
-                  <span>${escapeHtml(chapterInfo.primary)}</span>
-                  ${media.averageScore ? `<span class="text-amber-400/90">★ ${media.averageScore}%</span>` : ''}
-                </div>
-              </div>
-              <button
-                type="button"
-                data-remove-id="${media.id}"
-                aria-label="Remove ${escapeHtml(title)}"
-                class="w-7 h-7 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 flex items-center justify-center transition-colors flex-shrink-0"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+      state.shelf.forEach((media) => {
+        const titles = resolveManhwaTitles(media);
+        const chapterInfo = formatChapterInfo(media);
+        const cover = media.coverImage?.medium || media.coverImage?.large || '';
+        const coverBg = media.coverImage?.color || 'var(--bg-surface-alt)';
+
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-3 p-2 rounded-xl v-surface-alt';
+        row.innerHTML = `
+          <div class="w-9 h-12 rounded-lg overflow-hidden flex-shrink-0 border v-border" style="background-color: ${escapeHtml(coverBg)};">
+            <img
+              src="${escapeHtml(cover)}"
+              alt="${escapeHtml(titles.primary)}"
+              loading="lazy"
+              decoding="async"
+              onerror="this.src='https://placehold.co/80x120/172038/818cf8?text=KR'"
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="text-xs font-bold v-text-primary truncate">${escapeHtml(titles.primary)}</div>
+            ${titles.korean ? `<div class="text-[10px] v-text-muted truncate">${escapeHtml(titles.korean)}</div>` : ''}
+            <div class="flex items-center gap-2 mt-0.5 text-[11px] font-mono v-text-secondary">
+              <span>${escapeHtml(chapterInfo.full)}</span>
+              ${media.averageScore ? `<span class="text-amber-400">★ ${media.averageScore}%</span>` : ''}
             </div>
-          `;
-        })
-        .join('');
+          </div>
+          <button
+            type="button"
+            aria-label="Remove ${escapeHtml(titles.primary)}"
+            class="w-7 h-7 rounded-lg v-text-muted hover:text-rose-400 hover:bg-rose-500/10 flex items-center justify-center transition-colors flex-shrink-0 cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        `;
 
-      dom.shelfList.querySelectorAll('[data-remove-id]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const id = Number(btn.getAttribute('data-remove-id'));
-          removeFromShelf(id);
-        });
+        row.querySelector('button').addEventListener('click', () => removeFromShelf(media.id));
+        fragment.appendChild(row);
       });
+
+      dom.shelfList.innerHTML = '';
+      dom.shelfList.appendChild(fragment);
     }
 
-    /**
-     * Render Extracted Taste DNA Trope Pills
-     */
     function renderTasteDNA() {
       const activeCount = state.activeTags.size;
       dom.dnaActiveCount.textContent = `${activeCount} active`;
@@ -1421,8 +2147,8 @@
         dom.dnaQuickActions.classList.add('hidden');
         dom.dnaQuickActions.classList.remove('flex');
         dom.tasteDnaContainer.innerHTML = `
-          <div class="w-full rounded-xl bg-[#0b0e16]/70 border border-white/[0.06] px-4 py-3 text-xs text-slate-400">
-            Add at least one manhwa to your shelf to automatically extract top non-spoiler tropes (e.g. <span class="text-slate-300 font-mono">System</span>, <span class="text-slate-300 font-mono">Regression</span>, <span class="text-slate-300 font-mono">Reincarnation</span>).
+          <div class="w-full rounded-xl v-surface-alt px-4 py-3 text-xs v-text-muted">
+            Add at least one manhwa to your shelf to automatically extract top non-spoiler tropes (e.g. <span class="v-text-primary font-mono">System</span>, <span class="v-text-primary font-mono">Regression</span>, <span class="v-text-primary font-mono">Reincarnation</span>).
           </div>
         `;
         return;
@@ -1431,203 +2157,264 @@
       dom.dnaQuickActions.classList.remove('hidden');
       dom.dnaQuickActions.classList.add('flex');
 
-      dom.tasteDnaContainer.innerHTML = state.extractedTags
-        .map((tag) => {
-          const isActive = state.activeTags.has(tag.name);
-          return `
-            <button
-              type="button"
-              data-dna-tag="${escapeHtml(tag.name)}"
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
-                isActive
-                  ? 'bg-indigo-500/25 border-indigo-400 text-white shadow-glow-indigo'
-                  : 'bg-[#0c101a] hover:bg-white/[0.05] border-white/[0.08] text-slate-400 hover:text-slate-200'
-              }"
-            >
-              <span class="text-[10px] font-mono ${isActive ? 'text-cyan-300' : 'text-slate-500'}">
-                ${isActive ? '⚡' : '#'}
-              </span>
-              <span>${escapeHtml(tag.name)}</span>
-              ${
-                tag.count > 1
-                  ? `<span class="ml-0.5 px-1.5 py-0.2 rounded text-[10px] font-mono ${
-                      isActive ? 'bg-indigo-400/30 text-indigo-100' : 'bg-white/[0.06] text-slate-400'
-                    }">×${tag.count}</span>`
-                  : ''
-              }
-            </button>
-          `;
-        })
-        .join('');
+      const fragment = document.createDocumentFragment();
 
-      dom.tasteDnaContainer.querySelectorAll('[data-dna-tag]').forEach((btn) => {
+      state.extractedTags.forEach((tag) => {
+        const isActive = state.activeTags.has(tag.name);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer ${
+          isActive ? 'v-pill-active' : 'v-pill'
+        }`;
+        btn.innerHTML = `
+          <span class="text-[10px] font-mono">${isActive ? '⚡' : '#'}</span>
+          <span>${escapeHtml(tag.name)}</span>
+          ${tag.count > 1 ? `<span class="ml-0.5 px-1.5 rounded text-[10px] font-mono opacity-80">×${tag.count}</span>` : ''}
+        `;
+
         btn.addEventListener('click', () => {
-          const tagName = btn.getAttribute('data-dna-tag');
-          if (state.activeTags.has(tagName)) {
-            state.activeTags.delete(tagName);
+          if (state.activeTags.has(tag.name)) {
+            state.activeTags.delete(tag.name);
           } else {
-            state.activeTags.add(tagName);
+            state.activeTags.add(tag.name);
           }
           renderTasteDNA();
           updateQueryHint();
           debouncedFetchRecommendations();
         });
+
+        fragment.appendChild(btn);
       });
+
+      dom.tasteDnaContainer.innerHTML = '';
+      dom.tasteDnaContainer.appendChild(fragment);
     }
 
-    /**
-     * Render Extra Genre Multi-Select Chips
-     */
     function renderGenres() {
       const count = state.selectedGenres.size;
       dom.genreActiveLabel.textContent = count === 0 ? 'Any genre' : `${count} selected`;
 
-      dom.genresContainer.innerHTML = EXTRA_GENRES.map((genre) => {
-        const isSelected = state.selectedGenres.has(genre);
-        return `
-          <button
-            type="button"
-            data-genre="${escapeHtml(genre)}"
-            class="px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
-              isSelected
-                ? 'bg-cyan-500/20 border-cyan-400/70 text-cyan-200 shadow-glow-cyan'
-                : 'bg-[#0c101a] hover:bg-white/[0.05] border-white/[0.08] text-slate-400 hover:text-slate-200'
-            }"
-          >
-            ${escapeHtml(genre)}
-          </button>
-        `;
-      }).join('');
+      const banConfig = getActiveBanConfig();
+      const fragment = document.createDocumentFragment();
 
-      dom.genresContainer.querySelectorAll('[data-genre]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const genre = btn.getAttribute('data-genre');
-          if (state.selectedGenres.has(genre)) {
-            state.selectedGenres.delete(genre);
-          } else {
-            state.selectedGenres.add(genre);
-          }
-          renderGenres();
-          updateQueryHint();
-          debouncedFetchRecommendations();
-        });
+      EXTRA_GENRES.forEach((genre) => {
+        const isBanned = banConfig.apiGenres.includes(genre);
+        const isSelected = state.selectedGenres.has(genre) && !isBanned;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.disabled = isBanned;
+        btn.className = `px-3 py-1.5 rounded-xl text-xs font-medium ${
+          isBanned
+            ? 'opacity-40 line-through v-pill cursor-not-allowed'
+            : isSelected
+            ? 'v-pill-active-2 cursor-pointer'
+            : 'v-pill cursor-pointer'
+        }`;
+        btn.textContent = genre;
+
+        if (!isBanned) {
+          btn.addEventListener('click', () => {
+            if (state.selectedGenres.has(genre)) {
+              state.selectedGenres.delete(genre);
+            } else {
+              state.selectedGenres.add(genre);
+            }
+            renderGenres();
+            updateQueryHint();
+            debouncedFetchRecommendations();
+          });
+        }
+
+        fragment.appendChild(btn);
       });
+
+      dom.genresContainer.innerHTML = '';
+      dom.genresContainer.appendChild(fragment);
     }
 
-    /**
-     * Render Collector Note & Vibe Toggles
-     */
     function renderNotes() {
-      dom.notesContainer.innerHTML = COLLECTOR_NOTES.map((note) => {
-        const isActive = Boolean(state.notes[note.id]);
-        return `
-          <button
-            type="button"
-            data-note-id="${note.id}"
-            class="text-left p-3 rounded-xl border transition-all cursor-pointer flex items-start gap-2.5 ${
-              isActive
-                ? 'bg-gradient-to-br from-indigo-500/20 to-cyan-500/15 border-indigo-400/60 text-white shadow-glow-indigo'
-                : 'bg-[#0c101a] hover:bg-white/[0.04] border-white/[0.08] text-slate-300'
-            }"
-          >
-            <span class="text-base leading-none mt-0.5">${note.icon}</span>
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center justify-between gap-1">
-                <span class="text-xs font-bold truncate">${escapeHtml(note.label)}</span>
-                <span class="w-4 h-4 rounded-md border flex items-center justify-center text-[10px] font-mono flex-shrink-0 ${
-                  isActive
-                    ? 'bg-indigo-500 border-indigo-400 text-white'
-                    : 'border-white/15 text-transparent'
-                }">✓</span>
-              </div>
-              <p class="text-[11px] text-slate-400 truncate mt-0.5">${escapeHtml(note.sub)}</p>
-            </div>
-          </button>
-        `;
-      }).join('');
+      const fragment = document.createDocumentFragment();
 
-      dom.notesContainer.querySelectorAll('[data-note-id]').forEach((btn) => {
+      COLLECTOR_NOTES.forEach((note) => {
+        const isActive = Boolean(state.notes[note.id]);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `text-left p-3 rounded-xl cursor-pointer flex items-start gap-2.5 ${
+          isActive ? 'v-pill-active' : 'v-pill'
+        }`;
+        btn.innerHTML = `
+          <span class="text-base leading-none mt-0.5">${note.icon}</span>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-xs font-bold truncate">${escapeHtml(note.label)}</span>
+              <span class="w-4 h-4 rounded-md border flex items-center justify-center text-[10px] font-mono flex-shrink-0 ${
+                isActive ? 'border-current' : 'v-border opacity-30'
+              }">✓</span>
+            </div>
+            <p class="text-[11px] v-text-muted truncate mt-0.5">${escapeHtml(note.sub)}</p>
+          </div>
+        `;
+
         btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-note-id');
-          state.notes[id] = !state.notes[id];
+          state.notes[note.id] = !state.notes[note.id];
           renderNotes();
           updateQueryHint();
           debouncedFetchRecommendations();
         });
+
+        fragment.appendChild(btn);
       });
+
+      dom.notesContainer.innerHTML = '';
+      dom.notesContainer.appendChild(fragment);
     }
 
-    /**
-     * Update live helper hint summarizing active search strategy
-     */
+    function renderBanPanel() {
+      const totalBans = state.bannedPresetIds.size + state.customBannedKeywords.length;
+      dom.banActiveCount.textContent = `${totalBans} blocked`;
+
+      if (totalBans > 0) {
+        dom.clearBansBtn.classList.remove('hidden');
+      } else {
+        dom.clearBansBtn.classList.add('hidden');
+      }
+
+      // Render Preset Ban Toggle Pills
+      const presetFragment = document.createDocumentFragment();
+      BAN_PRESETS.forEach((preset) => {
+        const isBanned = state.bannedPresetIds.has(preset.id);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs cursor-pointer ${
+          isBanned ? 'v-ban-pill-active' : 'v-ban-pill'
+        }`;
+        btn.innerHTML = `
+          <span class="text-[10px]">${isBanned ? '🚫' : '✕'}</span>
+          <span>${escapeHtml(preset.label)}</span>
+        `;
+
+        btn.addEventListener('click', () => {
+          if (state.bannedPresetIds.has(preset.id)) {
+            state.bannedPresetIds.delete(preset.id);
+          } else {
+            state.bannedPresetIds.add(preset.id);
+            // Automatically remove from Include Genres if user just banned it
+            preset.apiGenres.forEach((g) => state.selectedGenres.delete(g));
+          }
+          saveStateToStorage();
+          recomputeTasteDNA(false);
+          renderBanPanel();
+          renderGenres();
+          renderTasteDNA();
+          updateQueryHint();
+          debouncedFetchRecommendations();
+        });
+
+        presetFragment.appendChild(btn);
+      });
+
+      dom.banPresetsContainer.innerHTML = '';
+      dom.banPresetsContainer.appendChild(presetFragment);
+
+      // Render Custom Banned Chips
+      const customFragment = document.createDocumentFragment();
+      state.customBannedKeywords.forEach((kw) => {
+        const chip = document.createElement('span');
+        chip.className = 'v-ban-pill-active inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono';
+        chip.innerHTML = `
+          <span>🚫 ${escapeHtml(kw)}</span>
+          <button type="button" aria-label="Remove banned keyword ${escapeHtml(kw)}" class="hover:opacity-75 cursor-pointer font-bold">×</button>
+        `;
+        chip.querySelector('button').addEventListener('click', () => {
+          state.customBannedKeywords = state.customBannedKeywords.filter((item) => item !== kw);
+          saveStateToStorage();
+          renderBanPanel();
+          renderGenres();
+          updateQueryHint();
+          debouncedFetchRecommendations();
+        });
+        customFragment.appendChild(chip);
+      });
+
+      dom.customBansContainer.innerHTML = '';
+      dom.customBansContainer.appendChild(customFragment);
+    }
+
     function updateQueryHint() {
       const activeTagArr = Array.from(state.activeTags);
       const genreArr = Array.from(state.selectedGenres);
       const activeNotes = COLLECTOR_NOTES.filter((n) => state.notes[n.id]).map((n) => n.label);
+      const totalBans = state.bannedPresetIds.size + state.customBannedKeywords.length;
 
       const parts = [];
       if (activeTagArr.length > 0) parts.push(`Tropes: ${activeTagArr.slice(0, 2).join(' + ')}`);
       if (genreArr.length > 0) parts.push(`Genres: ${genreArr.join(', ')}`);
       if (activeNotes.length > 0) parts.push(`Notes: ${activeNotes.join(', ')}`);
+      if (totalBans > 0) parts.push(`Blocking ${totalBans} genre/tag rules`);
 
       if (parts.length === 0) {
         dom.queryStrategyHint.textContent =
           state.shelf.length > 0
-            ? 'Matching against your overall shelf DNA + top Korean manhwa.'
-            : 'Showing top-rated Korean manhwa across AniList. Add favorites above to personalize!';
+            ? 'Matching against your shelf Taste DNA + top Korean manhwa.'
+            : 'Showing peak Korean manhwa across AniList. Add favorites above to personalize!';
       } else {
-        dom.queryStrategyHint.textContent = `Filtering by ${parts.join(' • ')}`;
+        dom.queryStrategyHint.textContent = parts.join(' • ');
       }
     }
 
-    /**
-     * Render Active Criteria Pills in Step 3 Header
-     */
     function renderActiveCriteriaBar() {
       const pills = [];
       Array.from(state.activeTags).forEach((t) => {
-        pills.push(`<span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">⚡ ${escapeHtml(t)}</span>`);
+        pills.push(`<span class="v-pill-active px-2.5 py-1 rounded-lg text-[11px] font-mono">⚡ ${escapeHtml(t)}</span>`);
       });
       Array.from(state.selectedGenres).forEach((g) => {
-        pills.push(`<span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-cyan-500/15 text-cyan-300 border border-cyan-500/25">${escapeHtml(g)}</span>`);
+        pills.push(`<span class="v-pill-active-2 px-2.5 py-1 rounded-lg text-[11px] font-mono">${escapeHtml(g)}</span>`);
       });
       COLLECTOR_NOTES.filter((n) => state.notes[n.id]).forEach((n) => {
-        pills.push(`<span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-violet-500/15 text-violet-300 border border-violet-500/25">${n.icon} ${escapeHtml(n.label)}</span>`);
+        pills.push(`<span class="v-pill-active px-2.5 py-1 rounded-lg text-[11px] font-mono">${n.icon} ${escapeHtml(n.label)}</span>`);
+      });
+      BAN_PRESETS.filter((p) => state.bannedPresetIds.has(p.id)).forEach((p) => {
+        pills.push(`<span class="v-ban-pill-active px-2.5 py-1 rounded-lg text-[11px] font-mono">🚫 No ${escapeHtml(p.label)}</span>`);
+      });
+      state.customBannedKeywords.forEach((kw) => {
+        pills.push(`<span class="v-ban-pill-active px-2.5 py-1 rounded-lg text-[11px] font-mono">🚫 No ${escapeHtml(kw)}</span>`);
       });
 
       dom.activeCriteriaBar.innerHTML = pills.join('');
     }
 
-    /**
-     * Render Skeleton Loading Grid
-     */
     function renderSkeletonCards() {
       dom.resultsCountBadge.textContent = 'Searching...';
-      dom.recommendationsGrid.innerHTML = Array.from({ length: 8 })
-        .map(
-          () => `
-          <div class="rounded-2xl bg-surface border border-white/[0.07] overflow-hidden flex flex-col">
-            <div class="aspect-[2/3] w-full skeleton"></div>
-            <div class="p-4 space-y-3">
-              <div class="h-4 w-3/4 rounded skeleton"></div>
-              <div class="h-3 w-1/2 rounded skeleton"></div>
-              <div class="flex gap-1.5 pt-1">
-                <div class="h-5 w-16 rounded-md skeleton"></div>
-                <div class="h-5 w-20 rounded-md skeleton"></div>
-              </div>
-              <div class="grid grid-cols-2 gap-2 pt-2">
-                <div class="h-9 rounded-xl skeleton"></div>
-                <div class="h-9 rounded-xl skeleton"></div>
-              </div>
+      const fragment = document.createDocumentFragment();
+
+      for (let i = 0; i < 8; i++) {
+        const card = document.createElement('div');
+        card.className = 'rounded-2xl v-surface overflow-hidden flex flex-col';
+        card.innerHTML = `
+          <div class="aspect-[2/3] w-full skeleton"></div>
+          <div class="p-4 space-y-3">
+            <div class="h-4 w-3/4 rounded skeleton"></div>
+            <div class="h-3 w-1/2 rounded skeleton"></div>
+            <div class="flex gap-1.5 pt-1">
+              <div class="h-5 w-16 rounded-md skeleton"></div>
+              <div class="h-5 w-20 rounded-md skeleton"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-2">
+              <div class="h-9 rounded-xl skeleton"></div>
+              <div class="h-9 rounded-xl skeleton"></div>
             </div>
           </div>
-        `
-        )
-        .join('');
+        `;
+        fragment.appendChild(card);
+      }
+
+      dom.recommendationsGrid.innerHTML = '';
+      dom.recommendationsGrid.appendChild(fragment);
     }
 
     /**
-     * Render Scored Recommended Manhwa Cards
+     * Render Scored Recommended Manhwa Cards using DocumentFragment (Zero-Lag)
      */
     function renderRecommendations() {
       const items = state.recommendations;
@@ -1640,153 +2427,147 @@
       }
 
       dom.emptyResultsState.classList.add('hidden');
+      const fragment = document.createDocumentFragment();
 
-      dom.recommendationsGrid.innerHTML = items
-        .map(({ media, matchPercent, matchedTags }) => {
-          const title = getDisplayTitle(media);
-          const romaji = media.title?.romaji && media.title.romaji !== title ? media.title.romaji : '';
-          const chapterInfo = formatChapterInfo(media);
-          const cover = media.coverImage?.extraLarge || media.coverImage?.large || '';
-          const score = media.averageScore;
+      items.forEach((entry) => {
+        const { media, matchPercent, matchedTags } = entry;
+        const titles = resolveManhwaTitles(media);
+        const chapterInfo = formatChapterInfo(media);
+        const cover = media.coverImage?.extraLarge || media.coverImage?.large || '';
+        const coverBg = media.coverImage?.color || 'var(--bg-surface-alt)';
+        const score = media.averageScore;
 
-          const matchBadgeStyle =
-            matchPercent >= 88
-              ? 'bg-emerald-500/90 text-slate-950 border-emerald-300/60'
-              : matchPercent >= 78
-              ? 'bg-indigo-600/90 text-white border-indigo-300/40'
-              : 'bg-slate-900/90 text-cyan-300 border-cyan-400/40';
+        const matchBadgeClass =
+          matchPercent >= 88
+            ? 'bg-emerald-500 text-slate-950 font-extrabold'
+            : matchPercent >= 78
+            ? 'bg-indigo-600 text-white font-bold'
+            : 'bg-slate-900 text-cyan-300 font-bold border border-cyan-400/40';
 
-          // Display top 2 matched tags + top genres up to 3 pills total
-          const tagPills = matchedTags.slice(0, 2).map(
+        const tagPillsHtml = matchedTags
+          .slice(0, 2)
+          .map(
             (t) => `
-              <span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-indigo-500/15 text-indigo-300 border border-indigo-500/25 truncate max-w-[130px]">
+              <span class="v-pill-active px-2 py-0.5 rounded-md text-[11px] truncate max-w-[135px]">
                 ⚡ ${escapeHtml(t.name)}
               </span>
             `
-          );
+          )
+          .join('');
 
-          const remainingSlots = Math.max(1, 3 - tagPills.length);
-          const genrePills = (media.genres || []).slice(0, remainingSlots).map(
+        const remainingSlots = Math.max(1, 3 - matchedTags.slice(0, 2).length);
+        const genrePillsHtml = (media.genres || [])
+          .slice(0, remainingSlots)
+          .map(
             (g) => `
-              <span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-white/[0.05] text-slate-300 border border-white/[0.08]">
+              <span class="v-pill px-2 py-0.5 rounded-md text-[11px] font-medium">
                 ${escapeHtml(g)}
               </span>
             `
-          );
+          )
+          .join('');
 
-          return `
-            <article class="manhwa-card rounded-2xl bg-surface border border-white/[0.08] overflow-hidden flex flex-col justify-between group">
+        const article = document.createElement('article');
+        article.className = 'manhwa-card rounded-2xl overflow-hidden flex flex-col justify-between group';
+        article.innerHTML = `
+          <div>
+            <!-- 2:3 Cover Container with Instant Cover Color Fallback & Async Decoding -->
+            <div class="relative aspect-[2/3] w-full overflow-hidden cursor-pointer js-open-modal" style="background-color: ${escapeHtml(coverBg)};">
+              <img
+                src="${escapeHtml(cover)}"
+                alt="${escapeHtml(titles.primary)}"
+                loading="lazy"
+                decoding="async"
+                onerror="this.src='https://placehold.co/460x690/11182c/818cf8?text=${encodeURIComponent(titles.primary.slice(0, 18))}'"
+                class="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
+              />
+
+              <!-- Clean Linear Gradient Scrim (No Blur) -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/45 pointer-events-none"></div>
+
+              <!-- Top Badges: % Match & Score -->
+              <div class="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-none">
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono tracking-tight shadow-md ${matchBadgeClass}">
+                  ${matchPercent}% Match
+                </span>
+
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold bg-black/80 text-amber-300 border border-white/15">
+                  ★ ${score ? `${score}%` : 'N/A'}
+                </span>
+              </div>
+
+              <!-- Bottom Chapter Count & Status Overlay -->
+              <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-none">
+                <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-black/85 text-cyan-300 border border-cyan-400/35 truncate">
+                  ${escapeHtml(chapterInfo.full)}
+                </span>
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-black/75 text-slate-200 border border-white/10 flex-shrink-0">
+                  ${escapeHtml(chapterInfo.status)}
+                </span>
+              </div>
+            </div>
+
+            <!-- Card Title, Korean/Alt Subtitle & Matching Chips -->
+            <div class="p-4 space-y-2">
               <div>
-                <!-- 2:3 Cover Image Container -->
-                <div class="relative aspect-[2/3] w-full overflow-hidden bg-[#0c101a] cursor-pointer" data-open-modal-id="${media.id}">
-                  <img
-                    src="${escapeHtml(cover)}"
-                    alt="${escapeHtml(title)}"
-                    loading="lazy"
-                    onerror="this.src='https://placehold.co/460x690/111520/818cf8?text=${encodeURIComponent(title.slice(0, 18))}'"
-                    class="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                  />
-
-                  <!-- Top & Bottom Gradient Scrims -->
-                  <div class="absolute inset-0 bg-gradient-to-t from-[#090b10] via-transparent to-black/45 opacity-95"></div>
-
-                  <!-- Top Badges: % Match & Score -->
-                  <div class="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
-                    <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold tracking-tight border backdrop-blur-md shadow-lg ${matchBadgeStyle}">
-                      ${matchPercent}% Match
-                    </span>
-
-                    <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold bg-black/75 text-amber-300 border border-white/15 backdrop-blur-md">
-                      ★ ${score ? `${score}%` : 'N/A'}
-                    </span>
-                  </div>
-
-                  <!-- Bottom Chapter Count & Status Overlay -->
-                  <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
-                    <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold bg-[#090b10]/90 text-cyan-300 border border-cyan-500/30 backdrop-blur-md truncate">
-                      ${escapeHtml(chapterInfo.primary)}
-                    </span>
-                    <span class="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-white/10 text-slate-200 backdrop-blur-md flex-shrink-0">
-                      ${escapeHtml(chapterInfo.status)}
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Card Details -->
-                <div class="p-4 space-y-2.5">
-                  <div>
-                    <h3
-                      data-open-modal-id="${media.id}"
-                      class="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2 group-hover:text-indigo-300 transition-colors cursor-pointer"
-                      title="${escapeHtml(title)}"
-                    >
-                      ${escapeHtml(title)}
-                    </h3>
-                    ${
-                      romaji
-                        ? `<p class="text-[11px] text-slate-500 line-clamp-1 mt-0.5">${escapeHtml(romaji)}</p>`
-                        : ''
-                    }
-                  </div>
-
-                  <!-- Matching Tropes & Genre Chips -->
-                  <div class="flex flex-wrap gap-1.5 pt-0.5">
-                    ${tagPills.join('')}
-                    ${genrePills.join('')}
-                  </div>
-                </div>
+                <h3
+                  class="js-open-modal text-sm sm:text-base font-bold v-text-primary leading-snug line-clamp-2 cursor-pointer hover:underline"
+                  title="${escapeHtml(titles.primary)}"
+                >
+                  ${escapeHtml(titles.primary)}
+                </h3>
+                ${
+                  titles.subtitle
+                    ? `<p class="text-[11px] v-text-muted line-clamp-1 mt-0.5" title="${escapeHtml(titles.subtitle)}">${escapeHtml(titles.subtitle)}</p>`
+                    : ''
+                }
               </div>
 
-              <!-- Quick Action Footer -->
-              <div class="px-4 pb-4 pt-1 grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  data-open-modal-id="${media.id}"
-                  class="px-3 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.09] text-xs font-semibold text-slate-200 transition-colors cursor-pointer"
-                >
-                  Synopsis &amp; Tags
-                </button>
-                <button
-                  type="button"
-                  data-mark-read-id="${media.id}"
-                  class="px-3 py-2 rounded-xl bg-indigo-500/15 hover:bg-indigo-500 text-indigo-300 hover:text-white border border-indigo-400/30 text-xs font-semibold transition-all cursor-pointer"
-                >
-                  + Mark Read
-                </button>
+              <div class="flex flex-wrap gap-1.5 pt-1">
+                ${tagPillsHtml}
+                ${genrePillsHtml}
               </div>
-            </article>
-          `;
-        })
-        .join('');
+            </div>
+          </div>
 
-      // Attach listeners for Detail Modal & Mark Read
-      dom.recommendationsGrid.querySelectorAll('[data-open-modal-id]').forEach((el) => {
-        el.addEventListener('click', () => {
-          const id = Number(el.getAttribute('data-open-modal-id'));
-          const entry = state.recommendations.find((r) => r.media.id === id);
-          if (entry) openDetailModal(entry);
+          <!-- Quick Action Footer -->
+          <div class="px-4 pb-4 pt-1 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              class="js-open-modal v-pill px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer"
+            >
+              Details &amp; Titles
+            </button>
+            <button
+              type="button"
+              class="js-mark-read v-pill-active px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer"
+            >
+              + Mark Read
+            </button>
+          </div>
+        `;
+
+        article.querySelectorAll('.js-open-modal').forEach((el) => {
+          el.addEventListener('click', () => openDetailModal(entry));
         });
+        article.querySelector('.js-mark-read').addEventListener('click', () => addToShelf(media));
+
+        fragment.appendChild(article);
       });
 
-      dom.recommendationsGrid.querySelectorAll('[data-mark-read-id]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const id = Number(btn.getAttribute('data-mark-read-id'));
-          const entry = state.recommendations.find((r) => r.media.id === id);
-          if (entry) addToShelf(entry.media);
-        });
-      });
+      dom.recommendationsGrid.innerHTML = '';
+      dom.recommendationsGrid.appendChild(fragment);
     }
 
     /**
-     * Open Rich Detail Modal for a Recommended Manhwa
+     * Open Detail Modal with Full Synopsis, Korean + All Alternate Titles, Genres & Tags
      */
     function openDetailModal(entry) {
       const { media, matchPercent, matchedTags } = entry;
-      const title = getDisplayTitle(media);
-      const romaji = media.title?.romaji && media.title.romaji !== title ? media.title.romaji : '';
-      const nativeTitle = media.title?.native || '';
+      const titles = resolveManhwaTitles(media);
       const chapterInfo = formatChapterInfo(media);
       const cover = media.coverImage?.extraLarge || media.coverImage?.large || '';
+      const coverBg = media.coverImage?.color || 'var(--bg-surface-alt)';
       const banner = media.bannerImage || cover;
       const synopsis = formatSynopsis(media.description);
       const isRead = state.shelf.some((s) => s.id === media.id);
@@ -1794,76 +2575,106 @@
       const matchedNames = new Set(matchedTags.map((t) => t.name));
       const allNonSpoilerTags = (media.tags || []).filter((t) => !t.isMediaSpoiler && !t.isGeneralSpoiler);
 
+      // Collect all distinct title variants for easy copy/recognition
+      const allTitleVariants = Array.from(
+        new Set(
+          [
+            media.title?.english,
+            ...(media.synonyms || []),
+            media.title?.romaji,
+            media.title?.native,
+          ].filter(Boolean)
+        )
+      );
+
       dom.modalContent.innerHTML = `
-        <!-- Banner Header -->
-        <div class="relative h-40 sm:h-52 w-full overflow-hidden bg-[#090b10]">
+        <!-- Banner Header (No backdrop-blur) -->
+        <div class="relative h-36 sm:h-48 w-full overflow-hidden" style="background-color: ${escapeHtml(coverBg)};">
           <img
             src="${escapeHtml(banner)}"
             alt=""
-            class="w-full h-full object-cover ${media.bannerImage ? 'opacity-65' : 'opacity-30 blur-md scale-110'}"
+            decoding="async"
+            class="w-full h-full object-cover ${media.bannerImage ? 'opacity-70' : 'opacity-25'}"
           />
-          <div class="absolute inset-0 bg-gradient-to-t from-[#111520] via-[#111520]/50 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent"></div>
         </div>
 
-        <!-- Main Modal Body -->
-        <div class="px-5 sm:px-8 pb-8 -mt-20 sm:-mt-24 relative z-10 space-y-6">
+        <!-- Modal Body -->
+        <div class="px-5 sm:px-8 pb-8 -mt-16 sm:-mt-20 relative z-10 space-y-5">
           <div class="flex flex-col sm:flex-row gap-5 items-start">
-            <img
-              src="${escapeHtml(cover)}"
-              alt="${escapeHtml(title)}"
-              onerror="this.src='https://placehold.co/300x450/111520/818cf8?text=KR'"
-              class="w-32 sm:w-40 aspect-[2/3] rounded-2xl object-cover border-2 border-white/15 shadow-2xl flex-shrink-0"
-            />
+            <div class="w-32 sm:w-36 aspect-[2/3] rounded-2xl overflow-hidden border-2 v-border shadow-xl flex-shrink-0" style="background-color: ${escapeHtml(coverBg)};">
+              <img
+                src="${escapeHtml(cover)}"
+                alt="${escapeHtml(titles.primary)}"
+                decoding="async"
+                onerror="this.src='https://placehold.co/300x450/11182c/818cf8?text=KR'"
+                class="w-full h-full object-cover"
+              />
+            </div>
 
-            <div class="space-y-3 pt-1 sm:pt-12 min-w-0 flex-1">
+            <div class="space-y-2.5 pt-1 sm:pt-10 min-w-0 flex-1">
               <div class="flex flex-wrap items-center gap-2">
-                <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-400/35">
                   ${matchPercent}% Taste Match
                 </span>
-                <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-400/30">
+                <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-400/35">
                   ★ ${media.averageScore ? `${media.averageScore}% Score` : 'Unrated'}
                 </span>
-                <span class="px-2.5 py-1 rounded-lg text-xs font-mono bg-cyan-500/15 text-cyan-300 border border-cyan-400/30">
-                  ${escapeHtml(chapterInfo.primary)}
+                <span class="v-pill-active-2 px-2.5 py-1 rounded-lg text-xs font-mono">
+                  ${escapeHtml(chapterInfo.full)}
                 </span>
               </div>
 
               <div>
-                <h2 id="modal-title" class="text-xl sm:text-2xl font-extrabold text-white leading-tight">
-                  ${escapeHtml(title)}
+                <h2 id="modal-title" class="text-xl sm:text-2xl font-extrabold v-text-primary leading-tight">
+                  ${escapeHtml(titles.primary)}
                 </h2>
                 ${
-                  romaji || nativeTitle
-                    ? `<p class="text-xs text-slate-400 mt-1">${escapeHtml([romaji, nativeTitle].filter(Boolean).join(' • '))}</p>`
+                  titles.korean
+                    ? `<p class="text-xs font-semibold v-text-muted mt-1">Korean: ${escapeHtml(titles.korean)}</p>`
                     : ''
                 }
               </div>
 
-              <!-- Genres -->
               <div class="flex flex-wrap gap-1.5">
                 ${(media.genres || [])
-                  .map(
-                    (g) =>
-                      `<span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-white/[0.06] text-slate-200 border border-white/[0.08]">${escapeHtml(g)}</span>`
-                  )
+                  .map((g) => `<span class="v-pill px-2.5 py-1 rounded-lg text-xs font-medium">${escapeHtml(g)}</span>`)
                   .join('')}
               </div>
             </div>
           </div>
 
-          <!-- Why It Matched -->
+          <!-- All Known English / Scanlation / Romaji / Korean Titles -->
+          ${
+            allTitleVariants.length > 1
+              ? `
+            <div class="rounded-xl v-surface-alt p-3.5 space-y-1.5">
+              <div class="text-[11px] font-mono uppercase tracking-wider v-text-muted font-bold">
+                Known Titles &amp; Scanlation Aliases
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                ${allTitleVariants
+                  .map((t) => `<span class="v-pill px-2.5 py-1 rounded-lg text-xs">${escapeHtml(t)}</span>`)
+                  .join('')}
+              </div>
+            </div>
+          `
+              : ''
+          }
+
+          <!-- Shared Taste DNA Tropes -->
           ${
             matchedTags.length > 0
               ? `
-            <div class="rounded-xl bg-indigo-500/10 border border-indigo-400/25 p-3.5 space-y-1.5">
-              <div class="text-[11px] font-mono uppercase tracking-wider text-indigo-300 font-bold">
+            <div class="rounded-xl p-3.5 space-y-1.5" style="background-color: var(--accent-soft); border: 1px solid var(--border-strong);">
+              <div class="text-[11px] font-mono uppercase tracking-wider font-bold" style="color: var(--accent-text);">
                 ⚡ Shared Taste DNA Tropes
               </div>
               <div class="flex flex-wrap gap-1.5">
                 ${matchedTags
                   .map(
                     (t) =>
-                      `<span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-500/25 text-white border border-indigo-400/40">${escapeHtml(t.name)} <span class="text-indigo-200 font-mono text-[10px]">(${t.rank}%)</span></span>`
+                      `<span class="v-pill-active px-2.5 py-1 rounded-lg text-xs">${escapeHtml(t.name)} <span class="font-mono text-[10px]">(${t.rank}%)</span></span>`
                   )
                   .join('')}
               </div>
@@ -1873,9 +2684,9 @@
           }
 
           <!-- Synopsis -->
-          <div class="space-y-2">
-            <h3 class="text-xs font-mono uppercase tracking-wider text-slate-400 font-bold">Synopsis</h3>
-            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
+          <div class="space-y-1.5">
+            <h3 class="text-xs font-mono uppercase tracking-wider v-text-muted font-bold">Synopsis</h3>
+            <p class="text-xs sm:text-sm v-text-secondary leading-relaxed whitespace-pre-line">
               ${escapeHtml(synopsis)}
             </p>
           </div>
@@ -1884,8 +2695,8 @@
           ${
             allNonSpoilerTags.length > 0
               ? `
-            <div class="space-y-2">
-              <h3 class="text-xs font-mono uppercase tracking-wider text-slate-400 font-bold">
+            <div class="space-y-1.5">
+              <h3 class="text-xs font-mono uppercase tracking-wider v-text-muted font-bold">
                 AniList Community Tags (${allNonSpoilerTags.length})
               </h3>
               <div class="flex flex-wrap gap-1.5">
@@ -1893,11 +2704,7 @@
                   .map((t) => {
                     const isMatch = matchedNames.has(t.name);
                     return `
-                      <span class="px-2.5 py-1 rounded-lg text-xs border ${
-                        isMatch
-                          ? 'bg-indigo-500/20 border-indigo-400/40 text-indigo-200 font-semibold'
-                          : 'bg-[#0b0e16] border-white/[0.07] text-slate-400'
-                      }">
+                      <span class="${isMatch ? 'v-pill-active' : 'v-pill'} px-2.5 py-1 rounded-lg text-xs">
                         ${escapeHtml(t.name)} <span class="font-mono text-[10px] opacity-75">${t.rank || 0}%</span>
                       </span>
                     `;
@@ -1909,16 +2716,16 @@
               : ''
           }
 
-          <!-- Modal Actions -->
-          <div class="pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3">
+          <!-- Modal Footer Actions -->
+          <div class="pt-4 border-t v-border flex flex-wrap items-center justify-between gap-3">
             <button
               type="button"
               id="modal-mark-read-btn"
               ${isRead ? 'disabled' : ''}
-              class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold ${
                 isRead
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 cursor-default'
-                  : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-glow-indigo cursor-pointer'
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-400/35 cursor-default'
+                  : 'v-btn-primary cursor-pointer'
               }"
             >
               ${isRead ? '✓ On Your Read & Loved Shelf' : '+ Add to Read & Loved Shelf'}
@@ -1928,7 +2735,7 @@
               href="${escapeHtml(media.siteUrl || `https://anilist.co/manga/${media.id}`)}"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] text-xs sm:text-sm font-semibold text-slate-200 transition-colors"
+              class="v-pill inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold"
             >
               <span>Open on AniList</span>
               <span>↗</span>
@@ -1955,18 +2762,18 @@
     }
 
     /**
-     * Debounce helpers
+     * Debounce Helpers (350ms search debounce)
      */
     let searchTimer = null;
     function debouncedSearch(val) {
       clearTimeout(searchTimer);
-      searchTimer = setTimeout(() => searchManhwa(val), 320);
+      searchTimer = setTimeout(() => searchManhwa(val), 350);
     }
 
     let fetchDebounceTimer = null;
     function debouncedFetchRecommendations() {
       clearTimeout(fetchDebounceTimer);
-      fetchDebounceTimer = setTimeout(() => fetchRecommendations(), 350);
+      fetchDebounceTimer = setTimeout(() => fetchRecommendations(), 300);
     }
 
     function triggerRecommendationsFetch() {
@@ -1974,10 +2781,7 @@
       fetchRecommendations();
     }
 
-    /**
-     * Reset all filters cleanly
-     */
-    function resetAllFilters() {
+    function resetIncludeFilters() {
       state.activeTags.clear();
       state.selectedGenres.clear();
       Object.keys(state.notes).forEach((k) => {
@@ -1987,15 +2791,22 @@
       renderGenres();
       renderNotes();
       updateQueryHint();
-      showToast('Filters reset to default.', 'info');
+      showToast('Include filters reset.', 'info');
       triggerRecommendationsFetch();
     }
 
+    function updateTitleModeButton() {
+      dom.titleModeLabel.textContent = state.preferScanlationTitles ? 'Scanlation / EN' : 'Official Romaji/EN';
+    }
+
     /**
-     * Wire up DOM Event Listeners & Initialize App
+     * Initialize App & Bind Event Listeners
      */
     function init() {
-      loadShelfFromStorage();
+      loadStateFromStorage();
+      applyTheme(state.theme);
+      updateTitleModeButton();
+
       recomputeTasteDNA(state.shelf.length > 0 && state.activeTags.size === 0);
 
       renderQuickAddPills();
@@ -2003,9 +2814,36 @@
       renderTasteDNA();
       renderGenres();
       renderNotes();
+      renderBanPanel();
       updateQueryHint();
 
-      // Search input events
+      // Theme Selector
+      dom.themeSelector.addEventListener('change', (e) => {
+        applyTheme(e.target.value);
+      });
+
+      // Smart Title Mode Toggle
+      dom.titleModeToggle.addEventListener('click', () => {
+        state.preferScanlationTitles = !state.preferScanlationTitles;
+        saveStateToStorage();
+        updateTitleModeButton();
+        renderShelf();
+        renderQuickAddPills();
+        if (state.searchResults.length > 0 && !dom.searchDropdown.classList.contains('hidden')) {
+          renderSearchDropdown(state.searchResults);
+        }
+        if (state.recommendations.length > 0) {
+          renderRecommendations();
+        }
+        showToast(
+          state.preferScanlationTitles
+            ? 'Prioritizing English & scanlation titles.'
+            : 'Showing official AniList English/Romaji titles.',
+          'info'
+        );
+      });
+
+      // Search Input Events
       dom.searchInput.addEventListener('input', (e) => {
         debouncedSearch(e.target.value);
       });
@@ -2017,26 +2855,27 @@
       });
 
       dom.searchClearBtn.addEventListener('click', () => {
+        if (searchAbortController) searchAbortController.abort();
         dom.searchInput.value = '';
         state.searchResults = [];
         dom.searchDropdown.classList.add('hidden');
         dom.searchClearBtn.classList.add('hidden');
+        dom.searchSpinner.classList.add('hidden');
         dom.searchInput.focus();
       });
 
-      // Close search dropdown when clicking outside
       document.addEventListener('click', (e) => {
         if (!document.getElementById('search-wrapper').contains(e.target)) {
           dom.searchDropdown.classList.add('hidden');
         }
       });
 
-      // Clear entire shelf
+      // Shelf Clear & Export
       dom.clearShelfBtn.addEventListener('click', () => {
         state.shelf = [];
         state.extractedTags = [];
         state.activeTags.clear();
-        saveShelfToStorage();
+        saveStateToStorage();
         renderShelf();
         renderQuickAddPills();
         renderTasteDNA();
@@ -2045,7 +2884,9 @@
         triggerRecommendationsFetch();
       });
 
-      // Taste DNA quick select buttons
+      dom.exportShelfBtn.addEventListener('click', exportShelfJson);
+
+      // Taste DNA Quick Buttons
       dom.dnaSelectTopBtn.addEventListener('click', () => {
         state.activeTags.clear();
         state.extractedTags.slice(0, 3).forEach((t) => state.activeTags.add(t.name));
@@ -2061,17 +2902,53 @@
         triggerRecommendationsFetch();
       });
 
-      // Primary action buttons
+      // Custom Ban Keyword Form
+      dom.customBanForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const raw = dom.customBanInput.value.trim();
+        if (!raw) return;
+
+        const exists = state.customBannedKeywords.some((k) => k.toLowerCase() === raw.toLowerCase());
+        if (exists) {
+          showToast(`"${raw}" is already in your blocked list.`, 'info');
+          dom.customBanInput.value = '';
+          return;
+        }
+
+        state.customBannedKeywords.push(raw);
+        dom.customBanInput.value = '';
+        saveStateToStorage();
+        renderBanPanel();
+        renderGenres();
+        updateQueryHint();
+        showToast(`Blocked "${raw}" from recommendations & search.`, 'warning');
+        debouncedFetchRecommendations();
+      });
+
+      dom.clearBansBtn.addEventListener('click', () => {
+        state.bannedPresetIds.clear();
+        state.customBannedKeywords = [];
+        saveStateToStorage();
+        recomputeTasteDNA(false);
+        renderBanPanel();
+        renderGenres();
+        renderTasteDNA();
+        updateQueryHint();
+        showToast('All genre and tag bans cleared.', 'info');
+        triggerRecommendationsFetch();
+      });
+
+      // Primary Action Buttons
       dom.findPeakBtn.addEventListener('click', () => {
         triggerRecommendationsFetch();
         document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
 
-      dom.resetFiltersBtn.addEventListener('click', resetAllFilters);
-      dom.relaxFiltersBtn.addEventListener('click', resetAllFilters);
+      dom.resetFiltersBtn.addEventListener('click', resetIncludeFilters);
+      dom.relaxFiltersBtn.addEventListener('click', resetIncludeFilters);
       dom.retryFetchBtn.addEventListener('click', triggerRecommendationsFetch);
 
-      // Modal close listeners
+      // Modal Close Listeners
       dom.closeModalBtn.addEventListener('click', closeDetailModal);
       dom.detailModal.addEventListener('click', (e) => {
         if (e.target === dom.detailModal) closeDetailModal();
@@ -2082,7 +2959,7 @@
         }
       });
 
-      // Initial recommendation discovery on load
+      // Initial Recommendation Fetch
       fetchRecommendations();
     }
 
