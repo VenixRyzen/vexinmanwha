@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="moonlight">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VexinManwha — Taste-DNA Manhwa Discovery & Web Reader</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-badge">VM</span>
+      <div>
+        <h1>VexinManwha</h1>
+        <p class="subtitle">Multi-Library Manhwa Engine &amp; Online Webtoon Reader</p>
+      </div>
+    </div>
+
+    <div class="topbar-controls">
+      <button id="openReaderBtn" class="btn btn-accent">📖 Web Reader</button>
+
+      <label class="control-pill" title="Switch UI Color Theme">
+        <span>Theme</span>
+        <select id="themeSelect">
+          <option value="moonlight">Moonlight</option>
+          <option value="crimson">Crimson Red</option>
+          <option value="shadow">Shadow Violet</option>
+          <option value="jade">Jade Murim</option>
+          <option value="daylight">Daylight</option>
+        </select>
+      </label>
+
+      <label class="control-pill" title="Resolve Japanese Romaji vs English/Scanlation titles">
+        <span>Titles</span>
+        <select id="titlePrefSelect">
+          <option value="scanlation">Scanlation / EN</option>
+          <option value="official">Official / Romaji</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- STEP 1: READ & LOVED SHELF -->
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>1. Your Read &amp; Loved Manhwa Shelf</h2>
+          <p class="muted">Searches AniList KR, Kitsu, MAL, and Verified OEL Webtoons simultaneously.</p>
+        </div>
+        <button id="clearShelfBtn" class="btn btn-ghost btn-sm">Clear Shelf</button>
+      </div>
+
+      <div class="search-wrapper">
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="Search manhwa (e.g., Solo Leveling, The Beginning After the End, Eleceed)..."
+          autocomplete="off"
+        />
+        <span id="searchSpinner" class="spinner hidden"></span>
+        <div id="searchDropdown" class="dropdown hidden"></div>
+      </div>
+
+      <div class="starter-row">
+        <span class="label-sm">Quick Add:</span>
+        <div id="starterChips" class="chip-group"></div>
+      </div>
+
+      <div class="shelf-header">
+        <span>Saved Shelf (<strong id="shelfCount">0</strong>)</span>
+      </div>
+      <div id="shelfGrid" class="shelf-grid"></div>
+    </section>
+
+    <!-- STEP 2: TASTE DNA, FILTERS & BANS -->
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>2. Taste DNA, Collector Notes &amp; Genre Bans</h2>
+          <p class="muted">Fine-tune tropes, chapter minimums, and permanently block unwanted genres/tags.</p>
+        </div>
+      </div>
+
+      <div class="filter-block">
+        <div class="filter-title">Extracted Taste DNA Tropes <span id="tagHint" class="muted">(Add manhwa above to extract)</span></div>
+        <div id="extractedTags" class="chip-group"></div>
+      </div>
+
+      <div class="filter-block">
+        <div class="filter-title">Extra Genres</div>
+        <div id="genreChips" class="chip-group"></div>
+      </div>
+
+      <div class="filter-block">
+        <div class="filter-title">Collector Notes</div>
+        <div id="noteChips" class="chip-group"></div>
+      </div>
+
+      <div class="filter-block ban-block">
+        <div class="ban-header">
+          <div class="filter-title">🚫 Ban / Block Genres &amp; Tags</div>
+          <button id="clearBansBtn" class="btn btn-ghost btn-sm">Reset Bans</button>
+        </div>
+        <div id="banPresetChips" class="chip-group"></div>
+
+        <div class="custom-ban-row">
+          <input id="customBanInput" type="text" placeholder="Add custom banned keyword (e.g., NTR, Netorare, Loli)..." />
+          <button id="addBanBtn" class="btn btn-danger btn-sm">+ Ban Keyword</button>
+        </div>
+        <div id="activeBansList" class="chip-group"></div>
+      </div>
+
+      <div class="action-row">
+        <button id="findBtn" class="btn btn-primary btn-lg">⚡ Find Peak Manhwa Recommendations</button>
+      </div>
+    </section>
+
+    <div id="statusBanner" class="status-banner hidden"></div>
+
+    <!-- STEP 3: RECOMMENDATIONS -->
+    <section id="resultsSection" class="panel hidden">
+      <div class="panel-header">
+        <div>
+          <h2>Recommended Manhwa (<span id="resultsCount">0</span>)</h2>
+          <p class="muted">Filtered against your read shelf and banned tags.</p>
+        </div>
+        <select id="sortSelect" class="control-select">
+          <option value="match">Sort: Best Taste Match</option>
+          <option value="score">Sort: Highest Rating</option>
+          <option value="chapters">Sort: Most Chapters</option>
+        </select>
+      </div>
+      <div id="resultsGrid" class="results-grid"></div>
+    </section>
+  </main>
+
+  <!-- DETAIL MODAL -->
+  <div id="detailModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <button id="closeDetailBtn" class="modal-close" aria-label="Close">✕</button>
+      <div id="detailBody"></div>
+    </div>
+  </div>
+
+  <!-- ONLINE WEBTOON READER MODAL -->
+  <div id="readerModal" class="modal reader-modal hidden" role="dialog" aria-modal="true">
+    <div class="reader-shell">
+      <div class="reader-toolbar">
+        <div class="reader-title-box">
+          <strong id="readerSeriesTitle">VexinManwha Web Reader</strong>
+          <span class="muted small">Online Stream / API Connector</span>
+        </div>
+
+        <div class="reader-nav-controls">
+          <button id="prevChapBtn" class="btn btn-ghost btn-sm">◀ Prev</button>
+          <select id="readerChapterSelect" class="control-select"></select>
+          <button id="nextChapBtn" class="btn btn-ghost btn-sm">Next ▶</button>
+        </div>
+
+        <div class="reader-view-controls">
+          <label class="control-pill small">
+            <span>Width</span>
+            <input id="stripWidthRange" type="range" min="480" max="1000" step="20" value="760" />
+            <span id="stripWidthVal">760px</span>
+          </label>
+          <button id="autoScrollBtn" class="btn btn-ghost btn-sm">Auto-Scroll: Off</button>
+          <button id="closeReaderBtn" class="btn btn-danger btn-sm">✕ Close</button>
+        </div>
+      </div>
+
+      <!-- API Connector & Continuity Strip -->
+      <div class="reader-config-bar">
+        <div class="api-connector-group">
+          <input
+            id="readerApiUrlInput"
+            type="url"
+            placeholder="Optional CORS Reader API URL (e.g., http://localhost:4567/api/v1 or custom JSON feed)"
+          />
+          <button id="saveReaderApiBtn" class="btn btn-primary btn-sm">Connect API</button>
+          <label class="btn btn-ghost btn-sm file-btn" title="Optional local CBZ/ZIP fallback">
+            📁 Open CBZ/ZIP
+            <input id="localCbzInput" type="file" accept=".cbz,.zip" hidden />
+          </label>
+        </div>
+        <div id="readerContinuityBar" class="continuity-bar"></div>
+      </div>
+
+      <div id="readerPagesContainer" class="reader-pages"></div>
+    </div>
+  </div>
+</body>
+</html>
