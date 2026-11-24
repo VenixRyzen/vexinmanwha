@@ -1,0 +1,2092 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VexinManwha — Taste-Matched Korean Manhwa Discovery</title>
+  <meta name="description" content="AI-free taste-matched Korean manhwa discovery engine powered by AniList. Add manhwa you've loved, customize vibe filters, and uncover peak recommendations." />
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            obsidian: '#090b10',
+            surface: '#111520',
+            surfaceElevated: '#171c2b',
+            indigoAccent: '#6366f1',
+            violetAccent: '#8b5cf6',
+            cyanAccent: '#06b6d4',
+          },
+          boxShadow: {
+            'glow-indigo': '0 0 28px -6px rgba(99, 102, 241, 0.45)',
+            'glow-cyan': '0 0 24px -6px rgba(6, 182, 212, 0.35)',
+            'card': '0 10px 30px -10px rgba(0, 0, 0, 0.65)',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Custom Editorial Dark-Mode Polish */
+    :root {
+      color-scheme: dark;
+    }
+
+    body {
+      background-color: #090b10;
+      color: #f1f5f9;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Mesh Gradient Backdrop */
+    .ambient-bg {
+      background-image:
+        radial-gradient(circle at 15% 0%, rgba(99, 102, 241, 0.14) 0%, transparent 42%),
+        radial-gradient(circle at 85% 8%, rgba(6, 182, 212, 0.10) 0%, transparent 38%),
+        radial-gradient(circle at 50% 100%, rgba(139, 92, 246, 0.08) 0%, transparent 45%);
+    }
+
+    /* Subtle Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090b10;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e2538;
+      border-radius: 9999px;
+      border: 2px solid #090b10;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+
+    /* Shimmer Skeleton Animation */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #111520 25%, #1b2234 50%, #111520 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s infinite linear;
+    }
+
+    /* Smooth Card Hover Lift */
+    .manhwa-card {
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .manhwa-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(99, 102, 241, 0.45);
+      box-shadow: 0 16px 38px -12px rgba(0, 0, 0, 0.8), 0 0 24px -8px rgba(99, 102, 241, 0.28);
+    }
+
+    /* Line Clamp Utilities */
+    .line-clamp-1 {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="min-h-screen ambient-bg antialiased selection:bg-indigo-500/30 selection:text-indigo-200">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-30 border-b border-white/[0.08] bg-[#090b10]/85 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+      <!-- Brand Identity -->
+      <div class="flex items-center gap-3.5 min-w-0">
+        <!-- Custom VexinManwha SVG Emblem -->
+        <div class="relative flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 border border-indigo-400/30 flex items-center justify-center shadow-glow-indigo">
+          <svg class="w-6 h-6" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="vexinGrad" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#818cf8" />
+                <stop offset="55%" stop-color="#6366f1" />
+                <stop offset="100%" stop-color="#22d3ee" />
+              </linearGradient>
+            </defs>
+            <!-- Stylized Comic Panel + Sharp 'V' Blade -->
+            <rect x="3.5" y="3.5" width="25" height="25" rx="6" stroke="url(#vexinGrad)" stroke-width="2" stroke-opacity="0.55" />
+            <path d="M9 9.5L16 23.5L23 9.5H19.1L16 16.2L12.9 9.5H9Z" fill="url(#vexinGrad)" />
+            <circle cx="23.5" cy="22.5" r="2" fill="#22d3ee" />
+          </svg>
+        </div>
+
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white truncate">
+              Vexin<span class="bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">Manwha</span>
+            </h1>
+            <span class="hidden md:inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold uppercase tracking-wider bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">
+              KR Engine
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 truncate">
+            AI-Free Taste-Matched Korean Manhwa Discovery Engine
+          </p>
+        </div>
+      </div>
+
+      <!-- Right Status & Quick Stats -->
+      <div class="flex items-center gap-2.5 sm:gap-3 flex-shrink-0">
+        <div id="shelf-counter-pill" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface border border-white/[0.08] text-xs font-medium text-slate-300">
+          <span class="text-indigo-400 font-mono font-bold" id="header-shelf-count">0</span>
+          <span>Read</span>
+        </div>
+
+        <div id="api-status-badge" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface border border-white/[0.08] text-xs font-mono text-slate-300" title="Connected directly to AniList public GraphQL API">
+          <span id="api-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="api-status-text">AniList Live</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8">
+
+    <!-- Top Control Grid: Step 1 (Shelf) + Step 2 (Taste DNA & Filters) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- STEP 1: Manhwa You've Read & Loved -->
+      <section class="lg:col-span-5 bg-surface/90 border border-white/[0.08] rounded-2xl p-5 sm:p-6 shadow-card space-y-5">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 font-mono text-xs font-bold">
+                01
+              </span>
+              <h2 class="text-base sm:text-lg font-bold text-white">Manhwa You've Read &amp; Loved</h2>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">
+              Add favorites to extract your trope DNA and exclude already-read titles.
+            </p>
+          </div>
+          <button
+            id="clear-shelf-btn"
+            type="button"
+            class="hidden text-xs font-medium text-slate-400 hover:text-rose-400 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-rose-500/10"
+          >
+            Clear All
+          </button>
+        </div>
+
+        <!-- Live Search Box -->
+        <div class="relative" id="search-wrapper">
+          <div class="relative flex items-center">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              id="manhwa-search-input"
+              type="text"
+              autocomplete="off"
+              placeholder="Search Korean manhwa (e.g., Solo Leveling, Eleceed)..."
+              class="w-full pl-10 pr-10 py-3 rounded-xl bg-[#0b0e16] border border-white/[0.1] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+            />
+            <div id="search-spinner" class="hidden absolute right-3.5">
+              <svg class="w-4 h-4 text-indigo-400 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+              </svg>
+            </div>
+            <button
+              id="search-clear-btn"
+              type="button"
+              aria-label="Clear search"
+              class="hidden absolute right-3 text-slate-400 hover:text-white p-1 rounded-lg"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Search Results Dropdown -->
+          <div
+            id="search-dropdown"
+            class="hidden absolute left-0 right-0 mt-2 bg-[#141927] border border-white/[0.12] rounded-xl shadow-2xl z-40 max-h-80 overflow-y-auto divide-y divide-white/[0.06]"
+          ></div>
+        </div>
+
+        <!-- Quick Add Popular Starter Pills -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-mono uppercase tracking-wider text-slate-400">
+              Quick Add Popular Starters
+            </span>
+            <span class="text-[11px] text-slate-500">1-click test</span>
+          </div>
+          <div id="quick-add-container" class="flex flex-wrap gap-1.5"></div>
+        </div>
+
+        <!-- Selected Shelf List -->
+        <div class="pt-2 border-t border-white/[0.07]">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-xs font-semibold text-slate-300">
+              Your Read &amp; Loved Shelf
+            </span>
+            <span id="shelf-count-label" class="text-xs font-mono text-indigo-400">0 selected</span>
+          </div>
+
+          <!-- Empty Shelf State -->
+          <div id="empty-shelf-state" class="rounded-xl border border-dashed border-white/[0.1] bg-[#0b0e16]/60 p-5 text-center space-y-1.5">
+            <p class="text-xs font-medium text-slate-300">Your shelf is empty right now</p>
+            <p class="text-[11px] text-slate-500 leading-relaxed">
+              Search above or tap 1–3 starter manhwa like <span class="text-indigo-400">Solo Leveling</span> or <span class="text-cyan-400">Omniscient Reader</span> to unlock personalized Taste DNA matching.
+            </p>
+          </div>
+
+          <!-- Shelf Items Grid -->
+          <div id="shelf-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5 max-h-[340px] overflow-y-auto pr-1"></div>
+        </div>
+      </section>
+
+      <!-- STEP 2: Taste DNA & Custom Criteria -->
+      <section class="lg:col-span-7 bg-surface/90 border border-white/[0.08] rounded-2xl p-5 sm:p-6 shadow-card space-y-6">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-cyan-500/20 border border-cyan-400/30 text-cyan-300 font-mono text-xs font-bold">
+                02
+              </span>
+              <h2 class="text-base sm:text-lg font-bold text-white">Taste DNA &amp; Custom Criteria</h2>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">
+              Fine-tune detected tropes, extra genres, and collector notes to dial in your next binge.
+            </p>
+          </div>
+
+          <button
+            id="reset-filters-btn"
+            type="button"
+            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-medium text-slate-300 transition-all"
+          >
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Reset Filters
+          </button>
+        </div>
+
+        <!-- Extracted Taste DNA Tags -->
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-300 font-mono">
+                Detected Taste DNA Tropes
+              </span>
+              <span id="dna-active-count" class="px-2 py-0.5 rounded-md text-[11px] font-mono bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">
+                0 active
+              </span>
+            </div>
+            <div id="dna-quick-actions" class="hidden items-center gap-2 text-[11px]">
+              <button id="dna-select-top-btn" type="button" class="text-cyan-400 hover:text-cyan-300 font-medium">Top 3</button>
+              <span class="text-slate-600">•</span>
+              <button id="dna-clear-btn" type="button" class="text-slate-400 hover:text-slate-200 font-medium">None</button>
+            </div>
+          </div>
+
+          <div id="taste-dna-container" class="flex flex-wrap gap-2">
+            <div class="w-full rounded-xl bg-[#0b0e16]/70 border border-white/[0.06] px-4 py-3 text-xs text-slate-400">
+              Add at least one manhwa to your shelf to automatically extract top non-spoiler tropes (e.g. <span class="text-slate-300 font-mono">System</span>, <span class="text-slate-300 font-mono">Regression</span>, <span class="text-slate-300 font-mono">Reincarnation</span>).
+            </div>
+          </div>
+        </div>
+
+        <!-- Extra Genres Multi-Select -->
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-mono">
+              Extra Genres
+            </span>
+            <span id="genre-active-label" class="text-[11px] text-slate-400 font-mono">Any genre</span>
+          </div>
+          <div id="genres-container" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <!-- Vibe & Collector Note Toggles -->
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300 font-mono">
+              Collector Notes &amp; Vibe Filters
+            </span>
+            <span class="text-[11px] text-slate-400">Toggle criteria</span>
+          </div>
+          <div id="notes-container" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5"></div>
+        </div>
+
+        <!-- Action Footer -->
+        <div class="pt-3 border-t border-white/[0.07] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <p id="query-strategy-hint" class="text-xs text-slate-400 leading-relaxed">
+            Ready to search AniList's Korean manhwa catalog.
+          </p>
+          <button
+            id="find-peak-btn"
+            type="button"
+            class="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-sm shadow-glow-indigo transition-all active:scale-[0.99] cursor-pointer flex-shrink-0"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span>Find Peak Manhwa</span>
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <!-- STEP 3: Recommended Manhwa Grid -->
+    <section id="results-section" class="space-y-5 pt-2">
+      <!-- Results Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/[0.08] pb-4">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-violet-500/20 border border-violet-400/30 text-violet-300 font-mono text-xs font-bold">
+              03
+            </span>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+              Recommended Peak Manhwa
+            </h2>
+            <span id="results-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-white/[0.06] text-slate-300 border border-white/[0.08]">
+              0 titles
+            </span>
+          </div>
+          <p id="results-subtitle" class="text-xs sm:text-sm text-slate-400 mt-1">
+            Ranked by Taste DNA overlap, genre alignment, and community score.
+          </p>
+        </div>
+
+        <!-- Active Criteria Summary -->
+        <div id="active-criteria-bar" class="flex flex-wrap items-center gap-1.5"></div>
+      </div>
+
+      <!-- Error Banner (Hidden by default) -->
+      <div id="error-banner" class="hidden rounded-2xl bg-rose-500/10 border border-rose-500/30 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86l-7.5 13A1 1 0 003.65 18h16.7a1 1 0 00.86-1.5l-7.5-13a1 1 0 00-1.72 0z" />
+          </svg>
+          <div>
+            <h3 class="text-sm font-bold text-rose-200" id="error-title">AniList Connection Interrupted</h3>
+            <p class="text-xs text-rose-300/80 mt-0.5" id="error-message">Please wait a moment and try again.</p>
+          </div>
+        </div>
+        <button
+          id="retry-fetch-btn"
+          type="button"
+          class="px-4 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-xs font-semibold text-rose-100 transition-colors"
+        >
+          Retry Request
+        </button>
+      </div>
+
+      <!-- Empty Results State -->
+      <div id="empty-results-state" class="hidden rounded-2xl bg-surface border border-white/[0.08] p-10 text-center max-w-xl mx-auto space-y-3">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-500/15 border border-indigo-400/25 flex items-center justify-center mx-auto text-indigo-300">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="text-base font-bold text-white">No Exact Matches Found</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Your current combination of tropes, genres, and collector notes is super specific! Try relaxing one or two filters to widen the library search.
+        </p>
+        <div class="pt-2">
+          <button
+            id="relax-filters-btn"
+            type="button"
+            class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white transition-colors"
+          >
+            Relax Filters &amp; Search Again
+          </button>
+        </div>
+      </div>
+
+      <!-- Cards Grid -->
+      <div id="recommendations-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6"></div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/[0.07] mt-16 py-8 bg-[#07090d]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-slate-300">VexinManwha</span>
+        <span>•</span>
+        <span>Static Korean Manhwa Discovery Engine</span>
+      </div>
+      <div>
+        Catalog metadata &amp; cover artwork streamed live from the public <a href="https://anilist.co" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:text-indigo-300 underline underline-offset-2">AniList GraphQL API</a>.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Detail Modal: Synopsis, Tags & Match Breakdown -->
+  <div
+    id="detail-modal"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+  >
+    <div
+      id="detail-modal-panel"
+      class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-[#111520] border border-white/[0.12] shadow-2xl"
+    >
+      <!-- Close Button -->
+      <button
+        id="close-modal-btn"
+        type="button"
+        aria-label="Close modal"
+        class="fixed sm:absolute top-4 right-4 z-20 w-9 h-9 rounded-xl bg-black/70 hover:bg-black border border-white/15 text-slate-200 flex items-center justify-center transition-colors"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <!-- Modal Dynamic Content -->
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    /**
+     * VexinManwha — Client-Side AniList GraphQL Discovery Engine
+     * Designed for 100% static deployment on Render.com
+     */
+
+    const ANILIST_ENDPOINT = 'https://graphql.anilist.co';
+    const STORAGE_KEY = 'vexin_manwha_shelf_v1';
+
+    // Curated starter titles for instant 1-click testing
+    const POPULAR_STARTERS = [
+      { label: 'Solo Leveling', query: 'Solo Leveling' },
+      { label: 'Omniscient Reader', query: 'Omniscient Reader' },
+      { label: 'The Beginning After the End', query: 'The Beginning After the End' },
+      { label: 'Legend of the Northern Blade', query: 'Legend of the Northern Blade' },
+      { label: 'SSS-Class Revival Hunter', query: 'SSS-Class Revival Hunter' },
+      { label: 'Villains Are Destined to Die', query: 'Villains Are Destined to Die' },
+      { label: 'Tower of God', query: 'Tower of God' },
+      { label: 'Eleceed', query: 'Eleceed' },
+    ];
+
+    // Extra Genres supported by AniList
+    const EXTRA_GENRES = [
+      'Action',
+      'Adventure',
+      'Fantasy',
+      'Drama',
+      'Romance',
+      'Supernatural',
+      'Mystery',
+      'Psychological',
+      'Sci-Fi',
+      'Slice of Life',
+      'Comedy',
+      'Horror',
+      'Thriller',
+    ];
+
+    // Collector Notes & Vibe Filters
+    const COLLECTOR_NOTES = [
+      {
+        id: 'chapters100',
+        label: '100+ Chapters',
+        sub: 'Long binge-worthy runs',
+        icon: '📚',
+      },
+      {
+        id: 'peakArt',
+        label: 'High Rated / Peak Art',
+        sub: 'Score 80%+ & top visuals',
+        icon: '✨',
+      },
+      {
+        id: 'fullColor',
+        label: 'Full Color',
+        sub: 'Vibrant webtoon format',
+        icon: '🎨',
+      },
+      {
+        id: 'completedOnly',
+        label: 'Completed Only',
+        sub: 'Finished main story',
+        icon: '✅',
+      },
+      {
+        id: 'hiddenGems',
+        label: 'Hidden Gems',
+        sub: 'Underrated high-score picks',
+        icon: '💎',
+      },
+    ];
+
+    // Application State
+    const state = {
+      shelf: [], // Array of normalized AniList media objects
+      extractedTags: [], // [{ name, score, count }]
+      activeTags: new Set(), // Active tag names toggled by user
+      selectedGenres: new Set(), // Active genre strings
+      notes: {
+        chapters100: false,
+        peakArt: false,
+        fullColor: false,
+        completedOnly: false,
+        hiddenGems: false,
+      },
+      recommendations: [], // Scored candidate objects
+      isLoading: false,
+      searchResults: [],
+      loadingStarters: new Set(),
+      autoSyncTagsOnShelfChange: true,
+    };
+
+    // Cached DOM References
+    const dom = {
+      headerShelfCount: document.getElementById('header-shelf-count'),
+      apiStatusDot: document.getElementById('api-status-dot'),
+      apiStatusText: document.getElementById('api-status-text'),
+      searchInput: document.getElementById('manhwa-search-input'),
+      searchSpinner: document.getElementById('search-spinner'),
+      searchClearBtn: document.getElementById('search-clear-btn'),
+      searchDropdown: document.getElementById('search-dropdown'),
+      quickAddContainer: document.getElementById('quick-add-container'),
+      clearShelfBtn: document.getElementById('clear-shelf-btn'),
+      shelfCountLabel: document.getElementById('shelf-count-label'),
+      emptyShelfState: document.getElementById('empty-shelf-state'),
+      shelfList: document.getElementById('shelf-list'),
+      dnaActiveCount: document.getElementById('dna-active-count'),
+      dnaQuickActions: document.getElementById('dna-quick-actions'),
+      dnaSelectTopBtn: document.getElementById('dna-select-top-btn'),
+      dnaClearBtn: document.getElementById('dna-clear-btn'),
+      tasteDnaContainer: document.getElementById('taste-dna-container'),
+      genresContainer: document.getElementById('genres-container'),
+      genreActiveLabel: document.getElementById('genre-active-label'),
+      notesContainer: document.getElementById('notes-container'),
+      queryStrategyHint: document.getElementById('query-strategy-hint'),
+      findPeakBtn: document.getElementById('find-peak-btn'),
+      resetFiltersBtn: document.getElementById('reset-filters-btn'),
+      resultsCountBadge: document.getElementById('results-count-badge'),
+      resultsSubtitle: document.getElementById('results-subtitle'),
+      activeCriteriaBar: document.getElementById('active-criteria-bar'),
+      errorBanner: document.getElementById('error-banner'),
+      errorTitle: document.getElementById('error-title'),
+      errorMessage: document.getElementById('error-message'),
+      retryFetchBtn: document.getElementById('retry-fetch-btn'),
+      emptyResultsState: document.getElementById('empty-results-state'),
+      relaxFiltersBtn: document.getElementById('relax-filters-btn'),
+      recommendationsGrid: document.getElementById('recommendations-grid'),
+      detailModal: document.getElementById('detail-modal'),
+      closeModalBtn: document.getElementById('close-modal-btn'),
+      modalContent: document.getElementById('modal-content'),
+      toastContainer: document.getElementById('toast-container'),
+    };
+
+    // GraphQL Field Fragment for Korean Manhwa
+    const MEDIA_FIELDS_FRAGMENT = `
+      id
+      siteUrl
+      status
+      chapters
+      volumes
+      averageScore
+      popularity
+      genres
+      title {
+        romaji
+        english
+        native
+      }
+      coverImage {
+        extraLarge
+        large
+        medium
+        color
+      }
+      bannerImage
+      description(asHtml: false)
+      tags {
+        name
+        rank
+        isMediaSpoiler
+        isGeneralSpoiler
+      }
+    `;
+
+    /**
+     * Execute a GraphQL query against AniList with clean error handling & status tracking
+     */
+    async function anilistRequest(query, variables = {}) {
+      try {
+        const response = await fetch(ANILIST_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({ query, variables }),
+        });
+
+        if (response.status === 429) {
+          setApiStatus('rate-limited');
+          throw new Error('AniList rate limit reached. Please pause 15 seconds and retry.');
+        }
+
+        const json = await response.json();
+
+        if (!response.ok || json.errors) {
+          const msg = json.errors?.[0]?.message || `HTTP ${response.status}`;
+          throw new Error(msg);
+        }
+
+        setApiStatus('live');
+        return json.data;
+      } catch (err) {
+        if (err.name === 'TypeError') {
+          setApiStatus('offline');
+          throw new Error('Network error reaching AniList API. Check your internet connection.');
+        }
+        throw err;
+      }
+    }
+
+    /**
+     * Update live API badge in header
+     */
+    function setApiStatus(status) {
+      if (status === 'live') {
+        dom.apiStatusDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        dom.apiStatusText.textContent = 'AniList Live';
+      } else if (status === 'rate-limited') {
+        dom.apiStatusDot.className = 'w-2 h-2 rounded-full bg-amber-400';
+        dom.apiStatusText.textContent = 'Rate Limited';
+      } else {
+        dom.apiStatusDot.className = 'w-2 h-2 rounded-full bg-rose-400';
+        dom.apiStatusText.textContent = 'API Offline';
+      }
+    }
+
+    /**
+     * Non-intrusive Toast Notification helper (never uses alert())
+     */
+    function showToast(message, type = 'info') {
+      const colors = {
+        success: 'bg-[#121c22] border-emerald-500/40 text-emerald-200',
+        info: 'bg-[#141928] border-indigo-500/40 text-indigo-100',
+        warning: 'bg-[#211a12] border-amber-500/40 text-amber-200',
+      };
+      const icons = {
+        success: '✓',
+        info: '⚡',
+        warning: '!',
+      };
+
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-xl text-xs font-medium backdrop-blur-md transition-all duration-300 translate-y-2 opacity-0 ${colors[type] || colors.info}`;
+      toast.innerHTML = `
+        <span class="w-5 h-5 rounded-lg bg-white/10 flex items-center justify-center font-mono font-bold text-[11px] flex-shrink-0">${icons[type] || icons.info}</span>
+        <span class="leading-snug">${escapeHtml(message)}</span>
+      `;
+
+      dom.toastContainer.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    /**
+     * Escape HTML to safely render API strings
+     */
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    /**
+     * Clean AniList description text into crisp readable paragraphs
+     */
+    function formatSynopsis(raw) {
+      if (!raw) return 'No synopsis available for this title on AniList yet.';
+      return raw
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/?[^>]+(>|$)/g, '')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+    }
+
+    /**
+     * Get preferred display title (English first, Romaji fallback)
+     */
+    function getDisplayTitle(media) {
+      return media.title?.english || media.title?.romaji || media.title?.native || 'Untitled Manhwa';
+    }
+
+    /**
+     * Format chapter count & publication status cleanly
+     */
+    function formatChapterInfo(media) {
+      const statusMap = {
+        FINISHED: 'Completed',
+        RELEASING: 'Ongoing',
+        NOT_YET_RELEASED: 'Upcoming',
+        CANCELLED: 'Cancelled',
+        HIATUS: 'Hiatus',
+      };
+      const statusLabel = statusMap[media.status] || 'Manhwa';
+
+      if (typeof media.chapters === 'number' && media.chapters > 0) {
+        return {
+          primary: `${media.chapters} Chapters`,
+          status: statusLabel,
+          hasExactCount: true,
+        };
+      }
+      if (typeof media.volumes === 'number' && media.volumes > 0) {
+        return {
+          primary: `${media.volumes} Vols • Ongoing`,
+          status: statusLabel,
+          hasExactCount: false,
+        };
+      }
+      return {
+        primary: `${statusLabel} • Chapters TBA`,
+        status: statusLabel,
+        hasExactCount: false,
+      };
+    }
+
+    /**
+     * Persist Read & Loved shelf in localStorage
+     */
+    function saveShelfToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.shelf));
+      } catch (e) {
+        console.warn('Could not save shelf to localStorage:', e);
+      }
+    }
+
+    function loadShelfFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            state.shelf = parsed;
+          }
+        }
+      } catch (e) {
+        console.warn('Could not load shelf from localStorage:', e);
+      }
+    }
+
+    /**
+     * Extract & rank non-spoiler tags from all manhwa on the Read & Loved shelf
+     */
+    function recomputeTasteDNA(autoSelectTop = false) {
+      const tagMap = new Map();
+      // Ignore meta/format tags in DNA pills unless toggled via Collector Notes
+      const ignoredMetaTags = new Set(['Full Color', 'Webtoon', 'Adapted to Anime', 'Adapted to Drama']);
+
+      state.shelf.forEach((media) => {
+        const validTags = (media.tags || []).filter(
+          (t) => !t.isMediaSpoiler && !t.isGeneralSpoiler && (t.rank || 0) >= 45 && !ignoredMetaTags.has(t.name)
+        );
+
+        validTags.forEach((t) => {
+          const existing = tagMap.get(t.name) || { name: t.name, totalRank: 0, count: 0 };
+          existing.totalRank += t.rank || 60;
+          existing.count += 1;
+          tagMap.set(t.name, existing);
+        });
+      });
+
+      const ranked = Array.from(tagMap.values())
+        .map((item) => ({
+          name: item.name,
+          count: item.count,
+          avgRank: Math.round(item.totalRank / item.count),
+          // Weight rewards tropes appearing across multiple loved manhwa + high community rank
+          weight: item.count * 100 + item.totalRank / item.count,
+        }))
+        .sort((a, b) => b.weight - a.weight)
+        .slice(0, 14);
+
+      state.extractedTags = ranked;
+
+      // Prune any active tags no longer present in extractedTags
+      const availableNames = new Set(ranked.map((t) => t.name));
+      for (const active of Array.from(state.activeTags)) {
+        if (!availableNames.has(active)) {
+          state.activeTags.delete(active);
+        }
+      }
+
+      // When user adds a new manhwa, automatically activate top 2 tropes if none active or autoSelectTop is true
+      if (autoSelectTop && ranked.length > 0) {
+        state.activeTags.clear();
+        ranked.slice(0, 2).forEach((t) => state.activeTags.add(t.name));
+      }
+    }
+
+    /**
+     * Add a manhwa to the Read & Loved shelf
+     */
+    function addToShelf(media) {
+      if (!media || !media.id) return;
+      if (state.shelf.some((item) => item.id === media.id)) {
+        showToast(`"${getDisplayTitle(media)}" is already on your shelf.`, 'info');
+        return;
+      }
+
+      state.shelf.unshift(media);
+      saveShelfToStorage();
+      recomputeTasteDNA(true);
+      renderShelf();
+      renderQuickAddPills();
+      renderTasteDNA();
+      updateQueryHint();
+      showToast(`Added "${getDisplayTitle(media)}" — Taste DNA updated!`, 'success');
+      triggerRecommendationsFetch();
+    }
+
+    /**
+     * Remove a manhwa from the Read & Loved shelf
+     */
+    function removeFromShelf(mediaId) {
+      const target = state.shelf.find((m) => m.id === mediaId);
+      state.shelf = state.shelf.filter((m) => m.id !== mediaId);
+      saveShelfToStorage();
+      recomputeTasteDNA(state.shelf.length > 0 && state.activeTags.size === 0);
+      renderShelf();
+      renderQuickAddPills();
+      renderTasteDNA();
+      updateQueryHint();
+      if (target) {
+        showToast(`Removed "${getDisplayTitle(target)}" from shelf.`, 'info');
+      }
+      triggerRecommendationsFetch();
+    }
+
+    /**
+     * Search AniList for Korean manhwa matching user query
+     */
+    async function searchManhwa(queryText) {
+      const trimmed = queryText.trim();
+      if (!trimmed) {
+        dom.searchDropdown.classList.add('hidden');
+        dom.searchClearBtn.classList.add('hidden');
+        return;
+      }
+
+      dom.searchClearBtn.classList.remove('hidden');
+      dom.searchSpinner.classList.remove('hidden');
+
+      const gql = `
+        query SearchKRManhwa($search: String) {
+          Page(page: 1, perPage: 8) {
+            media(
+              type: MANGA
+              countryOfOrigin: "KR"
+              isAdult: false
+              search: $search
+              sort: [SEARCH_MATCH, POPULARITY_DESC]
+            ) {
+              ${MEDIA_FIELDS_FRAGMENT}
+            }
+          }
+        }
+      `;
+
+      try {
+        const data = await anilistRequest(gql, { search: trimmed });
+        const results = data?.Page?.media || [];
+        state.searchResults = results;
+        renderSearchDropdown(results);
+      } catch (err) {
+        dom.searchDropdown.innerHTML = `
+          <div class="p-4 text-xs text-rose-300">
+            ${escapeHtml(err.message)}
+          </div>
+        `;
+        dom.searchDropdown.classList.remove('hidden');
+      } finally {
+        dom.searchSpinner.classList.add('hidden');
+      }
+    }
+
+    /**
+     * Fetch & add a Quick Starter title by name
+     */
+    async function handleQuickAddStarter(starter) {
+      if (state.loadingStarters.has(starter.query)) return;
+
+      // Check if already in shelf by title match
+      const existing = state.shelf.find((m) =>
+        getDisplayTitle(m).toLowerCase().includes(starter.label.toLowerCase()) ||
+        (m.title?.romaji || '').toLowerCase().includes(starter.label.toLowerCase())
+      );
+      if (existing) {
+        showToast(`"${starter.label}" is already in your Read & Loved shelf.`, 'info');
+        return;
+      }
+
+      state.loadingStarters.add(starter.query);
+      renderQuickAddPills();
+
+      const gql = `
+        query QuickFetchStarter($search: String) {
+          Page(page: 1, perPage: 3) {
+            media(
+              type: MANGA
+              countryOfOrigin: "KR"
+              isAdult: false
+              search: $search
+              sort: [SEARCH_MATCH, POPULARITY_DESC]
+            ) {
+              ${MEDIA_FIELDS_FRAGMENT}
+            }
+          }
+        }
+      `;
+
+      try {
+        const data = await anilistRequest(gql, { search: starter.query });
+        const bestMatch = data?.Page?.media?.[0];
+        if (bestMatch) {
+          addToShelf(bestMatch);
+        } else {
+          showToast(`Could not find "${starter.label}" on AniList.`, 'warning');
+        }
+      } catch (err) {
+        showToast(err.message, 'warning');
+      } finally {
+        state.loadingStarters.delete(starter.query);
+        renderQuickAddPills();
+      }
+    }
+
+    /**
+     * Multi-Step Resilient Recommendation Query + Client-Side Taste Scoring
+     */
+    let activeFetchToken = 0;
+
+    async function fetchRecommendations() {
+      const fetchToken = ++activeFetchToken;
+      state.isLoading = true;
+      dom.errorBanner.classList.add('hidden');
+      dom.emptyResultsState.classList.add('hidden');
+      renderSkeletonCards();
+      renderActiveCriteriaBar();
+
+      const excludeIds = state.shelf.map((m) => m.id);
+      const selectedGenreArr = Array.from(state.selectedGenres);
+
+      // Build active tag list (top active DNA tags + Full Color if toggled)
+      const rankedActiveDnaTags = state.extractedTags
+        .filter((t) => state.activeTags.has(t.name))
+        .map((t) => t.name);
+
+      const precisionTags = [...rankedActiveDnaTags.slice(0, 2)];
+      if (state.notes.fullColor && !precisionTags.includes('Full Color')) {
+        precisionTags.push('Full Color');
+      }
+
+      // Base filter variables
+      const baseVars = {};
+      if (excludeIds.length > 0) baseVars.idNotIn = excludeIds;
+      if (state.notes.chapters100) baseVars.chaptersGreater = 99;
+      if (state.notes.peakArt) baseVars.scoreGreater = 79;
+      if (state.notes.completedOnly) baseVars.status = 'FINISHED';
+
+      // Sort order: Hidden Gems surfaces high-rated underrated titles via SCORE_DESC
+      baseVars.sort = state.notes.hiddenGems
+        ? ['SCORE_DESC', 'TRENDING_DESC']
+        : ['POPULARITY_DESC', 'SCORE_DESC'];
+
+      const candidateMap = new Map();
+
+      // Helper to execute a dynamic AniList Page query
+      async function runTierQuery(tierVars) {
+        const varDefs = [
+          '$page: Int',
+          '$perPage: Int',
+          tierVars.idNotIn ? '$idNotIn: [Int]' : null,
+          tierVars.tagIn ? '$tagIn: [String]' : null,
+          tierVars.genreIn ? '$genreIn: [String]' : null,
+          tierVars.chaptersGreater !== undefined ? '$chaptersGreater: Int' : null,
+          tierVars.scoreGreater !== undefined ? '$scoreGreater: Int' : null,
+          tierVars.status ? '$status: MediaStatus' : null,
+          '$sort: [MediaSort]',
+        ]
+          .filter(Boolean)
+          .join(', ');
+
+        const mediaArgs = [
+          'type: MANGA',
+          'countryOfOrigin: "KR"',
+          'isAdult: false',
+          tierVars.idNotIn ? 'id_not_in: $idNotIn' : null,
+          tierVars.tagIn ? 'tag_in: $tagIn' : null,
+          tierVars.genreIn ? 'genre_in: $genreIn' : null,
+          tierVars.chaptersGreater !== undefined ? 'chapters_greater: $chaptersGreater' : null,
+          tierVars.scoreGreater !== undefined ? 'averageScore_greater: $scoreGreater' : null,
+          tierVars.status ? 'status: $status' : null,
+          'sort: $sort',
+        ]
+          .filter(Boolean)
+          .join('\n              ');
+
+        const query = `
+          query DiscoverKRManhwa(${varDefs}) {
+            Page(page: $page, perPage: $perPage) {
+              media(
+                ${mediaArgs}
+              ) {
+                ${MEDIA_FIELDS_FRAGMENT}
+              }
+            }
+          }
+        `;
+
+        const data = await anilistRequest(query, {
+          page: 1,
+          perPage: 36,
+          ...tierVars,
+        });
+
+        const list = data?.Page?.media || [];
+        list.forEach((m) => {
+          if (!excludeIds.includes(m.id) && !candidateMap.has(m.id)) {
+            candidateMap.set(m.id, m);
+          }
+        });
+      }
+
+      try {
+        // TIER 1: Precision query (Top 2 active tags + selected genres + note filters)
+        const tier1Vars = { ...baseVars };
+        if (precisionTags.length > 0) tier1Vars.tagIn = precisionTags;
+        if (selectedGenreArr.length > 0) tier1Vars.genreIn = selectedGenreArr;
+
+        await runTierQuery(tier1Vars);
+        if (fetchToken !== activeFetchToken) return;
+
+        // TIER 2: Broaden if fewer than 10 results (use only top 1 tag + note filters, drop multi-tag AND constraint)
+        if (candidateMap.size < 10 && (precisionTags.length > 1 || (precisionTags.length > 0 && selectedGenreArr.length > 0))) {
+          const tier2Vars = { ...baseVars };
+          tier2Vars.tagIn = [precisionTags[0]];
+          if (selectedGenreArr.length > 0) {
+            tier2Vars.genreIn = [selectedGenreArr[0]];
+          }
+          await runTierQuery(tier2Vars);
+          if (fetchToken !== activeFetchToken) return;
+        }
+
+        // TIER 3: Fallback discovery if still < 10 results (genre-based or top Korean manhwa with active note filters)
+        if (candidateMap.size < 10 && (precisionTags.length > 0 || selectedGenreArr.length > 1)) {
+          const tier3Vars = { ...baseVars };
+          if (selectedGenreArr.length > 0) {
+            tier3Vars.genreIn = [selectedGenreArr[0]];
+          }
+          await runTierQuery(tier3Vars);
+          if (fetchToken !== activeFetchToken) return;
+        }
+
+        // Score & rank every unique candidate client-side
+        const scored = scoreCandidates(Array.from(candidateMap.values()));
+        state.recommendations = scored;
+        state.isLoading = false;
+        renderRecommendations();
+      } catch (err) {
+        if (fetchToken !== activeFetchToken) return;
+        state.isLoading = false;
+        dom.recommendationsGrid.innerHTML = '';
+        dom.errorTitle.textContent = 'Could Not Fetch Recommendations';
+        dom.errorMessage.textContent = err.message || 'An unexpected error occurred querying AniList.';
+        dom.errorBanner.classList.remove('hidden');
+      }
+    }
+
+    /**
+     * Client-Side Taste DNA Match Scoring Algorithm
+     */
+    function scoreCandidates(candidates) {
+      // Build lookup map of user's Taste DNA tags
+      const dnaWeightMap = new Map();
+      state.extractedTags.forEach((t) => {
+        const multiplier = state.activeTags.has(t.name) ? 1.5 : 0.75;
+        dnaWeightMap.set(t.name, t.weight * multiplier);
+      });
+
+      // Collect genres present in user's Read & Loved shelf
+      const shelfGenreCounts = new Map();
+      state.shelf.forEach((m) => {
+        (m.genres || []).forEach((g) => {
+          shelfGenreCounts.set(g, (shelfGenreCounts.get(g) || 0) + 1);
+        });
+      });
+
+      const hasShelf = state.shelf.length > 0;
+      const hasSelectedGenres = state.selectedGenres.size > 0;
+
+      return candidates
+        .map((media) => {
+          const mediaTags = (media.tags || []).filter((t) => !t.isMediaSpoiler && !t.isGeneralSpoiler);
+          const matchedTags = [];
+          let tagOverlapPoints = 0;
+
+          mediaTags.forEach((t) => {
+            if (dnaWeightMap.has(t.name)) {
+              const rankFactor = (t.rank || 60) / 100;
+              const isUserActive = state.activeTags.has(t.name);
+              tagOverlapPoints += (isUserActive ? 14 : 7) * rankFactor;
+              matchedTags.push({
+                name: t.name,
+                rank: t.rank || 60,
+                isUserActive,
+              });
+            }
+          });
+
+          // Sort matched tags so user-toggled tropes appear first
+          matchedTags.sort((a, b) => Number(b.isUserActive) - Number(a.isUserActive) || b.rank - a.rank);
+
+          // Genre alignment points
+          let genrePoints = 0;
+          const mediaGenres = media.genres || [];
+          mediaGenres.forEach((g) => {
+            if (state.selectedGenres.has(g)) genrePoints += 9;
+            if (shelfGenreCounts.has(g)) genrePoints += Math.min(6, shelfGenreCounts.get(g) * 2.5);
+          });
+
+          // Community score & Peak Art alignment
+          const avgScore = media.averageScore || 72;
+          const scorePoints = Math.max(0, (avgScore - 60) * 0.65);
+
+          // Collector Note bonuses
+          let notePoints = 0;
+          if (state.notes.chapters100 && (media.chapters || 0) >= 100) notePoints += 4;
+          if (state.notes.fullColor && mediaTags.some((t) => t.name === 'Full Color')) notePoints += 4;
+          if (state.notes.peakArt && avgScore >= 82) notePoints += 5;
+
+          // Normalize into a crisp 66% - 99% Taste Match percentage
+          let rawScore;
+          if (!hasShelf && !hasSelectedGenres) {
+            // Discovery mode when shelf is empty: driven by community score & popularity quality
+            rawScore = 72 + Math.min(25, (avgScore - 68) * 1.15);
+          } else {
+            const cappedTags = Math.min(44, tagOverlapPoints);
+            const cappedGenres = Math.min(24, genrePoints);
+            const cappedQuality = Math.min(22, scorePoints);
+            rawScore = 54 + cappedTags * 0.68 + cappedGenres * 0.55 + cappedQuality * 0.45 + notePoints;
+          }
+
+          const matchPercent = Math.max(64, Math.min(99, Math.round(rawScore)));
+
+          // Hidden gems composite ranking boost
+          const hiddenGemBoost = state.notes.hiddenGems
+            ? avgScore * 2 - Math.log10(Math.max(1000, media.popularity || 10000)) * 8
+            : 0;
+
+          return {
+            media,
+            matchPercent,
+            matchedTags,
+            compositeRank: matchPercent * 10 + avgScore + hiddenGemBoost,
+          };
+        })
+        .sort((a, b) => b.compositeRank - a.compositeRank);
+    }
+
+    /**
+     * Render Search Dropdown Items
+     */
+    function renderSearchDropdown(results) {
+      if (!results.length) {
+        dom.searchDropdown.innerHTML = `
+          <div class="p-4 text-xs text-slate-400 text-center">
+            No Korean manhwa found matching that title.
+          </div>
+        `;
+        dom.searchDropdown.classList.remove('hidden');
+        return;
+      }
+
+      dom.searchDropdown.innerHTML = results
+        .map((media) => {
+          const title = getDisplayTitle(media);
+          const romaji = media.title?.romaji && media.title.romaji !== title ? media.title.romaji : '';
+          const chapterInfo = formatChapterInfo(media);
+          const isAdded = state.shelf.some((s) => s.id === media.id);
+          const cover = media.coverImage?.medium || media.coverImage?.large || '';
+
+          return `
+            <button
+              type="button"
+              data-add-id="${media.id}"
+              class="w-full text-left px-3.5 py-2.5 hover:bg-white/[0.05] transition-colors flex items-center gap-3 group"
+            >
+              <img
+                src="${escapeHtml(cover)}"
+                alt="${escapeHtml(title)}"
+                onerror="this.src='https://placehold.co/80x120/171c2b/818cf8?text=KR'"
+                class="w-10 h-14 rounded-lg object-cover bg-slate-800 flex-shrink-0 border border-white/10"
+              />
+              <div class="min-w-0 flex-1">
+                <div class="text-xs sm:text-sm font-bold text-white truncate group-hover:text-indigo-300 transition-colors">
+                  ${escapeHtml(title)}
+                </div>
+                ${romaji ? `<div class="text-[11px] text-slate-500 truncate">${escapeHtml(romaji)}</div>` : ''}
+                <div class="flex items-center gap-2 mt-1 text-[11px] font-mono text-slate-400">
+                  <span>${escapeHtml(chapterInfo.primary)}</span>
+                  ${media.averageScore ? `<span class="text-amber-400">★ ${media.averageScore}%</span>` : ''}
+                </div>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold flex-shrink-0 ${
+                isAdded
+                  ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+                  : 'bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 group-hover:bg-indigo-500 group-hover:text-white'
+              }">
+                ${isAdded ? '✓ Read' : '+ Add'}
+              </span>
+            </button>
+          `;
+        })
+        .join('');
+
+      dom.searchDropdown.classList.remove('hidden');
+
+      // Bind click events to dropdown items
+      dom.searchDropdown.querySelectorAll('[data-add-id]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const id = Number(btn.getAttribute('data-add-id'));
+          const found = state.searchResults.find((m) => m.id === id);
+          if (found) {
+            addToShelf(found);
+            renderSearchDropdown(state.searchResults);
+          }
+        });
+      });
+    }
+
+    /**
+     * Render Quick Add Popular Starter Buttons
+     */
+    function renderQuickAddPills() {
+      dom.quickAddContainer.innerHTML = POPULAR_STARTERS.map((starter) => {
+        const isAdded = state.shelf.some((m) =>
+          getDisplayTitle(m).toLowerCase().includes(starter.label.toLowerCase()) ||
+          (m.title?.romaji || '').toLowerCase().includes(starter.label.toLowerCase())
+        );
+        const isLoading = state.loadingStarters.has(starter.query);
+
+        return `
+          <button
+            type="button"
+            data-starter-query="${escapeHtml(starter.query)}"
+            ${isAdded || isLoading ? 'disabled' : ''}
+            class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-all ${
+              isAdded
+                ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-300 cursor-default'
+                : 'bg-[#0c101a] hover:bg-indigo-500/15 border-white/[0.08] hover:border-indigo-400/40 text-slate-300 hover:text-white cursor-pointer'
+            }"
+          >
+            <span>${isLoading ? '⏳' : isAdded ? '✓' : '+'}</span>
+            <span>${escapeHtml(starter.label)}</span>
+          </button>
+        `;
+      }).join('');
+
+      dom.quickAddContainer.querySelectorAll('[data-starter-query]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const q = btn.getAttribute('data-starter-query');
+          const starter = POPULAR_STARTERS.find((s) => s.query === q);
+          if (starter) handleQuickAddStarter(starter);
+        });
+      });
+    }
+
+    /**
+     * Render User's Read & Loved Shelf
+     */
+    function renderShelf() {
+      const count = state.shelf.length;
+      dom.headerShelfCount.textContent = count;
+      dom.shelfCountLabel.textContent = `${count} selected`;
+
+      if (count === 0) {
+        dom.clearShelfBtn.classList.add('hidden');
+        dom.emptyShelfState.classList.remove('hidden');
+        dom.shelfList.innerHTML = '';
+        return;
+      }
+
+      dom.clearShelfBtn.classList.remove('hidden');
+      dom.emptyShelfState.classList.add('hidden');
+
+      dom.shelfList.innerHTML = state.shelf
+        .map((media) => {
+          const title = getDisplayTitle(media);
+          const chapterInfo = formatChapterInfo(media);
+          const cover = media.coverImage?.medium || media.coverImage?.large || '';
+
+          return `
+            <div class="flex items-center gap-3 p-2 rounded-xl bg-[#0c101a] border border-white/[0.07] hover:border-white/[0.15] transition-colors group">
+              <img
+                src="${escapeHtml(cover)}"
+                alt="${escapeHtml(title)}"
+                onerror="this.src='https://placehold.co/80x120/171c2b/818cf8?text=KR'"
+                class="w-9 h-12 rounded-lg object-cover flex-shrink-0 border border-white/10"
+              />
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-bold text-slate-100 truncate">${escapeHtml(title)}</div>
+                <div class="flex items-center gap-2 mt-0.5 text-[11px] font-mono text-slate-400">
+                  <span>${escapeHtml(chapterInfo.primary)}</span>
+                  ${media.averageScore ? `<span class="text-amber-400/90">★ ${media.averageScore}%</span>` : ''}
+                </div>
+              </div>
+              <button
+                type="button"
+                data-remove-id="${media.id}"
+                aria-label="Remove ${escapeHtml(title)}"
+                class="w-7 h-7 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 flex items-center justify-center transition-colors flex-shrink-0"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          `;
+        })
+        .join('');
+
+      dom.shelfList.querySelectorAll('[data-remove-id]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const id = Number(btn.getAttribute('data-remove-id'));
+          removeFromShelf(id);
+        });
+      });
+    }
+
+    /**
+     * Render Extracted Taste DNA Trope Pills
+     */
+    function renderTasteDNA() {
+      const activeCount = state.activeTags.size;
+      dom.dnaActiveCount.textContent = `${activeCount} active`;
+
+      if (state.extractedTags.length === 0) {
+        dom.dnaQuickActions.classList.add('hidden');
+        dom.dnaQuickActions.classList.remove('flex');
+        dom.tasteDnaContainer.innerHTML = `
+          <div class="w-full rounded-xl bg-[#0b0e16]/70 border border-white/[0.06] px-4 py-3 text-xs text-slate-400">
+            Add at least one manhwa to your shelf to automatically extract top non-spoiler tropes (e.g. <span class="text-slate-300 font-mono">System</span>, <span class="text-slate-300 font-mono">Regression</span>, <span class="text-slate-300 font-mono">Reincarnation</span>).
+          </div>
+        `;
+        return;
+      }
+
+      dom.dnaQuickActions.classList.remove('hidden');
+      dom.dnaQuickActions.classList.add('flex');
+
+      dom.tasteDnaContainer.innerHTML = state.extractedTags
+        .map((tag) => {
+          const isActive = state.activeTags.has(tag.name);
+          return `
+            <button
+              type="button"
+              data-dna-tag="${escapeHtml(tag.name)}"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                isActive
+                  ? 'bg-indigo-500/25 border-indigo-400 text-white shadow-glow-indigo'
+                  : 'bg-[#0c101a] hover:bg-white/[0.05] border-white/[0.08] text-slate-400 hover:text-slate-200'
+              }"
+            >
+              <span class="text-[10px] font-mono ${isActive ? 'text-cyan-300' : 'text-slate-500'}">
+                ${isActive ? '⚡' : '#'}
+              </span>
+              <span>${escapeHtml(tag.name)}</span>
+              ${
+                tag.count > 1
+                  ? `<span class="ml-0.5 px-1.5 py-0.2 rounded text-[10px] font-mono ${
+                      isActive ? 'bg-indigo-400/30 text-indigo-100' : 'bg-white/[0.06] text-slate-400'
+                    }">×${tag.count}</span>`
+                  : ''
+              }
+            </button>
+          `;
+        })
+        .join('');
+
+      dom.tasteDnaContainer.querySelectorAll('[data-dna-tag]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const tagName = btn.getAttribute('data-dna-tag');
+          if (state.activeTags.has(tagName)) {
+            state.activeTags.delete(tagName);
+          } else {
+            state.activeTags.add(tagName);
+          }
+          renderTasteDNA();
+          updateQueryHint();
+          debouncedFetchRecommendations();
+        });
+      });
+    }
+
+    /**
+     * Render Extra Genre Multi-Select Chips
+     */
+    function renderGenres() {
+      const count = state.selectedGenres.size;
+      dom.genreActiveLabel.textContent = count === 0 ? 'Any genre' : `${count} selected`;
+
+      dom.genresContainer.innerHTML = EXTRA_GENRES.map((genre) => {
+        const isSelected = state.selectedGenres.has(genre);
+        return `
+          <button
+            type="button"
+            data-genre="${escapeHtml(genre)}"
+            class="px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
+              isSelected
+                ? 'bg-cyan-500/20 border-cyan-400/70 text-cyan-200 shadow-glow-cyan'
+                : 'bg-[#0c101a] hover:bg-white/[0.05] border-white/[0.08] text-slate-400 hover:text-slate-200'
+            }"
+          >
+            ${escapeHtml(genre)}
+          </button>
+        `;
+      }).join('');
+
+      dom.genresContainer.querySelectorAll('[data-genre]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const genre = btn.getAttribute('data-genre');
+          if (state.selectedGenres.has(genre)) {
+            state.selectedGenres.delete(genre);
+          } else {
+            state.selectedGenres.add(genre);
+          }
+          renderGenres();
+          updateQueryHint();
+          debouncedFetchRecommendations();
+        });
+      });
+    }
+
+    /**
+     * Render Collector Note & Vibe Toggles
+     */
+    function renderNotes() {
+      dom.notesContainer.innerHTML = COLLECTOR_NOTES.map((note) => {
+        const isActive = Boolean(state.notes[note.id]);
+        return `
+          <button
+            type="button"
+            data-note-id="${note.id}"
+            class="text-left p-3 rounded-xl border transition-all cursor-pointer flex items-start gap-2.5 ${
+              isActive
+                ? 'bg-gradient-to-br from-indigo-500/20 to-cyan-500/15 border-indigo-400/60 text-white shadow-glow-indigo'
+                : 'bg-[#0c101a] hover:bg-white/[0.04] border-white/[0.08] text-slate-300'
+            }"
+          >
+            <span class="text-base leading-none mt-0.5">${note.icon}</span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center justify-between gap-1">
+                <span class="text-xs font-bold truncate">${escapeHtml(note.label)}</span>
+                <span class="w-4 h-4 rounded-md border flex items-center justify-center text-[10px] font-mono flex-shrink-0 ${
+                  isActive
+                    ? 'bg-indigo-500 border-indigo-400 text-white'
+                    : 'border-white/15 text-transparent'
+                }">✓</span>
+              </div>
+              <p class="text-[11px] text-slate-400 truncate mt-0.5">${escapeHtml(note.sub)}</p>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      dom.notesContainer.querySelectorAll('[data-note-id]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-note-id');
+          state.notes[id] = !state.notes[id];
+          renderNotes();
+          updateQueryHint();
+          debouncedFetchRecommendations();
+        });
+      });
+    }
+
+    /**
+     * Update live helper hint summarizing active search strategy
+     */
+    function updateQueryHint() {
+      const activeTagArr = Array.from(state.activeTags);
+      const genreArr = Array.from(state.selectedGenres);
+      const activeNotes = COLLECTOR_NOTES.filter((n) => state.notes[n.id]).map((n) => n.label);
+
+      const parts = [];
+      if (activeTagArr.length > 0) parts.push(`Tropes: ${activeTagArr.slice(0, 2).join(' + ')}`);
+      if (genreArr.length > 0) parts.push(`Genres: ${genreArr.join(', ')}`);
+      if (activeNotes.length > 0) parts.push(`Notes: ${activeNotes.join(', ')}`);
+
+      if (parts.length === 0) {
+        dom.queryStrategyHint.textContent =
+          state.shelf.length > 0
+            ? 'Matching against your overall shelf DNA + top Korean manhwa.'
+            : 'Showing top-rated Korean manhwa across AniList. Add favorites above to personalize!';
+      } else {
+        dom.queryStrategyHint.textContent = `Filtering by ${parts.join(' • ')}`;
+      }
+    }
+
+    /**
+     * Render Active Criteria Pills in Step 3 Header
+     */
+    function renderActiveCriteriaBar() {
+      const pills = [];
+      Array.from(state.activeTags).forEach((t) => {
+        pills.push(`<span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">⚡ ${escapeHtml(t)}</span>`);
+      });
+      Array.from(state.selectedGenres).forEach((g) => {
+        pills.push(`<span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-cyan-500/15 text-cyan-300 border border-cyan-500/25">${escapeHtml(g)}</span>`);
+      });
+      COLLECTOR_NOTES.filter((n) => state.notes[n.id]).forEach((n) => {
+        pills.push(`<span class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-violet-500/15 text-violet-300 border border-violet-500/25">${n.icon} ${escapeHtml(n.label)}</span>`);
+      });
+
+      dom.activeCriteriaBar.innerHTML = pills.join('');
+    }
+
+    /**
+     * Render Skeleton Loading Grid
+     */
+    function renderSkeletonCards() {
+      dom.resultsCountBadge.textContent = 'Searching...';
+      dom.recommendationsGrid.innerHTML = Array.from({ length: 8 })
+        .map(
+          () => `
+          <div class="rounded-2xl bg-surface border border-white/[0.07] overflow-hidden flex flex-col">
+            <div class="aspect-[2/3] w-full skeleton"></div>
+            <div class="p-4 space-y-3">
+              <div class="h-4 w-3/4 rounded skeleton"></div>
+              <div class="h-3 w-1/2 rounded skeleton"></div>
+              <div class="flex gap-1.5 pt-1">
+                <div class="h-5 w-16 rounded-md skeleton"></div>
+                <div class="h-5 w-20 rounded-md skeleton"></div>
+              </div>
+              <div class="grid grid-cols-2 gap-2 pt-2">
+                <div class="h-9 rounded-xl skeleton"></div>
+                <div class="h-9 rounded-xl skeleton"></div>
+              </div>
+            </div>
+          </div>
+        `
+        )
+        .join('');
+    }
+
+    /**
+     * Render Scored Recommended Manhwa Cards
+     */
+    function renderRecommendations() {
+      const items = state.recommendations;
+      dom.resultsCountBadge.textContent = `${items.length} ${items.length === 1 ? 'title' : 'titles'}`;
+
+      if (items.length === 0) {
+        dom.recommendationsGrid.innerHTML = '';
+        dom.emptyResultsState.classList.remove('hidden');
+        return;
+      }
+
+      dom.emptyResultsState.classList.add('hidden');
+
+      dom.recommendationsGrid.innerHTML = items
+        .map(({ media, matchPercent, matchedTags }) => {
+          const title = getDisplayTitle(media);
+          const romaji = media.title?.romaji && media.title.romaji !== title ? media.title.romaji : '';
+          const chapterInfo = formatChapterInfo(media);
+          const cover = media.coverImage?.extraLarge || media.coverImage?.large || '';
+          const score = media.averageScore;
+
+          const matchBadgeStyle =
+            matchPercent >= 88
+              ? 'bg-emerald-500/90 text-slate-950 border-emerald-300/60'
+              : matchPercent >= 78
+              ? 'bg-indigo-600/90 text-white border-indigo-300/40'
+              : 'bg-slate-900/90 text-cyan-300 border-cyan-400/40';
+
+          // Display top 2 matched tags + top genres up to 3 pills total
+          const tagPills = matchedTags.slice(0, 2).map(
+            (t) => `
+              <span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-indigo-500/15 text-indigo-300 border border-indigo-500/25 truncate max-w-[130px]">
+                ⚡ ${escapeHtml(t.name)}
+              </span>
+            `
+          );
+
+          const remainingSlots = Math.max(1, 3 - tagPills.length);
+          const genrePills = (media.genres || []).slice(0, remainingSlots).map(
+            (g) => `
+              <span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-white/[0.05] text-slate-300 border border-white/[0.08]">
+                ${escapeHtml(g)}
+              </span>
+            `
+          );
+
+          return `
+            <article class="manhwa-card rounded-2xl bg-surface border border-white/[0.08] overflow-hidden flex flex-col justify-between group">
+              <div>
+                <!-- 2:3 Cover Image Container -->
+                <div class="relative aspect-[2/3] w-full overflow-hidden bg-[#0c101a] cursor-pointer" data-open-modal-id="${media.id}">
+                  <img
+                    src="${escapeHtml(cover)}"
+                    alt="${escapeHtml(title)}"
+                    loading="lazy"
+                    onerror="this.src='https://placehold.co/460x690/111520/818cf8?text=${encodeURIComponent(title.slice(0, 18))}'"
+                    class="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                  />
+
+                  <!-- Top & Bottom Gradient Scrims -->
+                  <div class="absolute inset-0 bg-gradient-to-t from-[#090b10] via-transparent to-black/45 opacity-95"></div>
+
+                  <!-- Top Badges: % Match & Score -->
+                  <div class="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+                    <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold tracking-tight border backdrop-blur-md shadow-lg ${matchBadgeStyle}">
+                      ${matchPercent}% Match
+                    </span>
+
+                    <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold bg-black/75 text-amber-300 border border-white/15 backdrop-blur-md">
+                      ★ ${score ? `${score}%` : 'N/A'}
+                    </span>
+                  </div>
+
+                  <!-- Bottom Chapter Count & Status Overlay -->
+                  <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
+                    <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold bg-[#090b10]/90 text-cyan-300 border border-cyan-500/30 backdrop-blur-md truncate">
+                      ${escapeHtml(chapterInfo.primary)}
+                    </span>
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider bg-white/10 text-slate-200 backdrop-blur-md flex-shrink-0">
+                      ${escapeHtml(chapterInfo.status)}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Card Details -->
+                <div class="p-4 space-y-2.5">
+                  <div>
+                    <h3
+                      data-open-modal-id="${media.id}"
+                      class="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2 group-hover:text-indigo-300 transition-colors cursor-pointer"
+                      title="${escapeHtml(title)}"
+                    >
+                      ${escapeHtml(title)}
+                    </h3>
+                    ${
+                      romaji
+                        ? `<p class="text-[11px] text-slate-500 line-clamp-1 mt-0.5">${escapeHtml(romaji)}</p>`
+                        : ''
+                    }
+                  </div>
+
+                  <!-- Matching Tropes & Genre Chips -->
+                  <div class="flex flex-wrap gap-1.5 pt-0.5">
+                    ${tagPills.join('')}
+                    ${genrePills.join('')}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Action Footer -->
+              <div class="px-4 pb-4 pt-1 grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  data-open-modal-id="${media.id}"
+                  class="px-3 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.09] text-xs font-semibold text-slate-200 transition-colors cursor-pointer"
+                >
+                  Synopsis &amp; Tags
+                </button>
+                <button
+                  type="button"
+                  data-mark-read-id="${media.id}"
+                  class="px-3 py-2 rounded-xl bg-indigo-500/15 hover:bg-indigo-500 text-indigo-300 hover:text-white border border-indigo-400/30 text-xs font-semibold transition-all cursor-pointer"
+                >
+                  + Mark Read
+                </button>
+              </div>
+            </article>
+          `;
+        })
+        .join('');
+
+      // Attach listeners for Detail Modal & Mark Read
+      dom.recommendationsGrid.querySelectorAll('[data-open-modal-id]').forEach((el) => {
+        el.addEventListener('click', () => {
+          const id = Number(el.getAttribute('data-open-modal-id'));
+          const entry = state.recommendations.find((r) => r.media.id === id);
+          if (entry) openDetailModal(entry);
+        });
+      });
+
+      dom.recommendationsGrid.querySelectorAll('[data-mark-read-id]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const id = Number(btn.getAttribute('data-mark-read-id'));
+          const entry = state.recommendations.find((r) => r.media.id === id);
+          if (entry) addToShelf(entry.media);
+        });
+      });
+    }
+
+    /**
+     * Open Rich Detail Modal for a Recommended Manhwa
+     */
+    function openDetailModal(entry) {
+      const { media, matchPercent, matchedTags } = entry;
+      const title = getDisplayTitle(media);
+      const romaji = media.title?.romaji && media.title.romaji !== title ? media.title.romaji : '';
+      const nativeTitle = media.title?.native || '';
+      const chapterInfo = formatChapterInfo(media);
+      const cover = media.coverImage?.extraLarge || media.coverImage?.large || '';
+      const banner = media.bannerImage || cover;
+      const synopsis = formatSynopsis(media.description);
+      const isRead = state.shelf.some((s) => s.id === media.id);
+
+      const matchedNames = new Set(matchedTags.map((t) => t.name));
+      const allNonSpoilerTags = (media.tags || []).filter((t) => !t.isMediaSpoiler && !t.isGeneralSpoiler);
+
+      dom.modalContent.innerHTML = `
+        <!-- Banner Header -->
+        <div class="relative h-40 sm:h-52 w-full overflow-hidden bg-[#090b10]">
+          <img
+            src="${escapeHtml(banner)}"
+            alt=""
+            class="w-full h-full object-cover ${media.bannerImage ? 'opacity-65' : 'opacity-30 blur-md scale-110'}"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-[#111520] via-[#111520]/50 to-transparent"></div>
+        </div>
+
+        <!-- Main Modal Body -->
+        <div class="px-5 sm:px-8 pb-8 -mt-20 sm:-mt-24 relative z-10 space-y-6">
+          <div class="flex flex-col sm:flex-row gap-5 items-start">
+            <img
+              src="${escapeHtml(cover)}"
+              alt="${escapeHtml(title)}"
+              onerror="this.src='https://placehold.co/300x450/111520/818cf8?text=KR'"
+              class="w-32 sm:w-40 aspect-[2/3] rounded-2xl object-cover border-2 border-white/15 shadow-2xl flex-shrink-0"
+            />
+
+            <div class="space-y-3 pt-1 sm:pt-12 min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                  ${matchPercent}% Taste Match
+                </span>
+                <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-400/30">
+                  ★ ${media.averageScore ? `${media.averageScore}% Score` : 'Unrated'}
+                </span>
+                <span class="px-2.5 py-1 rounded-lg text-xs font-mono bg-cyan-500/15 text-cyan-300 border border-cyan-400/30">
+                  ${escapeHtml(chapterInfo.primary)}
+                </span>
+              </div>
+
+              <div>
+                <h2 id="modal-title" class="text-xl sm:text-2xl font-extrabold text-white leading-tight">
+                  ${escapeHtml(title)}
+                </h2>
+                ${
+                  romaji || nativeTitle
+                    ? `<p class="text-xs text-slate-400 mt-1">${escapeHtml([romaji, nativeTitle].filter(Boolean).join(' • '))}</p>`
+                    : ''
+                }
+              </div>
+
+              <!-- Genres -->
+              <div class="flex flex-wrap gap-1.5">
+                ${(media.genres || [])
+                  .map(
+                    (g) =>
+                      `<span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-white/[0.06] text-slate-200 border border-white/[0.08]">${escapeHtml(g)}</span>`
+                  )
+                  .join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- Why It Matched -->
+          ${
+            matchedTags.length > 0
+              ? `
+            <div class="rounded-xl bg-indigo-500/10 border border-indigo-400/25 p-3.5 space-y-1.5">
+              <div class="text-[11px] font-mono uppercase tracking-wider text-indigo-300 font-bold">
+                ⚡ Shared Taste DNA Tropes
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                ${matchedTags
+                  .map(
+                    (t) =>
+                      `<span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-500/25 text-white border border-indigo-400/40">${escapeHtml(t.name)} <span class="text-indigo-200 font-mono text-[10px]">(${t.rank}%)</span></span>`
+                  )
+                  .join('')}
+              </div>
+            </div>
+          `
+              : ''
+          }
+
+          <!-- Synopsis -->
+          <div class="space-y-2">
+            <h3 class="text-xs font-mono uppercase tracking-wider text-slate-400 font-bold">Synopsis</h3>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
+              ${escapeHtml(synopsis)}
+            </p>
+          </div>
+
+          <!-- All Community Tags -->
+          ${
+            allNonSpoilerTags.length > 0
+              ? `
+            <div class="space-y-2">
+              <h3 class="text-xs font-mono uppercase tracking-wider text-slate-400 font-bold">
+                AniList Community Tags (${allNonSpoilerTags.length})
+              </h3>
+              <div class="flex flex-wrap gap-1.5">
+                ${allNonSpoilerTags
+                  .map((t) => {
+                    const isMatch = matchedNames.has(t.name);
+                    return `
+                      <span class="px-2.5 py-1 rounded-lg text-xs border ${
+                        isMatch
+                          ? 'bg-indigo-500/20 border-indigo-400/40 text-indigo-200 font-semibold'
+                          : 'bg-[#0b0e16] border-white/[0.07] text-slate-400'
+                      }">
+                        ${escapeHtml(t.name)} <span class="font-mono text-[10px] opacity-75">${t.rank || 0}%</span>
+                      </span>
+                    `;
+                  })
+                  .join('')}
+              </div>
+            </div>
+          `
+              : ''
+          }
+
+          <!-- Modal Actions -->
+          <div class="pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3">
+            <button
+              type="button"
+              id="modal-mark-read-btn"
+              ${isRead ? 'disabled' : ''}
+              class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                isRead
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 cursor-default'
+                  : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-glow-indigo cursor-pointer'
+              }"
+            >
+              ${isRead ? '✓ On Your Read & Loved Shelf' : '+ Add to Read & Loved Shelf'}
+            </button>
+
+            <a
+              href="${escapeHtml(media.siteUrl || `https://anilist.co/manga/${media.id}`)}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] text-xs sm:text-sm font-semibold text-slate-200 transition-colors"
+            >
+              <span>Open on AniList</span>
+              <span>↗</span>
+            </a>
+          </div>
+        </div>
+      `;
+
+      dom.detailModal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+
+      const modalMarkBtn = document.getElementById('modal-mark-read-btn');
+      if (modalMarkBtn && !isRead) {
+        modalMarkBtn.addEventListener('click', () => {
+          addToShelf(media);
+          closeDetailModal();
+        });
+      }
+    }
+
+    function closeDetailModal() {
+      dom.detailModal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    /**
+     * Debounce helpers
+     */
+    let searchTimer = null;
+    function debouncedSearch(val) {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => searchManhwa(val), 320);
+    }
+
+    let fetchDebounceTimer = null;
+    function debouncedFetchRecommendations() {
+      clearTimeout(fetchDebounceTimer);
+      fetchDebounceTimer = setTimeout(() => fetchRecommendations(), 350);
+    }
+
+    function triggerRecommendationsFetch() {
+      clearTimeout(fetchDebounceTimer);
+      fetchRecommendations();
+    }
+
+    /**
+     * Reset all filters cleanly
+     */
+    function resetAllFilters() {
+      state.activeTags.clear();
+      state.selectedGenres.clear();
+      Object.keys(state.notes).forEach((k) => {
+        state.notes[k] = false;
+      });
+      renderTasteDNA();
+      renderGenres();
+      renderNotes();
+      updateQueryHint();
+      showToast('Filters reset to default.', 'info');
+      triggerRecommendationsFetch();
+    }
+
+    /**
+     * Wire up DOM Event Listeners & Initialize App
+     */
+    function init() {
+      loadShelfFromStorage();
+      recomputeTasteDNA(state.shelf.length > 0 && state.activeTags.size === 0);
+
+      renderQuickAddPills();
+      renderShelf();
+      renderTasteDNA();
+      renderGenres();
+      renderNotes();
+      updateQueryHint();
+
+      // Search input events
+      dom.searchInput.addEventListener('input', (e) => {
+        debouncedSearch(e.target.value);
+      });
+
+      dom.searchInput.addEventListener('focus', () => {
+        if (dom.searchInput.value.trim() && state.searchResults.length > 0) {
+          dom.searchDropdown.classList.remove('hidden');
+        }
+      });
+
+      dom.searchClearBtn.addEventListener('click', () => {
+        dom.searchInput.value = '';
+        state.searchResults = [];
+        dom.searchDropdown.classList.add('hidden');
+        dom.searchClearBtn.classList.add('hidden');
+        dom.searchInput.focus();
+      });
+
+      // Close search dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!document.getElementById('search-wrapper').contains(e.target)) {
+          dom.searchDropdown.classList.add('hidden');
+        }
+      });
+
+      // Clear entire shelf
+      dom.clearShelfBtn.addEventListener('click', () => {
+        state.shelf = [];
+        state.extractedTags = [];
+        state.activeTags.clear();
+        saveShelfToStorage();
+        renderShelf();
+        renderQuickAddPills();
+        renderTasteDNA();
+        updateQueryHint();
+        showToast('Cleared your Read & Loved shelf.', 'info');
+        triggerRecommendationsFetch();
+      });
+
+      // Taste DNA quick select buttons
+      dom.dnaSelectTopBtn.addEventListener('click', () => {
+        state.activeTags.clear();
+        state.extractedTags.slice(0, 3).forEach((t) => state.activeTags.add(t.name));
+        renderTasteDNA();
+        updateQueryHint();
+        triggerRecommendationsFetch();
+      });
+
+      dom.dnaClearBtn.addEventListener('click', () => {
+        state.activeTags.clear();
+        renderTasteDNA();
+        updateQueryHint();
+        triggerRecommendationsFetch();
+      });
+
+      // Primary action buttons
+      dom.findPeakBtn.addEventListener('click', () => {
+        triggerRecommendationsFetch();
+        document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
+      dom.resetFiltersBtn.addEventListener('click', resetAllFilters);
+      dom.relaxFiltersBtn.addEventListener('click', resetAllFilters);
+      dom.retryFetchBtn.addEventListener('click', triggerRecommendationsFetch);
+
+      // Modal close listeners
+      dom.closeModalBtn.addEventListener('click', closeDetailModal);
+      dom.detailModal.addEventListener('click', (e) => {
+        if (e.target === dom.detailModal) closeDetailModal();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !dom.detailModal.classList.contains('hidden')) {
+          closeDetailModal();
+        }
+      });
+
+      // Initial recommendation discovery on load
+      fetchRecommendations();
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
