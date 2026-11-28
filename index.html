@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#38bdf8" />
   <title>VexinManwha — Manhwa Dashboard, Taste Engine &amp; Web Reader</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="apple-touch-icon" href="./favicon.svg" />
+  <link rel="manifest" href="./manifest.json" />
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
   <script src="app.js" defer></script>
@@ -11,23 +15,37 @@
 <body>
   <header class="topbar">
     <div class="brand">
-      <span class="brand-badge">VM</span>
+      <div class="brand-logo" aria-hidden="true">
+        <svg viewBox="0 0 128 128" width="40" height="40">
+          <defs>
+            <linearGradient id="vmLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="var(--accent)"/>
+              <stop offset="100%" stop-color="#818cf8"/>
+            </linearGradient>
+          </defs>
+          <rect width="128" height="128" rx="28" fill="var(--surface-2)"/>
+          <rect x="6" y="6" width="116" height="116" rx="23" fill="none" stroke="url(#vmLogoGrad)" stroke-width="5"/>
+          <path d="M26 35 L64 47 L102 35 L102 88 L64 100 L26 88 Z" fill="var(--bg)" stroke="url(#vmLogoGrad)" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M38 46 L64 84 L90 46" fill="none" stroke="var(--text)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="64" cy="24" r="5" fill="var(--accent)"/>
+        </svg>
+      </div>
       <div>
-        <h1>VexinManwha <span class="version-pill">v4.0</span></h1>
+        <h1>VexinManwha <span class="version-pill">v4.1</span></h1>
         <p class="subtitle">Multi-Library Discovery Dashboard &amp; Webtoon Reader</p>
       </div>
     </div>
 
     <nav class="nav-tabs" aria-label="Primary Views">
-      <button class="nav-tab active" data-view="dashboardView">📊 Dashboard</button>
-      <button class="nav-tab" data-view="matcherView">⚡ Taste Matcher</button>
-      <button class="nav-tab" data-view="settingsView">⚙️ Settings &amp; Config</button>
-      <button class="nav-tab" data-view="logsView">📜 Update Logs</button>
+      <button type="button" class="nav-tab active" data-view="dashboardView">📊 Dashboard</button>
+      <button type="button" class="nav-tab" data-view="matcherView">⚡ Taste Matcher</button>
+      <button type="button" class="nav-tab" data-view="settingsView">⚙️ Settings &amp; Config</button>
+      <button type="button" class="nav-tab" data-view="logsView">📜 Update Logs</button>
     </nav>
 
     <div class="topbar-controls">
-      <button id="openReaderBtn" class="btn btn-accent">📖 Web Reader</button>
-      <select id="themeSelect" class="control-select" title="Quick Theme Switch">
+      <button type="button" id="openReaderBtn" class="btn btn-accent">📖 Web Reader</button>
+      <select id="themeSelect" class="control-select" title="Switch UI Theme">
         <option value="moonlight">🌙 Moonlight</option>
         <option value="crimson">🩸 Crimson Red</option>
         <option value="shadow">🔮 Shadow Violet</option>
@@ -42,7 +60,6 @@
     <!-- VIEW 1: DASHBOARD (DEFAULT ENTRY VIEW)                                -->
     <!-- ===================================================================== -->
     <div id="dashboardView" class="view-section">
-      <!-- KPI Stats Strip -->
       <section class="stats-grid">
         <div class="stat-card">
           <span class="stat-label">Read &amp; Loved Shelf</span>
@@ -66,16 +83,15 @@
         </div>
       </section>
 
-      <!-- Search + Starter Shelf Hub -->
       <section class="panel">
         <div class="panel-header">
           <div>
             <h2>Your Library Shelf &amp; Quick Starters</h2>
             <p class="muted">Search any Korean manhwa or OEL webtoon, or one-click add from the starter strip below.</p>
           </div>
-          <div style="display:flex; gap:0.5rem;">
-            <button id="jumpToMatcherBtn" class="btn btn-primary btn-sm">⚡ Custom Filter &amp; Bans</button>
-            <button id="clearShelfBtn" class="btn btn-ghost btn-sm">Clear Shelf</button>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button type="button" id="jumpToMatcherBtn" class="btn btn-primary btn-sm">⚡ Custom Filter &amp; Bans</button>
+            <button type="button" id="clearShelfBtn" class="btn btn-ghost btn-sm">Clear Shelf</button>
           </div>
         </div>
 
@@ -99,14 +115,13 @@
         <div id="shelfGrid" class="shelf-grid"></div>
       </section>
 
-      <!-- Live Dashboard Curated Feeds -->
       <section class="panel">
         <div class="panel-header">
           <div>
             <h2>🎯 Top Taste DNA Matches For You</h2>
             <p class="muted">Live recommendations ranked by your saved shelf tropes and active genre bans.</p>
           </div>
-          <button id="refreshDashboardBtn" class="btn btn-ghost btn-sm">↻ Refresh Feeds</button>
+          <button type="button" id="refreshDashboardBtn" class="btn btn-ghost btn-sm">↻ Refresh Feeds</button>
         </div>
         <div id="dashRecommendedGrid" class="results-grid"></div>
       </section>
@@ -149,7 +164,6 @@
           <div id="extractedTags" class="chip-group"></div>
         </div>
 
-        <!-- Categorized 35 Genres & Tropes -->
         <div id="categorizedGenresContainer"></div>
 
         <div class="filter-block">
@@ -160,19 +174,19 @@
         <div class="filter-block ban-block">
           <div class="ban-header">
             <div class="filter-title">🚫 Ban / Block Genres &amp; Tags</div>
-            <button id="clearBansBtn" class="btn btn-ghost btn-sm">Clear All Bans</button>
+            <button type="button" id="clearBansBtn" class="btn btn-ghost btn-sm">Clear All Bans</button>
           </div>
           <div id="banPresetChips" class="chip-group"></div>
 
           <div class="custom-ban-row">
             <input id="customBanInput" type="text" placeholder="Add custom banned keyword (e.g., NTR, Netorare, Childcare)..." />
-            <button id="addBanBtn" class="btn btn-danger btn-sm">+ Ban Keyword</button>
+            <button type="button" id="addBanBtn" class="btn btn-danger btn-sm">+ Ban Keyword</button>
           </div>
           <div id="activeBansList" class="chip-group"></div>
         </div>
 
         <div class="action-row">
-          <button id="findBtn" class="btn btn-primary btn-lg">⚡ Run Precision Manhwa Search</button>
+          <button type="button" id="findBtn" class="btn btn-primary btn-lg">⚡ Run Precision Manhwa Search</button>
         </div>
       </section>
 
@@ -228,7 +242,7 @@
             <p class="muted small">Configure a default CORS-enabled Reader API URL (e.g., Suwayomi-Server).</p>
             <div style="display:flex; gap:0.5rem; margin-top:0.6rem;">
               <input id="settingsReaderApiInput" type="url" placeholder="http://localhost:4567/api/v1" />
-              <button id="settingsSaveApiBtn" class="btn btn-primary btn-sm">Save</button>
+              <button type="button" id="settingsSaveApiBtn" class="btn btn-primary btn-sm">Save</button>
             </div>
           </div>
 
@@ -236,13 +250,13 @@
             <h3>💾 Library Backup, Reset &amp; Cache</h3>
             <p class="muted small">Export your shelf and banned tags to JSON, restore defaults, or purge API cache.</p>
             <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.75rem;">
-              <button id="exportJsonBtn" class="btn btn-primary btn-sm">⬇ Export Backup (.json)</button>
+              <button type="button" id="exportJsonBtn" class="btn btn-primary btn-sm">⬇ Export Backup (.json)</button>
               <label class="btn btn-ghost btn-sm" style="cursor:pointer;">
                 ⬆ Import Backup
                 <input id="importJsonInput" type="file" accept=".json" hidden />
               </label>
-              <button id="reseedStartersBtn" class="btn btn-ghost btn-sm">🌱 Restore 4 Starter Titles</button>
-              <button id="clearCacheBtn" class="btn btn-danger btn-sm">🗑 Clear Cache (<span id="cacheCountBadge">0</span>)</button>
+              <button type="button" id="reseedStartersBtn" class="btn btn-ghost btn-sm">🌱 Restore 4 Starter Titles</button>
+              <button type="button" id="clearCacheBtn" class="btn btn-danger btn-sm">🗑 Clear Cache (<span id="cacheCountBadge">0</span>)</button>
             </div>
           </div>
         </div>
@@ -268,7 +282,7 @@
   <!-- DETAIL MODAL -->
   <div id="detailModal" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-card">
-      <button id="closeDetailBtn" class="modal-close" aria-label="Close">✕</button>
+      <button type="button" id="closeDetailBtn" class="modal-close" aria-label="Close">✕</button>
       <div id="detailBody"></div>
     </div>
   </div>
@@ -283,9 +297,9 @@
         </div>
 
         <div class="reader-nav-controls">
-          <button id="prevChapBtn" class="btn btn-ghost btn-sm">◀ Prev</button>
+          <button type="button" id="prevChapBtn" class="btn btn-ghost btn-sm">◀ Prev</button>
           <select id="readerChapterSelect" class="control-select"></select>
-          <button id="nextChapBtn" class="btn btn-ghost btn-sm">Next ▶</button>
+          <button type="button" id="nextChapBtn" class="btn btn-ghost btn-sm">Next ▶</button>
         </div>
 
         <div class="reader-view-controls">
@@ -294,8 +308,8 @@
             <input id="stripWidthRange" type="range" min="480" max="1000" step="20" value="760" />
             <span id="stripWidthVal">760px</span>
           </label>
-          <button id="autoScrollBtn" class="btn btn-ghost btn-sm">Auto-Scroll: Off</button>
-          <button id="closeReaderBtn" class="btn btn-danger btn-sm">✕ Close</button>
+          <button type="button" id="autoScrollBtn" class="btn btn-ghost btn-sm">Auto-Scroll: Off</button>
+          <button type="button" id="closeReaderBtn" class="btn btn-danger btn-sm">✕ Close</button>
         </div>
       </div>
 
@@ -306,7 +320,7 @@
             type="url"
             placeholder="Optional CORS Reader API URL (e.g., http://localhost:4567/api/v1 or custom JSON feed)"
           />
-          <button id="saveReaderApiBtn" class="btn btn-primary btn-sm">Connect API</button>
+          <button type="button" id="saveReaderApiBtn" class="btn btn-primary btn-sm">Connect API</button>
           <label class="btn btn-ghost btn-sm" style="cursor:pointer;">
             📁 Open CBZ/ZIP
             <input id="localCbzInput" type="file" accept=".cbz,.zip" hidden />

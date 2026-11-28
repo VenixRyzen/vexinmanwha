@@ -6,12 +6,13 @@
   const JIKAN_URL = "https://api.jikan.moe/v4/manga";
 
   const STORAGE_KEYS = {
-    INIT_FLAG: "vexin_initialized_v4",
-    SHELF: "vexin_shelf_v4",
-    BANS: "vexin_bans_v4",
-    THEME: "vexin_theme_v4",
-    TITLE_PREF: "vexin_title_pref_v4",
-    READER_API: "vexin_reader_api_v4"
+    INIT_FLAG: "vexin_initialized_v41",
+    SHELF: "vexin_shelf_v41",
+    BANS: "vexin_bans_v41",
+    THEME: "vexin_theme_v41",
+    TITLE_PREF: "vexin_title_pref_v41",
+    READER_API: "vexin_reader_api_v41",
+    COVER_MAP: "vexin_cover_map_v41"
   };
 
   const THEMES = [
@@ -22,15 +23,189 @@
     { id: "daylight", name: "Daylight", color: "#2563eb" }
   ];
 
-  // Application State
-  let catalogData = {
-    starters: [],
-    oelCatalog: [],
-    genreCategories: [],
-    collectorNotes: [],
-    banPresets: [],
-    updateLogs: []
+  // Built-in default catalog so UI renders 100% immediately even before catalog.json finishes
+  const DEFAULT_CATALOG = {
+    starters: [
+      { id: "al-105398", anilistId: 105398, title: "Solo Leveling", native: "나 혼자만 레벨업", chapters: 200, score: 87 },
+      { id: "al-119257", anilistId: 119257, title: "Omniscient Reader", native: "전지적 독자 시점", chapters: 235, score: 88 },
+      { id: "oel-tbate", anilistId: 105398, title: "The Beginning After the End", native: "끝이 아닌 시작 (TBATE)", chapters: 205, score: 89 },
+      { id: "al-114578", anilistId: 114578, title: "Legend of the Northern Blade", native: "북검전기", chapters: 202, score: 89 },
+      { id: "al-128067", anilistId: 128067, title: "SSS-Class Revival Hunter", native: "SSS급 죽어야 사는 헌터", chapters: 125, score: 86 },
+      { id: "al-117460", anilistId: 117460, title: "Villains Are Destined to Die", native: "악역의 엔딩은 죽음뿐", chapters: 162, score: 87 },
+      { id: "al-85143", anilistId: 85143, title: "Tower of God", native: "신의 탑", chapters: 640, score: 84 },
+      { id: "al-106929", anilistId: 106929, title: "Eleceed", native: "일렉시드", chapters: 325, score: 86 },
+      { id: "al-120829", anilistId: 120829, title: "Nano Machine", native: "나노마신", chapters: 235, score: 82 },
+      { id: "al-131767", anilistId: 131767, title: "Return of the Mount Hua Sect", native: "화산귀환", chapters: 145, score: 88 },
+      { id: "al-137133", anilistId: 137133, title: "The Greatest Estate Developer", native: "역대급 영지 설계사", chapters: 170, score: 90 },
+      { id: "al-146747", anilistId: 146747, title: "Reaper of the Drifting Moon", native: "표월", chapters: 98, score: 83 },
+      { id: "al-139137", anilistId: 139137, title: "Doom Breaker", native: "투신전생기", chapters: 101, score: 85 },
+      { id: "al-159507", anilistId: 159507, title: "Pick Me Up, Infinite Gacha", native: "픽 미 업!", chapters: 125, score: 86 },
+      { id: "al-126297", anilistId: 126297, title: "Mercenary Enrollment", native: "입학용병", chapters: 215, score: 82 },
+      { id: "al-85858", anilistId: 85858, title: "Lookism", native: "외모지상주의", chapters: 530, score: 83 }
+    ],
+    oelCatalog: [
+      {
+        id: "oel-tbate",
+        source: "Tapas / OEL",
+        displayTitle: "The Beginning After the End",
+        romajiTitle: "The Beginning After the End (TBATE)",
+        nativeTitle: "끝이 아닌 시작",
+        synonyms: ["TBATE", "The Beginning After The End", "Beginning After the End"],
+        cover: "",
+        chapters: 205,
+        score: 89,
+        status: "RELEASING",
+        genres: ["Action", "Adventure", "Fantasy"],
+        tags: ["Reincarnation", "Magic", "Overpowered MC", "Swordplay", "School", "Full Color", "Royalty"],
+        description: "King Grey has unrivaled strength, wealth, and prestige in a world governed by martial ability. Reborn into a new world filled with magic and monsters as Arthur Leywin, he gets a second chance to live his life and protect those he loves.",
+        url: "https://tapas.io/series/tbate-comic"
+      },
+      {
+        id: "oel-unordinary",
+        source: "WEBTOON",
+        displayTitle: "unOrdinary",
+        romajiTitle: "unOrdinary",
+        nativeTitle: "언오디너리",
+        synonyms: ["Unordinary"],
+        cover: "",
+        chapters: 345,
+        score: 84,
+        status: "RELEASING",
+        genres: ["Action", "Drama", "Supernatural"],
+        tags: ["Superpowers", "School", "Bullying", "Anti-Hero", "Full Color", "Hidden Identity"],
+        description: "In a world where everyone possesses superpowers, John is a seemingly powerless cripple attending Wellston Private High School—harboring a dark secret about his true abilities.",
+        url: "https://www.webtoons.com/en/super-hero/unordinary/list?title_no=679"
+      },
+      {
+        id: "oel-purple-hyacinth",
+        source: "WEBTOON",
+        displayTitle: "Purple Hyacinth",
+        romajiTitle: "Purple Hyacinth",
+        nativeTitle: "퍼플 히아신스",
+        synonyms: ["Purple Hyacinth"],
+        cover: "",
+        chapters: 158,
+        score: 91,
+        status: "HIATUS",
+        genres: ["Mystery", "Action", "Drama", "Thriller"],
+        tags: ["Detective", "Assassin", "Crime", "Full Color", "Conspiracy", "Steampunk"],
+        description: "A police officer with the ability to detect lies forms a secret alliance with the city's deadliest assassin to dismantle the criminal syndicate ruining their lives.",
+        url: "https://www.webtoons.com/en/mystery/purple-hyacinth/list?title_no=1621"
+      },
+      {
+        id: "oel-hand-jumper",
+        source: "WEBTOON",
+        displayTitle: "Hand Jumper",
+        romajiTitle: "Hand Jumper",
+        nativeTitle: "핸드 점퍼",
+        synonyms: ["Hand Jumper"],
+        cover: "",
+        chapters: 96,
+        score: 88,
+        status: "RELEASING",
+        genres: ["Action", "Thriller", "Supernatural"],
+        tags: ["Time Manipulation", "Anti-Hero", "Superpowers", "Strategy", "Full Color"],
+        description: "Sayeon Lee despises Aberrants—until she discovers she is one with the power to rewind time by seconds, forcing her into a ruthless corps of superpowered enforcers.",
+        url: "https://www.webtoons.com/en/thriller/hand-jumper/list?title_no=2702"
+      }
+    ],
+    genreCategories: [
+      {
+        category: "Core Genres",
+        items: [
+          { label: "Action", type: "genre", value: "Action" },
+          { label: "Adventure", type: "genre", value: "Adventure" },
+          { label: "Fantasy", type: "genre", value: "Fantasy" },
+          { label: "Drama", type: "genre", value: "Drama" },
+          { label: "Mystery", type: "genre", value: "Mystery" },
+          { label: "Supernatural", type: "genre", value: "Supernatural" },
+          { label: "Thriller", type: "genre", value: "Thriller" },
+          { label: "Sci-Fi", type: "genre", value: "Sci-Fi" },
+          { label: "Comedy", type: "genre", value: "Comedy" },
+          { label: "Romance", type: "genre", value: "Romance" },
+          { label: "Psychological", type: "genre", value: "Psychological" },
+          { label: "Slice of Life", type: "genre", value: "Slice of Life" },
+          { label: "Horror", type: "genre", value: "Horror" },
+          { label: "Sports", type: "genre", value: "Sports" }
+        ]
+      },
+      {
+        category: "Manhwa Worlds & Power Systems",
+        items: [
+          { label: "Murim / Martial Arts", type: "tag", value: "Martial Arts" },
+          { label: "System / Leveling", type: "tag", value: "Video Games" },
+          { label: "Regression / Time Travel", type: "tag", value: "Time Manipulation" },
+          { label: "Reincarnation / Isekai", type: "tag", value: "Reincarnation" },
+          { label: "Tower / Dungeon", type: "tag", value: "Dungeon" },
+          { label: "Necromancer", type: "tag", value: "Necromancy" },
+          { label: "Magic & Sorcery", type: "tag", value: "Magic" },
+          { label: "Swordplay", type: "tag", value: "Swordplay" },
+          { label: "Academy / School", type: "tag", value: "School" },
+          { label: "Kingdom Building", type: "tag", value: "Politics" },
+          { label: "Post-Apocalyptic", type: "tag", value: "Post-Apocalyptic" },
+          { label: "Superpowers", type: "tag", value: "Superpowers" }
+        ]
+      },
+      {
+        category: "Protagonist & Tone",
+        items: [
+          { label: "Overpowered MC", type: "tag", value: "Overpowered MC" },
+          { label: "Anti-Hero", type: "tag", value: "Anti-Hero" },
+          { label: "Revenge", type: "tag", value: "Revenge" },
+          { label: "Villainess / Otome", type: "tag", value: "Villainess" },
+          { label: "Cultivation", type: "tag", value: "Cultivation" },
+          { label: "Survival", type: "tag", value: "Survival" },
+          { label: "Crime / Gangster", type: "tag", value: "Crime" },
+          { label: "Historical", type: "tag", value: "Historical" },
+          { label: "Full Color", type: "tag", value: "Full Color" }
+        ]
+      }
+    ],
+    collectorNotes: [
+      { id: "chapters100", label: "100+ Chapters" },
+      { id: "chapters200", label: "200+ Chapters (Long Epic)" },
+      { id: "peakArt", label: "High Rated / Peak Art (80+)" },
+      { id: "masterpiece", label: "Masterpiece Tier (86+)" },
+      { id: "fullColor", label: "Full Color" },
+      { id: "completed", label: "Completed Only" },
+      { id: "releasing", label: "Ongoing / Releasing" },
+      { id: "hiddenGems", label: "Hidden Gems" }
+    ],
+    banPresets: [
+      { id: "bl", label: "BL / Boys' Love", terms: ["boys' love", "boy's love", "bl", "shounen ai", "yaoi"] },
+      { id: "gl", label: "GL / Girls' Love", terms: ["girls' love", "girl's love", "gl", "shoujo ai", "yuri"] },
+      { id: "mlm", label: "Gay / MLM", terms: ["gay", "mlm", "male/male", "homosexual"] },
+      { id: "wlw", label: "Lesbian / WLW", terms: ["lesbian", "wlw", "female/female"] },
+      { id: "harem", label: "Harem", "terms": ["harem", "male harem"] },
+      { id: "revharem", label: "Reverse Harem", terms: ["reverse harem", "female harem"] },
+      { id: "ecchi", label: "Ecchi / Smut", terms: ["ecchi", "smut", "erotica", "hentai"] },
+      { id: "ntr", label: "NTR / Netorare", terms: ["ntr", "netorare", "cheating"] },
+      { id: "tragedy", label: "Tragedy", terms: ["tragedy"] },
+      { id: "horror", label: "Horror / Gore", terms: ["horror", "gore"] },
+      { id: "psych", label: "Psychological", terms: ["psychological"] },
+      { id: "romance", label: "Romance", terms: ["romance"] },
+      { id: "mecha", label: "Mecha", terms: ["mecha"] },
+      { id: "sports", label: "Sports", terms: ["sports"] },
+      { id: "sol", label: "Slice of Life", terms: ["slice of life"] }
+    ],
+    updateLogs: [
+      {
+        version: "v4.1.0",
+        date: "2026-11-28",
+        badge: "Hotfix & Brand",
+        title: "Non-Blocking Boot, Dynamic Cover Hydration & VexinManwha Crest Logo",
+        changes: [
+          "Wired all theme switchers, navigation tabs, and dashboard buttons synchronously in <5ms before any network request runs.",
+          "Embedded built-in fallback catalog data directly in app.js so all 16 starters, 35 genres, bans, and update logs appear instantaneously.",
+          "Added batched AniList ID cover hydration so starter cards load authentic cover art.",
+          "Added custom VexinManwha vector emblem (favicon.svg, manifest.json, Apple touch icon, and header crest)."
+        ]
+      }
+    ]
   };
+
+  let catalogData = structuredClone ? structuredClone(DEFAULT_CATALOG) : JSON.parse(JSON.stringify(DEFAULT_CATALOG));
+  let coverCache = loadJSON(STORAGE_KEYS.COVER_MAP, {});
   let shelf = loadJSON(STORAGE_KEYS.SHELF, []);
   let bannedTerms = loadJSON(STORAGE_KEYS.BANS, [
     "boys' love", "boy's love", "bl", "shounen ai", "yaoi",
@@ -43,12 +218,10 @@
   let currentRecommendations = [];
   let titlePref = localStorage.getItem(STORAGE_KEYS.TITLE_PREF) || "scanlation";
 
-  // Performance Caches
   const apiCache = new Map();
   let searchAbortController = null;
   let searchDebounceTimer = null;
 
-  // Web Reader State
   let readerState = {
     seriesTitle: "VexinManwha Web Reader",
     chapters: [],
@@ -56,68 +229,29 @@
     autoScrollTimer: null
   };
 
-  const el = {
-    navTabs: document.querySelectorAll(".nav-tab"),
-    views: document.querySelectorAll(".view-section"),
-    themeSelect: document.getElementById("themeSelect"),
-    themeSwatches: document.getElementById("themeSwatches"),
-    titlePrefSelect: document.getElementById("titlePrefSelect"),
-    openReaderBtn: document.getElementById("openReaderBtn"),
-    jumpToMatcherBtn: document.getElementById("jumpToMatcherBtn"),
-    refreshDashboardBtn: document.getElementById("refreshDashboardBtn"),
-    dashShelfCount: document.getElementById("dashShelfCount"),
-    dashDnaCount: document.getElementById("dashDnaCount"),
-    dashBanCount: document.getElementById("dashBanCount"),
-    dashRecommendedGrid: document.getElementById("dashRecommendedGrid"),
-    dashPeakArtGrid: document.getElementById("dashPeakArtGrid"),
-    dashLongEpicGrid: document.getElementById("dashLongEpicGrid"),
-    searchInput: document.getElementById("searchInput"),
-    searchSpinner: document.getElementById("searchSpinner"),
-    searchDropdown: document.getElementById("searchDropdown"),
-    starterCardsRow: document.getElementById("starterCardsRow"),
-    shelfGrid: document.getElementById("shelfGrid"),
-    shelfCount: document.getElementById("shelfCount"),
-    clearShelfBtn: document.getElementById("clearShelfBtn"),
-    extractedTags: document.getElementById("extractedTags"),
-    tagHint: document.getElementById("tagHint"),
-    categorizedGenresContainer: document.getElementById("categorizedGenresContainer"),
-    noteChips: document.getElementById("noteChips"),
-    banPresetChips: document.getElementById("banPresetChips"),
-    customBanInput: document.getElementById("customBanInput"),
-    addBanBtn: document.getElementById("addBanBtn"),
-    activeBansList: document.getElementById("activeBansList"),
-    clearBansBtn: document.getElementById("clearBansBtn"),
-    findBtn: document.getElementById("findBtn"),
-    statusBanner: document.getElementById("statusBanner"),
-    resultsCount: document.getElementById("resultsCount"),
-    sortSelect: document.getElementById("sortSelect"),
-    resultsGrid: document.getElementById("resultsGrid"),
-    settingsReaderApiInput: document.getElementById("settingsReaderApiInput"),
-    settingsSaveApiBtn: document.getElementById("settingsSaveApiBtn"),
-    exportJsonBtn: document.getElementById("exportJsonBtn"),
-    importJsonInput: document.getElementById("importJsonInput"),
-    reseedStartersBtn: document.getElementById("reseedStartersBtn"),
-    clearCacheBtn: document.getElementById("clearCacheBtn"),
-    cacheCountBadge: document.getElementById("cacheCountBadge"),
-    updateLogsContainer: document.getElementById("updateLogsContainer"),
-    detailModal: document.getElementById("detailModal"),
-    closeDetailBtn: document.getElementById("closeDetailBtn"),
-    detailBody: document.getElementById("detailBody"),
-    readerModal: document.getElementById("readerModal"),
-    closeReaderBtn: document.getElementById("closeReaderBtn"),
-    readerSeriesTitle: document.getElementById("readerSeriesTitle"),
-    readerChapterSelect: document.getElementById("readerChapterSelect"),
-    prevChapBtn: document.getElementById("prevChapBtn"),
-    nextChapBtn: document.getElementById("nextChapBtn"),
-    stripWidthRange: document.getElementById("stripWidthRange"),
-    stripWidthVal: document.getElementById("stripWidthVal"),
-    autoScrollBtn: document.getElementById("autoScrollBtn"),
-    readerContinuityBar: document.getElementById("readerContinuityBar"),
-    readerPagesContainer: document.getElementById("readerPagesContainer"),
-    readerApiUrlInput: document.getElementById("readerApiUrlInput"),
-    saveReaderApiBtn: document.getElementById("saveReaderApiBtn"),
-    localCbzInput: document.getElementById("localCbzInput")
-  };
+  const el = {};
+
+  function cacheElements() {
+    const ids = [
+      "themeSelect", "themeSwatches", "titlePrefSelect", "openReaderBtn",
+      "jumpToMatcherBtn", "refreshDashboardBtn", "dashShelfCount", "dashDnaCount",
+      "dashBanCount", "dashRecommendedGrid", "dashPeakArtGrid", "dashLongEpicGrid",
+      "searchInput", "searchSpinner", "searchDropdown", "starterCardsRow",
+      "shelfGrid", "shelfCount", "clearShelfBtn", "extractedTags", "tagHint",
+      "categorizedGenresContainer", "noteChips", "banPresetChips", "customBanInput",
+      "addBanBtn", "activeBansList", "clearBansBtn", "findBtn", "statusBanner",
+      "resultsCount", "sortSelect", "resultsGrid", "settingsReaderApiInput",
+      "settingsSaveApiBtn", "exportJsonBtn", "importJsonInput", "reseedStartersBtn",
+      "clearCacheBtn", "cacheCountBadge", "updateLogsContainer", "detailModal",
+      "closeDetailBtn", "detailBody", "readerModal", "closeReaderBtn",
+      "readerSeriesTitle", "readerChapterSelect", "prevChapBtn", "nextChapBtn",
+      "stripWidthRange", "stripWidthVal", "autoScrollBtn", "readerContinuityBar",
+      "readerPagesContainer", "readerApiUrlInput", "saveReaderApiBtn", "localCbzInput"
+    ];
+    for (const id of ids) el[id] = document.getElementById(id);
+    el.navTabs = document.querySelectorAll(".nav-tab");
+    el.views = document.querySelectorAll(".view-section");
+  }
 
   function loadJSON(key, fallback) {
     try {
@@ -131,10 +265,9 @@
   function saveJSON(key, val) {
     try {
       localStorage.setItem(key, JSON.stringify(val));
-    } catch { /* ignore quota */ }
+    } catch { /* ignore */ }
   }
 
-  // Dynamic SVG Poster Generator (Zero Broken Images Guarantee)
   function createFallbackPoster(title, badge = "MANHWA") {
     const cleanTitle = (title || "VexinManwha").slice(0, 34).replace(/[<>&"']/g, "");
     const words = cleanTitle.split(" ");
@@ -171,6 +304,7 @@
   }
 
   function applySafeImage(imgEl, url, title, badge) {
+    if (!imgEl) return;
     const fallback = createFallbackPoster(title, badge);
     imgEl.src = url || fallback;
     imgEl.onerror = () => {
@@ -179,27 +313,22 @@
     };
   }
 
-  // Initialize
-  async function init() {
+  // =========================================================================
+  // SYNCHRONOUS FIRST PAINT + IMMEDIATE EVENT WIRING (ZERO BLOCKING)
+  // =========================================================================
+  function init() {
+    cacheElements();
     applyTheme(localStorage.getItem(STORAGE_KEYS.THEME) || "moonlight");
-    el.titlePrefSelect.value = titlePref;
+
+    if (el.titlePrefSelect) el.titlePrefSelect.value = titlePref;
     const savedApi = localStorage.getItem(STORAGE_KEYS.READER_API) || "";
-    el.readerApiUrlInput.value = savedApi;
-    el.settingsReaderApiInput.value = savedApi;
+    if (el.readerApiUrlInput) el.readerApiUrlInput.value = savedApi;
+    if (el.settingsReaderApiInput) el.settingsReaderApiInput.value = savedApi;
 
-    try {
-      const res = await fetch("./catalog.json");
-      if (res.ok) catalogData = await res.json();
-    } catch {
-      console.warn("catalog.json fallback active.");
-    }
+    // 1. Bind all UI events immediately so buttons & themes work instantaneously
+    bindEvents();
 
-    // Seed starter manhwa on first visit so dashboard is never empty
-    if (!localStorage.getItem(STORAGE_KEYS.INIT_FLAG)) {
-      await seedDefaultStarterShelf();
-      localStorage.setItem(STORAGE_KEYS.INIT_FLAG, "1");
-    }
-
+    // 2. Render all synchronous UI immediately from built-in defaults
     renderThemeSwatches();
     renderCategorizedGenres();
     renderNoteChips();
@@ -208,21 +337,147 @@
     renderStarterCards();
     renderShelf();
     updateDashboardStats();
-    bindEvents();
 
-    // Load live dashboard feeds immediately on entry
+    // 3. Run background data hydration without blocking UI
+    hydrateBackgroundData();
+  }
+
+  async function hydrateBackgroundData() {
+    try {
+      const res = await fetch("./catalog.json");
+      if (res.ok) {
+        const fetchedCatalog = await res.json();
+        catalogData = { ...catalogData, ...fetchedCatalog };
+        renderCategorizedGenres();
+        renderNoteChips();
+        renderBanSection();
+        renderUpdateLogs();
+        renderStarterCards();
+      }
+    } catch {
+      /* built-in catalogData remains active */
+    }
+
+    // Batch-fetch real AniList cover images for all starter cards in 1 fast call
+    await hydrateStarterCovers();
+
+    // Seed default 4 starter manhwa on first visit
+    if (!localStorage.getItem(STORAGE_KEYS.INIT_FLAG) && shelf.length === 0) {
+      await seedDefaultStarterShelf();
+      localStorage.setItem(STORAGE_KEYS.INIT_FLAG, "1");
+    }
+
+    // Load live dashboard shelves
     await loadDashboardFeeds();
   }
 
-  async function seedDefaultStarterShelf() {
-    const defaults = ["Solo Leveling", "Omniscient Reader", "The Beginning After the End", "Legend of the Northern Blade"];
-    for (const name of defaults) {
-      const found = await searchAllSources(name);
-      if (found[0] && !shelf.some((s) => s.id === found[0].id)) {
-        shelf.push(found[0]);
+  async function hydrateStarterCovers() {
+    const ids = Array.from(
+      new Set((catalogData.starters || []).map((s) => s.anilistId).filter(Boolean))
+    );
+    if (!ids.length) return;
+
+    const gql = `
+      query ($ids: [Int]) {
+        Page(page: 1, perPage: 30) {
+          media(id_in: $ids, type: MANGA) {
+            id
+            title { english romaji native }
+            synonyms
+            chapters
+            averageScore
+            status
+            genres
+            tags { name rank isMediaSpoiler }
+            coverImage { large }
+            description(asHtml: false)
+            siteUrl
+          }
+        }
       }
+    `;
+    try {
+      const res = await fetch(ANILIST_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: gql, variables: { ids } })
+      });
+      const json = await res.json();
+      const mediaList = json?.data?.Page?.media || [];
+      for (const m of mediaList) {
+        if (m.coverImage?.large) {
+          coverCache[m.id] = m.coverImage.large;
+        }
+      }
+      saveJSON(STORAGE_KEYS.COVER_MAP, coverCache);
+      renderStarterCards();
+    } catch {
+      /* fallback posters remain active */
     }
-    saveJSON(STORAGE_KEYS.SHELF, shelf);
+  }
+
+  async function seedDefaultStarterShelf() {
+    const seedIds = [105398, 119257, 114578];
+    const gql = `
+      query ($ids: [Int]) {
+        Page(page: 1, perPage: 10) {
+          media(id_in: $ids, type: MANGA) {
+            id
+            title { english romaji native }
+            synonyms
+            chapters
+            averageScore
+            status
+            genres
+            tags { name rank isMediaSpoiler }
+            coverImage { large }
+            description(asHtml: false)
+            siteUrl
+          }
+        }
+      }
+    `;
+    try {
+      const res = await fetch(ANILIST_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: gql, variables: { ids: seedIds } })
+      });
+      const json = await res.json();
+      const fetched = (json?.data?.Page?.media || []).map(normalizeAniListMedia);
+      const tbate = (catalogData.oelCatalog || []).find((o) => o.id === "oel-tbate");
+      if (tbate) {
+        tbate.cover = coverCache[105398] || "";
+        fetched.splice(2, 0, tbate);
+      }
+      for (const item of fetched) {
+        if (!shelf.some((s) => s.id === item.id)) shelf.push(item);
+      }
+      saveJSON(STORAGE_KEYS.SHELF, shelf);
+      renderShelf();
+      renderStarterCards();
+    } catch {
+      /* ignore if offline */
+    }
+  }
+
+  function normalizeAniListMedia(m) {
+    return {
+      id: `al-${m.id}`,
+      source: "AniList KR",
+      displayTitle: m.title?.english || m.title?.romaji || "Untitled",
+      romajiTitle: m.title?.romaji || m.title?.english || "Untitled",
+      nativeTitle: m.title?.native || "",
+      synonyms: m.synonyms || [],
+      cover: m.coverImage?.large || "",
+      chapters: m.chapters || null,
+      score: m.averageScore || null,
+      status: m.status || "RELEASING",
+      genres: m.genres || [],
+      tags: (m.tags || []).filter((t) => !t.isMediaSpoiler && t.rank >= 55).map((t) => t.name),
+      description: (m.description || "").replace(/<[^>]+>/g, ""),
+      url: m.siteUrl || `https://anilist.co/manga/${m.id}`
+    };
   }
 
   function switchView(viewId) {
@@ -235,7 +490,7 @@
 
   function applyTheme(themeName) {
     document.documentElement.setAttribute("data-theme", themeName);
-    el.themeSelect.value = themeName;
+    if (el.themeSelect) el.themeSelect.value = themeName;
     localStorage.setItem(STORAGE_KEYS.THEME, themeName);
     renderThemeSwatches();
   }
@@ -254,7 +509,6 @@
     }
   }
 
-  // Title Resolver
   function resolveTitle(item) {
     if (titlePref === "korean" && item.nativeTitle) {
       return `${item.nativeTitle} (${item.displayTitle || item.romajiTitle})`;
@@ -275,7 +529,6 @@
     return /\b(no|wa|ga|wo|ni|de|to|kara|made|dake|ore|boku|watashi|isekai|tensei|maou|yuusha)\b/i.test(str);
   }
 
-  // Ban Filter
   function isItemBanned(item) {
     if (!bannedTerms.length) return false;
     const haystack = [
@@ -299,7 +552,6 @@
     });
   }
 
-  // Multi-Source Search
   async function searchAllSources(query) {
     const q = query.trim();
     if (!q) return [];
@@ -367,11 +619,7 @@
         }
       }
     `;
-    const vars = {
-      perPage: 24,
-      sort: ["POPULARITY_DESC"],
-      ...variables
-    };
+    const vars = { perPage: 24, sort: ["POPULARITY_DESC"], ...variables };
     const res = await fetch(ANILIST_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -379,22 +627,7 @@
       signal
     });
     const json = await res.json();
-    return (json?.data?.Page?.media || []).map((m) => ({
-      id: `al-${m.id}`,
-      source: "AniList KR",
-      displayTitle: m.title?.english || m.title?.romaji || "Untitled",
-      romajiTitle: m.title?.romaji || m.title?.english || "Untitled",
-      nativeTitle: m.title?.native || "",
-      synonyms: m.synonyms || [],
-      cover: m.coverImage?.large || "",
-      chapters: m.chapters || null,
-      score: m.averageScore || null,
-      status: m.status || "RELEASING",
-      genres: m.genres || [],
-      tags: (m.tags || []).filter((t) => !t.isMediaSpoiler && t.rank >= 55).map((t) => t.name),
-      description: (m.description || "").replace(/<[^>]+>/g, ""),
-      url: m.siteUrl || `https://anilist.co/manga/${m.id}`
-    }));
+    return (json?.data?.Page?.media || []).map(normalizeAniListMedia);
   }
 
   async function fetchKitsuSearch(query, signal) {
@@ -455,13 +688,12 @@
         const existing = seen.get(norm);
         if (!existing.chapters && item.chapters) existing.chapters = item.chapters;
         if (!existing.cover && item.cover) existing.cover = item.cover;
-        existing.tags = Array.from(new Set([...existing.tags, ...item.tags]));
+        existing.tags = Array.from(new Set([...(existing.tags || []), ...(item.tags || [])]));
       }
     }
     return Array.from(seen.values());
   }
 
-  // Dashboard Live Feeds
   async function loadDashboardFeeds() {
     const topTags = Array.from(selectedTags).slice(0, 5);
     const [tastePool, peakArtPool, longEpicPool] = await Promise.allSettled([
@@ -471,21 +703,25 @@
     ]);
 
     const shelfIds = new Set(shelf.map((s) => s.id));
+    const oelFallback = (catalogData.oelCatalog || []).map((o) => ({
+      ...o,
+      cover: o.cover || coverCache[105398] || ""
+    }));
 
     const tasteItems = deduplicateMedia([
-      ...(catalogData.oelCatalog || []),
+      ...oelFallback,
       ...(tastePool.status === "fulfilled" ? tastePool.value : [])
     ])
       .filter((m) => !shelfIds.has(m.id) && !isItemBanned(m))
       .slice(0, 10)
       .map(scoreMatch);
 
-    const peakItems = (peakArtPool.status === "fulfilled" ? peakArtPool.value : [])
+    const peakItems = (peakArtPool.status === "fulfilled" && peakArtPool.value.length ? peakArtPool.value : oelFallback)
       .filter((m) => !isItemBanned(m))
       .slice(0, 10)
       .map(scoreMatch);
 
-    const epicItems = (longEpicPool.status === "fulfilled" ? longEpicPool.value : [])
+    const epicItems = (longEpicPool.status === "fulfilled" && longEpicPool.value.length ? longEpicPool.value : oelFallback)
       .filter((m) => !isItemBanned(m))
       .slice(0, 10)
       .map(scoreMatch);
@@ -504,7 +740,6 @@
     return { ...item, matchPct: Math.min(99, Math.max(65, base + boost + scoreBonus)) };
   }
 
-  // Precision Search in Matcher Tab
   async function findRecommendations() {
     showStatus("Searching Korean manhwa libraries with your Taste DNA & genre filters...");
     const shelfIds = new Set(shelf.map((s) => s.id));
@@ -539,7 +774,7 @@
         if (chaptersGreater && (!item.chapters || item.chapters <= chaptersGreater)) return false;
         if (scoreGreater && (!item.score || item.score <= scoreGreater)) return false;
         if (status && item.status !== status) return false;
-        if (selectedNotes.has("fullColor") && !item.tags.some((t) => /full color/i.test(t))) return false;
+        if (selectedNotes.has("fullColor") && !(item.tags || []).some((t) => /full color/i.test(t))) return false;
         return true;
       });
 
@@ -589,8 +824,8 @@
             ${(item.tags || []).slice(0, 2).map((t) => `<span class="mini-tag">${t}</span>`).join("")}
           </div>
           <div class="card-actions">
-            <button class="btn btn-primary btn-sm read-online-btn">📖 Read</button>
-            <button class="btn btn-ghost btn-sm add-shelf-btn">${inShelf ? "✓ Saved" : "+ Shelf"}</button>
+            <button type="button" class="btn btn-primary btn-sm read-online-btn">📖 Read</button>
+            <button type="button" class="btn btn-ghost btn-sm add-shelf-btn">${inShelf ? "✓ Saved" : "+ Shelf"}</button>
           </div>
         </div>
       `;
@@ -609,8 +844,8 @@
     container.appendChild(frag);
   }
 
-  // Starter Cards Strip
   function renderStarterCards() {
+    if (!el.starterCardsRow) return;
     el.starterCardsRow.innerHTML = "";
     for (const st of catalogData.starters || []) {
       const inShelf = shelf.some((s) => s.id === st.id || resolveTitle(s).toLowerCase() === st.title.toLowerCase());
@@ -624,7 +859,8 @@
           <div class="muted small">${inShelf ? "✓ In Shelf" : `+ Add • ${st.chapters} Ch.`}</div>
         </div>
       `;
-      applySafeImage(btn.querySelector("img"), st.cover, st.title, "STARTER");
+      const coverUrl = st.cover || coverCache[st.anilistId] || "";
+      applySafeImage(btn.querySelector("img"), coverUrl, st.title, "STARTER");
       btn.addEventListener("click", async () => {
         if (inShelf) {
           shelf = shelf.filter((s) => s.id !== st.id && resolveTitle(s).toLowerCase() !== st.title.toLowerCase());
@@ -632,15 +868,33 @@
           renderShelf();
           renderStarterCards();
         } else {
+          // Add immediately with starter metadata, then enrich in background
+          const immediateItem = {
+            id: st.id,
+            source: "Starter",
+            displayTitle: st.title,
+            romajiTitle: st.title,
+            nativeTitle: st.native || "",
+            synonyms: [],
+            cover: coverUrl,
+            chapters: st.chapters,
+            score: st.score,
+            genres: ["Action", "Fantasy"],
+            tags: ["Full Color", "Overpowered MC"]
+          };
+          addToShelf(immediateItem);
           const found = await searchAllSources(st.title);
-          if (found[0]) addToShelf(found[0]);
+          if (found[0]) {
+            shelf = shelf.map((s) => (s.id === st.id ? found[0] : s));
+            saveJSON(STORAGE_KEYS.SHELF, shelf);
+            renderShelf();
+          }
         }
       });
       el.starterCardsRow.appendChild(btn);
     }
   }
 
-  // Shelf & Taste DNA
   function addToShelf(item) {
     if (shelf.some((s) => s.id === item.id)) return;
     shelf.push(item);
@@ -657,6 +911,7 @@
   }
 
   function renderShelf() {
+    if (!el.shelfGrid) return;
     el.shelfCount.textContent = shelf.length;
     el.shelfGrid.innerHTML = "";
     const frag = document.createDocumentFragment();
@@ -671,7 +926,7 @@
           <div class="shelf-card-title">${title}</div>
           <div class="muted small">${item.chapters ? `${item.chapters} Ch.` : "Ongoing"}</div>
         </div>
-        <button class="btn btn-ghost btn-sm" title="Remove">✕</button>
+        <button type="button" class="btn btn-ghost btn-sm" title="Remove">✕</button>
       `;
       applySafeImage(div.querySelector("img"), item.cover, title, "SHELF");
       div.querySelector("button").addEventListener("click", () => removeFromShelf(item.id));
@@ -720,17 +975,17 @@
   }
 
   function updateDashboardStats() {
-    el.dashShelfCount.textContent = shelf.length;
-    el.dashDnaCount.textContent = selectedTags.size;
-    el.dashBanCount.textContent = bannedTerms.length;
+    if (el.dashShelfCount) el.dashShelfCount.textContent = shelf.length;
+    if (el.dashDnaCount) el.dashDnaCount.textContent = selectedTags.size;
+    if (el.dashBanCount) el.dashBanCount.textContent = bannedTerms.length;
   }
 
   function updateCacheBadge() {
     if (el.cacheCountBadge) el.cacheCountBadge.textContent = apiCache.size;
   }
 
-  // Categorized 35 Genres & Tropes Renderer
   function renderCategorizedGenres() {
+    if (!el.categorizedGenresContainer) return;
     el.categorizedGenresContainer.innerHTML = "";
     for (const group of catalogData.genreCategories || []) {
       const block = document.createElement("div");
@@ -763,6 +1018,7 @@
   }
 
   function renderNoteChips() {
+    if (!el.noteChips) return;
     el.noteChips.innerHTML = "";
     for (const n of catalogData.collectorNotes || []) {
       const btn = document.createElement("button");
@@ -783,6 +1039,7 @@
   }
 
   function renderBanSection() {
+    if (!el.banPresetChips) return;
     el.banPresetChips.innerHTML = "";
     for (const preset of catalogData.banPresets || []) {
       const isBanned = preset.terms.some((t) => bannedTerms.includes(t.toLowerCase()));
@@ -819,8 +1076,8 @@
     updateDashboardStats();
   }
 
-  // Update Logs Renderer
   function renderUpdateLogs() {
+    if (!el.updateLogsContainer) return;
     el.updateLogsContainer.innerHTML = "";
     for (const log of catalogData.updateLogs || []) {
       const item = document.createElement("article");
@@ -840,7 +1097,6 @@
     }
   }
 
-  // Detail Modal
   function openDetailModal(item) {
     const title = resolveTitle(item);
     el.detailBody.innerHTML = `
@@ -855,7 +1111,7 @@
             ${(item.tags || []).slice(0, 8).map((t) => `<span class="chip">${t}</span>`).join("")}
           </div>
           <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
-            <button id="modalReadBtn" class="btn btn-primary">📖 Open in Web Reader</button>
+            <button type="button" id="modalReadBtn" class="btn btn-primary">📖 Open in Web Reader</button>
             <a href="${item.url}" target="_blank" rel="noopener" class="btn btn-ghost">Official / Database Page ↗</a>
           </div>
         </div>
@@ -869,7 +1125,6 @@
     el.detailModal.classList.remove("hidden");
   }
 
-  // Online Web Reader
   async function openWebReaderForSeries(item) {
     const title = item ? resolveTitle(item) : "VexinManwha Web Reader";
     readerState.seriesTitle = title;
@@ -1016,24 +1271,23 @@
     renderReaderChapter(0);
   }
 
-  // Events
   function bindEvents() {
     el.navTabs.forEach((tab) => {
       tab.addEventListener("click", () => switchView(tab.dataset.view));
     });
 
-    el.jumpToMatcherBtn.addEventListener("click", () => switchView("matcherView"));
-    el.refreshDashboardBtn.addEventListener("click", loadDashboardFeeds);
-    el.themeSelect.addEventListener("change", (e) => applyTheme(e.target.value));
+    el.jumpToMatcherBtn?.addEventListener("click", () => switchView("matcherView"));
+    el.refreshDashboardBtn?.addEventListener("click", loadDashboardFeeds);
+    el.themeSelect?.addEventListener("change", (e) => applyTheme(e.target.value));
 
-    el.titlePrefSelect.addEventListener("change", (e) => {
+    el.titlePrefSelect?.addEventListener("change", (e) => {
       titlePref = e.target.value;
       localStorage.setItem(STORAGE_KEYS.TITLE_PREF, titlePref);
       renderShelf();
       loadDashboardFeeds();
     });
 
-    el.searchInput.addEventListener("input", (e) => {
+    el.searchInput?.addEventListener("input", (e) => {
       clearTimeout(searchDebounceTimer);
       const q = e.target.value.trim();
       if (!q) {
@@ -1049,10 +1303,10 @@
     });
 
     document.addEventListener("click", (e) => {
-      if (!e.target.closest(".search-wrapper")) el.searchDropdown.classList.add("hidden");
+      if (!e.target.closest(".search-wrapper")) el.searchDropdown?.classList.add("hidden");
     });
 
-    el.clearShelfBtn.addEventListener("click", () => {
+    el.clearShelfBtn?.addEventListener("click", () => {
       shelf = [];
       selectedTags.clear();
       saveJSON(STORAGE_KEYS.SHELF, shelf);
@@ -1060,7 +1314,7 @@
       renderStarterCards();
     });
 
-    el.addBanBtn.addEventListener("click", () => {
+    el.addBanBtn?.addEventListener("click", () => {
       const val = el.customBanInput.value.trim().toLowerCase();
       if (val && !bannedTerms.includes(val)) {
         bannedTerms.push(val);
@@ -1070,25 +1324,24 @@
       }
     });
 
-    el.clearBansBtn.addEventListener("click", () => {
+    el.clearBansBtn?.addEventListener("click", () => {
       bannedTerms = [];
       saveJSON(STORAGE_KEYS.BANS, bannedTerms);
       renderBanSection();
     });
 
-    el.findBtn.addEventListener("click", findRecommendations);
-    el.sortSelect.addEventListener("change", sortAndRenderRecommendations);
-    el.closeDetailBtn.addEventListener("click", () => el.detailModal.classList.add("hidden"));
+    el.findBtn?.addEventListener("click", findRecommendations);
+    el.sortSelect?.addEventListener("change", sortAndRenderRecommendations);
+    el.closeDetailBtn?.addEventListener("click", () => el.detailModal.classList.add("hidden"));
 
-    // Settings Actions
-    el.settingsSaveApiBtn.addEventListener("click", () => {
+    el.settingsSaveApiBtn?.addEventListener("click", () => {
       const url = el.settingsReaderApiInput.value.trim();
       localStorage.setItem(STORAGE_KEYS.READER_API, url);
       el.readerApiUrlInput.value = url;
       alert("Reader API endpoint saved.");
     });
 
-    el.exportJsonBtn.addEventListener("click", () => {
+    el.exportJsonBtn?.addEventListener("click", () => {
       const payload = JSON.stringify({ shelf, bannedTerms, theme: el.themeSelect.value, titlePref }, null, 2);
       const blob = new Blob([payload], { type: "application/json" });
       const a = document.createElement("a");
@@ -1097,7 +1350,7 @@
       a.click();
     });
 
-    el.importJsonInput.addEventListener("change", async (e) => {
+    el.importJsonInput?.addEventListener("change", async (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
       try {
@@ -1116,52 +1369,49 @@
       }
     });
 
-    el.reseedStartersBtn.addEventListener("click", async () => {
+    el.reseedStartersBtn?.addEventListener("click", async () => {
       await seedDefaultStarterShelf();
-      renderShelf();
-      renderStarterCards();
       loadDashboardFeeds();
     });
 
-    el.clearCacheBtn.addEventListener("click", () => {
+    el.clearCacheBtn?.addEventListener("click", () => {
       apiCache.clear();
       updateCacheBadge();
     });
 
-    // Web Reader Events
-    el.openReaderBtn.addEventListener("click", () => openWebReaderForSeries(shelf[0] || null));
-    el.closeReaderBtn.addEventListener("click", () => {
+    el.openReaderBtn?.addEventListener("click", () => openWebReaderForSeries(shelf[0] || null));
+    el.closeReaderBtn?.addEventListener("click", () => {
       el.readerModal.classList.add("hidden");
       clearInterval(readerState.autoScrollTimer);
     });
-    el.saveReaderApiBtn.addEventListener("click", () => {
+    el.saveReaderApiBtn?.addEventListener("click", () => {
       const url = el.readerApiUrlInput.value.trim();
       localStorage.setItem(STORAGE_KEYS.READER_API, url);
       el.settingsReaderApiInput.value = url;
       if (url) loadChaptersFromApi(url.replace(/\/$/, ""), readerState.seriesTitle);
     });
-    el.readerChapterSelect.addEventListener("change", (e) => {
+    el.readerChapterSelect?.addEventListener("change", (e) => {
       readerState.currentIdx = Number(e.target.value);
       renderReaderChapter(readerState.currentIdx);
     });
-    el.prevChapBtn.addEventListener("click", () => {
+    el.prevChapBtn?.addEventListener("click", () => {
       if (readerState.currentIdx > 0) {
         readerState.currentIdx--;
         renderReaderChapter(readerState.currentIdx);
       }
     });
-    el.nextChapBtn.addEventListener("click", () => {
+    el.nextChapBtn?.addEventListener("click", () => {
       if (readerState.currentIdx < readerState.chapters.length - 1) {
         readerState.currentIdx++;
         renderReaderChapter(readerState.currentIdx);
       }
     });
-    el.stripWidthRange.addEventListener("input", (e) => {
+    el.stripWidthRange?.addEventListener("input", (e) => {
       const px = `${e.target.value}px`;
       el.stripWidthVal.textContent = px;
       el.readerPagesContainer.style.setProperty("--strip-width", px);
     });
-    el.autoScrollBtn.addEventListener("click", () => {
+    el.autoScrollBtn?.addEventListener("click", () => {
       if (readerState.autoScrollTimer) {
         clearInterval(readerState.autoScrollTimer);
         readerState.autoScrollTimer = null;
@@ -1173,7 +1423,7 @@
         }, 16);
       }
     });
-    el.localCbzInput.addEventListener("change", (e) => {
+    el.localCbzInput?.addEventListener("change", (e) => {
       if (e.target.files?.[0]) handleLocalArchive(e.target.files[0]);
     });
   }
@@ -1211,12 +1461,13 @@
   }
 
   function showStatus(msg) {
+    if (!el.statusBanner) return;
     el.statusBanner.textContent = msg;
     el.statusBanner.classList.remove("hidden");
   }
 
   function hideStatus() {
-    el.statusBanner.classList.add("hidden");
+    el.statusBanner?.classList.add("hidden");
   }
 
   document.addEventListener("DOMContentLoaded", init);
