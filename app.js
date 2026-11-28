@@ -6,51 +6,81 @@
   const JIKAN_URL = "https://api.jikan.moe/v4/manga";
 
   const STORAGE_KEYS = {
-    SHELF: "vexin_shelf_v3",
-    BANS: "vexin_bans_v3",
-    THEME: "vexin_theme_v3",
-    TITLE_PREF: "vexin_title_pref_v3",
-    READER_API: "vexin_reader_api_v3"
+    INIT_FLAG: "vexin_initialized_v4",
+    SHELF: "vexin_shelf_v4",
+    BANS: "vexin_bans_v4",
+    THEME: "vexin_theme_v4",
+    TITLE_PREF: "vexin_title_pref_v4",
+    READER_API: "vexin_reader_api_v4"
   };
 
-  // State
-  let catalogData = { starters: [], oelCatalog: [], extraGenres: [], collectorNotes: [], banPresets: [] };
+  const THEMES = [
+    { id: "moonlight", name: "Moonlight", color: "#38bdf8" },
+    { id: "crimson", name: "Crimson Red", color: "#f43f5e" },
+    { id: "shadow", name: "Shadow Violet", color: "#a855f7" },
+    { id: "jade", name: "Jade Murim", color: "#10b981" },
+    { id: "daylight", name: "Daylight", color: "#2563eb" }
+  ];
+
+  // Application State
+  let catalogData = {
+    starters: [],
+    oelCatalog: [],
+    genreCategories: [],
+    collectorNotes: [],
+    banPresets: [],
+    updateLogs: []
+  };
   let shelf = loadJSON(STORAGE_KEYS.SHELF, []);
-  let bannedTerms = loadJSON(STORAGE_KEYS.BANS, ["boys' love", "boy's love", "bl", "shounen ai", "yaoi", "girls' love", "girl's love", "gl", "shoujo ai", "yuri", "gay", "mlm", "lesbian", "wlw"]);
+  let bannedTerms = loadJSON(STORAGE_KEYS.BANS, [
+    "boys' love", "boy's love", "bl", "shounen ai", "yaoi",
+    "girls' love", "girl's love", "gl", "shoujo ai", "yuri",
+    "gay", "mlm", "lesbian", "wlw"
+  ]);
   let selectedTags = new Set();
   let selectedGenres = new Set();
   let selectedNotes = new Set();
   let currentRecommendations = [];
   let titlePref = localStorage.getItem(STORAGE_KEYS.TITLE_PREF) || "scanlation";
 
-  // Performance caches & controllers
+  // Performance Caches
   const apiCache = new Map();
   let searchAbortController = null;
   let searchDebounceTimer = null;
 
-  // Reader state
+  // Web Reader State
   let readerState = {
     seriesTitle: "VexinManwha Web Reader",
-    chapters: [], // [{ number: 1, title: "Chapter 1", pages: [...] }]
+    chapters: [],
     currentIdx: 0,
     autoScrollTimer: null
   };
 
-  // DOM Elements
   const el = {
+    navTabs: document.querySelectorAll(".nav-tab"),
+    views: document.querySelectorAll(".view-section"),
     themeSelect: document.getElementById("themeSelect"),
+    themeSwatches: document.getElementById("themeSwatches"),
     titlePrefSelect: document.getElementById("titlePrefSelect"),
     openReaderBtn: document.getElementById("openReaderBtn"),
+    jumpToMatcherBtn: document.getElementById("jumpToMatcherBtn"),
+    refreshDashboardBtn: document.getElementById("refreshDashboardBtn"),
+    dashShelfCount: document.getElementById("dashShelfCount"),
+    dashDnaCount: document.getElementById("dashDnaCount"),
+    dashBanCount: document.getElementById("dashBanCount"),
+    dashRecommendedGrid: document.getElementById("dashRecommendedGrid"),
+    dashPeakArtGrid: document.getElementById("dashPeakArtGrid"),
+    dashLongEpicGrid: document.getElementById("dashLongEpicGrid"),
     searchInput: document.getElementById("searchInput"),
     searchSpinner: document.getElementById("searchSpinner"),
     searchDropdown: document.getElementById("searchDropdown"),
-    starterChips: document.getElementById("starterChips"),
+    starterCardsRow: document.getElementById("starterCardsRow"),
     shelfGrid: document.getElementById("shelfGrid"),
     shelfCount: document.getElementById("shelfCount"),
     clearShelfBtn: document.getElementById("clearShelfBtn"),
     extractedTags: document.getElementById("extractedTags"),
     tagHint: document.getElementById("tagHint"),
-    genreChips: document.getElementById("genreChips"),
+    categorizedGenresContainer: document.getElementById("categorizedGenresContainer"),
     noteChips: document.getElementById("noteChips"),
     banPresetChips: document.getElementById("banPresetChips"),
     customBanInput: document.getElementById("customBanInput"),
@@ -59,10 +89,17 @@
     clearBansBtn: document.getElementById("clearBansBtn"),
     findBtn: document.getElementById("findBtn"),
     statusBanner: document.getElementById("statusBanner"),
-    resultsSection: document.getElementById("resultsSection"),
     resultsCount: document.getElementById("resultsCount"),
     sortSelect: document.getElementById("sortSelect"),
     resultsGrid: document.getElementById("resultsGrid"),
+    settingsReaderApiInput: document.getElementById("settingsReaderApiInput"),
+    settingsSaveApiBtn: document.getElementById("settingsSaveApiBtn"),
+    exportJsonBtn: document.getElementById("exportJsonBtn"),
+    importJsonInput: document.getElementById("importJsonInput"),
+    reseedStartersBtn: document.getElementById("reseedStartersBtn"),
+    clearCacheBtn: document.getElementById("clearCacheBtn"),
+    cacheCountBadge: document.getElementById("cacheCountBadge"),
+    updateLogsContainer: document.getElementById("updateLogsContainer"),
     detailModal: document.getElementById("detailModal"),
     closeDetailBtn: document.getElementById("closeDetailBtn"),
     detailBody: document.getElementById("detailBody"),
@@ -94,38 +131,134 @@
   function saveJSON(key, val) {
     try {
       localStorage.setItem(key, JSON.stringify(val));
-    } catch { /* ignore quota errors */ }
+    } catch { /* ignore quota */ }
   }
 
-  // Initialize App
+  // Dynamic SVG Poster Generator (Zero Broken Images Guarantee)
+  function createFallbackPoster(title, badge = "MANHWA") {
+    const cleanTitle = (title || "VexinManwha").slice(0, 34).replace(/[<>&"']/g, "");
+    const words = cleanTitle.split(" ");
+    const lines = [];
+    let current = "";
+    for (const w of words) {
+      if ((current + " " + w).trim().length > 15) {
+        lines.push(current.trim());
+        current = w;
+      } else {
+        current = (current + " " + w).trim();
+      }
+    }
+    if (current) lines.push(current);
+    const textSpans = lines
+      .slice(0, 4)
+      .map((line, i) => `<tspan x="50%" dy="${i === 0 ? "0" : "24"}">${line}</tspan>`)
+      .join("");
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#1e293b"/>
+          <stop offset="100%" stop-color="#0f172a"/>
+        </linearGradient>
+      </defs>
+      <rect width="300" height="450" fill="url(#g)"/>
+      <rect x="14" y="14" width="272" height="422" rx="12" fill="none" stroke="#38bdf8" stroke-opacity="0.35" stroke-width="2"/>
+      <text x="50%" y="56" fill="#38bdf8" font-family="system-ui,sans-serif" font-size="13" font-weight="700" text-anchor="middle">${badge}</text>
+      <text x="50%" y="200" fill="#f8fafc" font-family="system-ui,sans-serif" font-size="20" font-weight="800" text-anchor="middle">${textSpans}</text>
+      <text x="50%" y="410" fill="#64748b" font-family="system-ui,sans-serif" font-size="12" text-anchor="middle">VEXINMANWHA ARCHIVE</text>
+    </svg>`;
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  }
+
+  function applySafeImage(imgEl, url, title, badge) {
+    const fallback = createFallbackPoster(title, badge);
+    imgEl.src = url || fallback;
+    imgEl.onerror = () => {
+      imgEl.onerror = null;
+      imgEl.src = fallback;
+    };
+  }
+
+  // Initialize
   async function init() {
     applyTheme(localStorage.getItem(STORAGE_KEYS.THEME) || "moonlight");
     el.titlePrefSelect.value = titlePref;
-    el.readerApiUrlInput.value = localStorage.getItem(STORAGE_KEYS.READER_API) || "";
+    const savedApi = localStorage.getItem(STORAGE_KEYS.READER_API) || "";
+    el.readerApiUrlInput.value = savedApi;
+    el.settingsReaderApiInput.value = savedApi;
 
     try {
       const res = await fetch("./catalog.json");
       if (res.ok) catalogData = await res.json();
     } catch {
-      console.warn("Running without catalog.json fetch (using built-in defaults).");
+      console.warn("catalog.json fallback active.");
     }
 
-    renderStarters();
-    renderGenreChips();
+    // Seed starter manhwa on first visit so dashboard is never empty
+    if (!localStorage.getItem(STORAGE_KEYS.INIT_FLAG)) {
+      await seedDefaultStarterShelf();
+      localStorage.setItem(STORAGE_KEYS.INIT_FLAG, "1");
+    }
+
+    renderThemeSwatches();
+    renderCategorizedGenres();
     renderNoteChips();
     renderBanSection();
+    renderUpdateLogs();
+    renderStarterCards();
     renderShelf();
+    updateDashboardStats();
     bindEvents();
+
+    // Load live dashboard feeds immediately on entry
+    await loadDashboardFeeds();
+  }
+
+  async function seedDefaultStarterShelf() {
+    const defaults = ["Solo Leveling", "Omniscient Reader", "The Beginning After the End", "Legend of the Northern Blade"];
+    for (const name of defaults) {
+      const found = await searchAllSources(name);
+      if (found[0] && !shelf.some((s) => s.id === found[0].id)) {
+        shelf.push(found[0]);
+      }
+    }
+    saveJSON(STORAGE_KEYS.SHELF, shelf);
+  }
+
+  function switchView(viewId) {
+    el.navTabs.forEach((t) => t.classList.toggle("active", t.dataset.view === viewId));
+    el.views.forEach((v) => v.classList.toggle("hidden", v.id !== viewId));
+    if (viewId === "matcherView" && !currentRecommendations.length) {
+      findRecommendations();
+    }
   }
 
   function applyTheme(themeName) {
     document.documentElement.setAttribute("data-theme", themeName);
     el.themeSelect.value = themeName;
     localStorage.setItem(STORAGE_KEYS.THEME, themeName);
+    renderThemeSwatches();
   }
 
-  // Smart Title Resolver (Scanlation / EN vs Official Romaji)
+  function renderThemeSwatches() {
+    if (!el.themeSwatches) return;
+    const current = localStorage.getItem(STORAGE_KEYS.THEME) || "moonlight";
+    el.themeSwatches.innerHTML = "";
+    for (const t of THEMES) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = `swatch-btn ${current === t.id ? "active" : ""}`;
+      btn.innerHTML = `<span class="swatch-dot" style="background:${t.color}"></span><span>${t.name}</span>`;
+      btn.addEventListener("click", () => applyTheme(t.id));
+      el.themeSwatches.appendChild(btn);
+    }
+  }
+
+  // Title Resolver
   function resolveTitle(item) {
+    if (titlePref === "korean" && item.nativeTitle) {
+      return `${item.nativeTitle} (${item.displayTitle || item.romajiTitle})`;
+    }
     if (titlePref === "official") {
       return item.romajiTitle || item.displayTitle || "Untitled";
     }
@@ -142,7 +275,7 @@
     return /\b(no|wa|ga|wo|ni|de|to|kara|made|dake|ore|boku|watashi|isekai|tensei|maou|yuusha)\b/i.test(str);
   }
 
-  // Ban Engine
+  // Ban Filter
   function isItemBanned(item) {
     if (!bannedTerms.length) return false;
     const haystack = [
@@ -160,18 +293,13 @@
       const clean = term.trim().toLowerCase();
       if (!clean) return false;
       if (clean.length <= 3) {
-        const rx = new RegExp(`\\b${escapeRegExp(clean)}\\b`, "i");
-        return rx.test(haystack);
+        return new RegExp(`\\b${clean.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(haystack);
       }
       return haystack.includes(clean);
     });
   }
 
-  function escapeRegExp(s) {
-    return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  }
-
-  // Multi-Source Search (OEL Catalog + AniList KR + Kitsu + Jikan/MAL)
+  // Multi-Source Search
   async function searchAllSources(query) {
     const q = query.trim();
     if (!q) return [];
@@ -182,7 +310,6 @@
     searchAbortController = new AbortController();
     const { signal } = searchAbortController;
 
-    // 1. Instant local OEL catalog match (e.g., TBATE)
     const localMatches = (catalogData.oelCatalog || []).filter((item) => {
       const blob = [item.displayTitle, item.romajiTitle, item.nativeTitle, ...(item.synonyms || [])]
         .join(" ")
@@ -190,9 +317,8 @@
       return blob.includes(q.toLowerCase());
     });
 
-    // 2. Parallel remote queries
     const [anilistRes, kitsuRes, jikanRes] = await Promise.allSettled([
-      fetchAniListSearch(q, signal),
+      fetchAniListQuery({ search: q, perPage: 12 }, signal),
       fetchKitsuSearch(q, signal),
       fetchJikanSearch(q, signal)
     ]);
@@ -206,14 +332,26 @@
 
     const deduped = deduplicateMedia(combined).filter((m) => !isItemBanned(m));
     apiCache.set(cacheKey, deduped);
+    updateCacheBadge();
     return deduped;
   }
 
-  async function fetchAniListSearch(search, signal) {
+  async function fetchAniListQuery(variables, signal) {
     const gql = `
-      query ($search: String) {
-        Page(page: 1, perPage: 12) {
-          media(search: $search, type: MANGA, countryOfOrigin: "KR", isAdult: false, sort: POPULARITY_DESC) {
+      query ($search: String, $genres: [String], $tags: [String], $chaptersGreater: Int, $scoreGreater: Int, $status: MediaStatus, $perPage: Int, $sort: [MediaSort]) {
+        Page(page: 1, perPage: $perPage) {
+          media(
+            search: $search,
+            type: MANGA,
+            countryOfOrigin: "KR",
+            isAdult: false,
+            genre_in: $genres,
+            tag_in: $tags,
+            chapters_greater: $chaptersGreater,
+            averageScore_greater: $scoreGreater,
+            status: $status,
+            sort: $sort
+          ) {
             id
             title { english romaji native }
             synonyms
@@ -229,19 +367,19 @@
         }
       }
     `;
+    const vars = {
+      perPage: 24,
+      sort: ["POPULARITY_DESC"],
+      ...variables
+    };
     const res = await fetch(ANILIST_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: gql, variables: { search } }),
+      body: JSON.stringify({ query: gql, variables: vars }),
       signal
     });
     const json = await res.json();
-    const list = json?.data?.Page?.media || [];
-    return list.map(normalizeAniList);
-  }
-
-  function normalizeAniList(m) {
-    return {
+    return (json?.data?.Page?.media || []).map((m) => ({
       id: `al-${m.id}`,
       source: "AniList KR",
       displayTitle: m.title?.english || m.title?.romaji || "Untitled",
@@ -256,11 +394,11 @@
       tags: (m.tags || []).filter((t) => !t.isMediaSpoiler && t.rank >= 55).map((t) => t.name),
       description: (m.description || "").replace(/<[^>]+>/g, ""),
       url: m.siteUrl || `https://anilist.co/manga/${m.id}`
-    };
+    }));
   }
 
   async function fetchKitsuSearch(query, signal) {
-    const res = await fetch(`${KITSU_URL}?filter[text]=${encodeURIComponent(query)}&page[limit]=8`, { signal });
+    const res = await fetch(`${KITSU_URL}?filter[text]=${encodeURIComponent(query)}&page[limit]=6`, { signal });
     const json = await res.json();
     return (json?.data || [])
       .filter((d) => ["manhwa", "oel"].includes((d.attributes?.subtype || "").toLowerCase()))
@@ -286,7 +424,7 @@
   }
 
   async function fetchJikanSearch(query, signal) {
-    const res = await fetch(`${JIKAN_URL}?q=${encodeURIComponent(query)}&type=manhwa&limit=8&sfw=true`, { signal });
+    const res = await fetch(`${JIKAN_URL}?q=${encodeURIComponent(query)}&type=manhwa&limit=6&sfw=true`, { signal });
     const json = await res.json();
     return (json?.data || []).map((m) => ({
       id: `mal-${m.mal_id}`,
@@ -323,100 +461,93 @@
     return Array.from(seen.values());
   }
 
-  // Recommendation Engine
-  async function findRecommendations() {
-    showStatus("Analyzing your Taste DNA and querying Korean manhwa libraries...");
-    el.resultsSection.classList.add("hidden");
+  // Dashboard Live Feeds
+  async function loadDashboardFeeds() {
+    const topTags = Array.from(selectedTags).slice(0, 5);
+    const [tastePool, peakArtPool, longEpicPool] = await Promise.allSettled([
+      fetchAniListQuery({ tags: topTags.length ? topTags : undefined, perPage: 16 }),
+      fetchAniListQuery({ scoreGreater: 84, sort: ["SCORE_DESC"], perPage: 12 }),
+      fetchAniListQuery({ chaptersGreater: 119, sort: ["POPULARITY_DESC"], perPage: 12 })
+    ]);
 
     const shelfIds = new Set(shelf.map((s) => s.id));
-    const shelfNormTitles = new Set(shelf.map((s) => resolveTitle(s).toLowerCase().replace(/[^a-z0-9]/g, "")));
 
-    const activeTags = Array.from(selectedTags);
+    const tasteItems = deduplicateMedia([
+      ...(catalogData.oelCatalog || []),
+      ...(tastePool.status === "fulfilled" ? tastePool.value : [])
+    ])
+      .filter((m) => !shelfIds.has(m.id) && !isItemBanned(m))
+      .slice(0, 10)
+      .map(scoreMatch);
+
+    const peakItems = (peakArtPool.status === "fulfilled" ? peakArtPool.value : [])
+      .filter((m) => !isItemBanned(m))
+      .slice(0, 10)
+      .map(scoreMatch);
+
+    const epicItems = (longEpicPool.status === "fulfilled" ? longEpicPool.value : [])
+      .filter((m) => !isItemBanned(m))
+      .slice(0, 10)
+      .map(scoreMatch);
+
+    renderCardGrid(el.dashRecommendedGrid, tasteItems);
+    renderCardGrid(el.dashPeakArtGrid, peakItems);
+    renderCardGrid(el.dashLongEpicGrid, epicItems);
+  }
+
+  function scoreMatch(item) {
+    const matchedTags = (item.tags || []).filter((t) => selectedTags.has(t));
+    const matchedGenres = (item.genres || []).filter((g) => selectedGenres.has(g));
+    const base = 68;
+    const boost = Math.min(28, matchedTags.length * 7 + matchedGenres.length * 4);
+    const scoreBonus = item.score ? Math.round((item.score - 75) * 0.2) : 0;
+    return { ...item, matchPct: Math.min(99, Math.max(65, base + boost + scoreBonus)) };
+  }
+
+  // Precision Search in Matcher Tab
+  async function findRecommendations() {
+    showStatus("Searching Korean manhwa libraries with your Taste DNA & genre filters...");
+    const shelfIds = new Set(shelf.map((s) => s.id));
     const activeGenres = Array.from(selectedGenres);
+    const activeTags = Array.from(selectedTags);
 
-    const gql = `
-      query ($genres: [String], $tags: [String], $chaptersGreater: Int, $scoreGreater: Int, $status: MediaStatus) {
-        Page(page: 1, perPage: 45) {
-          media(
-            type: MANGA,
-            countryOfOrigin: "KR",
-            isAdult: false,
-            genre_in: $genres,
-            tag_in: $tags,
-            chapters_greater: $chaptersGreater,
-            averageScore_greater: $scoreGreater,
-            status: $status,
-            sort: POPULARITY_DESC
-          ) {
-            id
-            title { english romaji native }
-            synonyms
-            chapters
-            averageScore
-            status
-            genres
-            tags { name rank isMediaSpoiler }
-            coverImage { large }
-            description(asHtml: false)
-            siteUrl
-          }
-        }
-      }
-    `;
+    let chaptersGreater;
+    if (selectedNotes.has("chapters200")) chaptersGreater = 199;
+    else if (selectedNotes.has("chapters100")) chaptersGreater = 99;
 
-    const vars = {
-      genres: activeGenres.length ? activeGenres : undefined,
-      tags: activeTags.length ? activeTags.slice(0, 6) : undefined,
-      chaptersGreater: selectedNotes.has("chapters100") ? 99 : undefined,
-      scoreGreater: selectedNotes.has("peakArt") ? 79 : undefined,
-      status: selectedNotes.has("completed") ? "FINISHED" : undefined
-    };
+    let scoreGreater;
+    if (selectedNotes.has("masterpiece")) scoreGreater = 85;
+    else if (selectedNotes.has("peakArt")) scoreGreater = 79;
+
+    let status;
+    if (selectedNotes.has("completed")) status = "FINISHED";
+    else if (selectedNotes.has("releasing")) status = "RELEASING";
 
     try {
-      const res = await fetch(ANILIST_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: gql, variables: vars })
+      const fetched = await fetchAniListQuery({
+        genres: activeGenres.length ? activeGenres : undefined,
+        tags: activeTags.length ? activeTags.slice(0, 6) : undefined,
+        chaptersGreater,
+        scoreGreater,
+        status,
+        perPage: 45
       });
-      const json = await res.json();
-      let pool = (json?.data?.Page?.media || []).map(normalizeAniList);
 
-      // Include verified OEL catalog items
-      pool = deduplicateMedia([...(catalogData.oelCatalog || []), ...pool]);
-
-      // Apply local collector notes & ban filter
-      pool = pool.filter((item) => {
+      let pool = deduplicateMedia([...(catalogData.oelCatalog || []), ...fetched]).filter((item) => {
         if (shelfIds.has(item.id)) return false;
-        const norm = resolveTitle(item).toLowerCase().replace(/[^a-z0-9]/g, "");
-        if (shelfNormTitles.has(norm)) return false;
         if (isItemBanned(item)) return false;
-
-        if (selectedNotes.has("chapters100") && (!item.chapters || item.chapters < 100)) return false;
-        if (selectedNotes.has("peakArt") && (!item.score || item.score < 80)) return false;
-        if (selectedNotes.has("completed") && item.status !== "FINISHED") return false;
+        if (chaptersGreater && (!item.chapters || item.chapters <= chaptersGreater)) return false;
+        if (scoreGreater && (!item.score || item.score <= scoreGreater)) return false;
+        if (status && item.status !== status) return false;
         if (selectedNotes.has("fullColor") && !item.tags.some((t) => /full color/i.test(t))) return false;
-        if (selectedNotes.has("hiddenGems") && (!item.score || item.score < 78)) return false;
-
         return true;
       });
 
-      // Score Taste Match
-      currentRecommendations = pool.map((item) => {
-        const matchedTags = item.tags.filter((t) => selectedTags.has(t));
-        const matchedGenres = item.genres.filter((g) => selectedGenres.has(g));
-        const base = 62;
-        const tagBoost = Math.min(26, matchedTags.length * 7);
-        const genreBoost = Math.min(10, matchedGenres.length * 4);
-        const scoreBoost = item.score ? Math.round((item.score - 70) * 0.25) : 0;
-        const matchPct = Math.min(99, Math.max(60, base + tagBoost + genreBoost + scoreBoost));
-        return { ...item, matchPct };
-      });
-
+      currentRecommendations = pool.map(scoreMatch);
       sortAndRenderRecommendations();
       hideStatus();
-      el.resultsSection.classList.remove("hidden");
     } catch (err) {
-      showStatus(`Error fetching recommendations: ${err.message}`);
+      showStatus(`Search failed: ${err.message}`);
     }
   }
 
@@ -427,21 +558,26 @@
       if (mode === "chapters") return (b.chapters || 0) - (a.chapters || 0);
       return b.matchPct - a.matchPct;
     });
-
     el.resultsCount.textContent = sorted.length;
-    el.resultsGrid.innerHTML = "";
+    renderCardGrid(el.resultsGrid, sorted);
+  }
+
+  function renderCardGrid(container, items) {
+    if (!container) return;
+    container.innerHTML = "";
     const frag = document.createDocumentFragment();
 
-    for (const item of sorted) {
+    for (const item of items) {
       const card = document.createElement("article");
       card.className = "manhwa-card";
       const title = resolveTitle(item);
       const chapText = item.chapters ? `${item.chapters} Ch.` : "Ongoing";
+      const inShelf = shelf.some((s) => s.id === item.id);
 
       card.innerHTML = `
         <div class="card-cover-wrap">
-          <img src="${item.cover}" alt="${title}" loading="lazy" />
-          <span class="badge-top-left">${item.matchPct}% Match</span>
+          <img alt="${title}" loading="lazy" />
+          <span class="badge-top-left">${item.matchPct || 85}% Match</span>
           ${item.score ? `<span class="badge-top-right">★ ${item.score}%</span>` : ""}
           <span class="badge-bottom-left">${chapText}</span>
         </div>
@@ -449,37 +585,75 @@
           <div class="card-title">${title}</div>
           <div class="card-sub">${item.nativeTitle || item.source}</div>
           <div class="card-tags">
-            ${item.genres.slice(0, 2).map((g) => `<span class="mini-tag">${g}</span>`).join("")}
-            ${item.tags.slice(0, 2).map((t) => `<span class="mini-tag">${t}</span>`).join("")}
+            ${(item.genres || []).slice(0, 2).map((g) => `<span class="mini-tag">${g}</span>`).join("")}
+            ${(item.tags || []).slice(0, 2).map((t) => `<span class="mini-tag">${t}</span>`).join("")}
           </div>
           <div class="card-actions">
             <button class="btn btn-primary btn-sm read-online-btn">📖 Read</button>
-            <button class="btn btn-ghost btn-sm add-shelf-btn">+ Shelf</button>
+            <button class="btn btn-ghost btn-sm add-shelf-btn">${inShelf ? "✓ Saved" : "+ Shelf"}</button>
           </div>
         </div>
       `;
 
+      applySafeImage(card.querySelector("img"), item.cover, title, item.source);
       card.querySelector(".card-title").addEventListener("click", () => openDetailModal(item));
       card.querySelector(".read-online-btn").addEventListener("click", () => openWebReaderForSeries(item));
-      card.querySelector(".add-shelf-btn").addEventListener("click", () => addToShelf(item));
+      card.querySelector(".add-shelf-btn").addEventListener("click", () => {
+        if (shelf.some((s) => s.id === item.id)) removeFromShelf(item.id);
+        else addToShelf(item);
+        renderCardGrid(container, items);
+      });
       frag.appendChild(card);
     }
 
-    el.resultsGrid.appendChild(frag);
+    container.appendChild(frag);
   }
 
-  // Shelf Management & Taste DNA Extraction
+  // Starter Cards Strip
+  function renderStarterCards() {
+    el.starterCardsRow.innerHTML = "";
+    for (const st of catalogData.starters || []) {
+      const inShelf = shelf.some((s) => s.id === st.id || resolveTitle(s).toLowerCase() === st.title.toLowerCase());
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = `starter-mini-card ${inShelf ? "in-shelf" : ""}`;
+      btn.innerHTML = `
+        <img alt="${st.title}" />
+        <div class="starter-mini-info">
+          <div class="starter-mini-title">${st.title}</div>
+          <div class="muted small">${inShelf ? "✓ In Shelf" : `+ Add • ${st.chapters} Ch.`}</div>
+        </div>
+      `;
+      applySafeImage(btn.querySelector("img"), st.cover, st.title, "STARTER");
+      btn.addEventListener("click", async () => {
+        if (inShelf) {
+          shelf = shelf.filter((s) => s.id !== st.id && resolveTitle(s).toLowerCase() !== st.title.toLowerCase());
+          saveJSON(STORAGE_KEYS.SHELF, shelf);
+          renderShelf();
+          renderStarterCards();
+        } else {
+          const found = await searchAllSources(st.title);
+          if (found[0]) addToShelf(found[0]);
+        }
+      });
+      el.starterCardsRow.appendChild(btn);
+    }
+  }
+
+  // Shelf & Taste DNA
   function addToShelf(item) {
     if (shelf.some((s) => s.id === item.id)) return;
     shelf.push(item);
     saveJSON(STORAGE_KEYS.SHELF, shelf);
     renderShelf();
+    renderStarterCards();
   }
 
   function removeFromShelf(id) {
     shelf = shelf.filter((s) => s.id !== id);
     saveJSON(STORAGE_KEYS.SHELF, shelf);
     renderShelf();
+    renderStarterCards();
   }
 
   function renderShelf() {
@@ -488,21 +662,24 @@
     const frag = document.createDocumentFragment();
 
     for (const item of shelf) {
+      const title = resolveTitle(item);
       const div = document.createElement("div");
       div.className = "shelf-card";
       div.innerHTML = `
-        <img src="${item.cover}" alt="" />
+        <img alt="" />
         <div class="shelf-card-info">
-          <div class="shelf-card-title">${resolveTitle(item)}</div>
+          <div class="shelf-card-title">${title}</div>
           <div class="muted small">${item.chapters ? `${item.chapters} Ch.` : "Ongoing"}</div>
         </div>
         <button class="btn btn-ghost btn-sm" title="Remove">✕</button>
       `;
+      applySafeImage(div.querySelector("img"), item.cover, title, "SHELF");
       div.querySelector("button").addEventListener("click", () => removeFromShelf(item.id));
       frag.appendChild(div);
     }
     el.shelfGrid.appendChild(frag);
     extractTasteDNA();
+    updateDashboardStats();
   }
 
   function extractTasteDNA() {
@@ -514,7 +691,7 @@
     }
     const ranked = Array.from(counts.entries())
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 16)
+      .slice(0, 18)
       .map(([tag]) => tag);
 
     el.extractedTags.innerHTML = "";
@@ -535,44 +712,53 @@
           selectedTags.add(tag);
           chip.classList.add("active");
         }
+        updateDashboardStats();
       });
       el.extractedTags.appendChild(chip);
     }
+    updateDashboardStats();
   }
 
-  // UI Chip Renderers
-  function renderStarters() {
-    el.starterChips.innerHTML = "";
-    for (const st of catalogData.starters || []) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "chip";
-      btn.textContent = `+ ${st.title}`;
-      btn.addEventListener("click", async () => {
-        const found = await searchAllSources(st.title);
-        if (found[0]) addToShelf(found[0]);
-      });
-      el.starterChips.appendChild(btn);
-    }
+  function updateDashboardStats() {
+    el.dashShelfCount.textContent = shelf.length;
+    el.dashDnaCount.textContent = selectedTags.size;
+    el.dashBanCount.textContent = bannedTerms.length;
   }
 
-  function renderGenreChips() {
-    el.genreChips.innerHTML = "";
-    for (const g of catalogData.extraGenres || []) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "chip";
-      btn.textContent = g;
-      btn.addEventListener("click", () => {
-        if (selectedGenres.has(g)) {
-          selectedGenres.delete(g);
-          btn.classList.remove("active");
-        } else {
-          selectedGenres.add(g);
-          btn.classList.add("active");
-        }
-      });
-      el.genreChips.appendChild(btn);
+  function updateCacheBadge() {
+    if (el.cacheCountBadge) el.cacheCountBadge.textContent = apiCache.size;
+  }
+
+  // Categorized 35 Genres & Tropes Renderer
+  function renderCategorizedGenres() {
+    el.categorizedGenresContainer.innerHTML = "";
+    for (const group of catalogData.genreCategories || []) {
+      const block = document.createElement("div");
+      block.className = "filter-block";
+      block.innerHTML = `<div class="filter-title">🎭 ${group.category}</div>`;
+      const chipsWrap = document.createElement("div");
+      chipsWrap.className = "chip-group";
+
+      for (const item of group.items) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip";
+        btn.textContent = item.label;
+        btn.addEventListener("click", () => {
+          const targetSet = item.type === "genre" ? selectedGenres : selectedTags;
+          if (targetSet.has(item.value)) {
+            targetSet.delete(item.value);
+            btn.classList.remove("active");
+          } else {
+            targetSet.add(item.value);
+            btn.classList.add("active");
+          }
+        });
+        chipsWrap.appendChild(btn);
+      }
+
+      block.appendChild(chipsWrap);
+      el.categorizedGenresContainer.appendChild(block);
     }
   }
 
@@ -612,6 +798,7 @@
         }
         saveJSON(STORAGE_KEYS.BANS, bannedTerms);
         renderBanSection();
+        updateDashboardStats();
       });
       el.banPresetChips.appendChild(btn);
     }
@@ -621,13 +808,35 @@
       const tag = document.createElement("span");
       tag.className = "chip banned";
       tag.textContent = `${term} ✕`;
-      tag.title = "Click to remove ban";
       tag.addEventListener("click", () => {
         bannedTerms = bannedTerms.filter((t) => t !== term);
         saveJSON(STORAGE_KEYS.BANS, bannedTerms);
         renderBanSection();
+        updateDashboardStats();
       });
       el.activeBansList.appendChild(tag);
+    }
+    updateDashboardStats();
+  }
+
+  // Update Logs Renderer
+  function renderUpdateLogs() {
+    el.updateLogsContainer.innerHTML = "";
+    for (const log of catalogData.updateLogs || []) {
+      const item = document.createElement("article");
+      item.className = "changelog-item";
+      item.innerHTML = `
+        <div class="changelog-header">
+          <span class="badge-top-left" style="position:static;">${log.version}</span>
+          <strong>${log.title}</strong>
+          <span class="mini-tag">${log.badge}</span>
+          <span class="muted small">${log.date}</span>
+        </div>
+        <ul>
+          ${(log.changes || []).map((c) => `<li>${c}</li>`).join("")}
+        </ul>
+      `;
+      el.updateLogsContainer.appendChild(item);
     }
   }
 
@@ -636,14 +845,14 @@
     const title = resolveTitle(item);
     el.detailBody.innerHTML = `
       <div class="detail-grid">
-        <img src="${item.cover}" alt="${title}" />
+        <img alt="${title}" />
         <div>
           <h2>${title}</h2>
           <p class="muted">${item.nativeTitle || ""} • ${item.source} • ${item.chapters ? `${item.chapters} Chapters` : "Ongoing"}</p>
           <p style="margin: 0.8rem 0;">${item.description || "No synopsis available."}</p>
           <div class="chip-group" style="margin-bottom: 1rem;">
-            ${item.genres.map((g) => `<span class="chip active">${g}</span>`).join("")}
-            ${item.tags.slice(0, 8).map((t) => `<span class="chip">${t}</span>`).join("")}
+            ${(item.genres || []).map((g) => `<span class="chip active">${g}</span>`).join("")}
+            ${(item.tags || []).slice(0, 8).map((t) => `<span class="chip">${t}</span>`).join("")}
           </div>
           <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
             <button id="modalReadBtn" class="btn btn-primary">📖 Open in Web Reader</button>
@@ -652,6 +861,7 @@
         </div>
       </div>
     `;
+    applySafeImage(el.detailBody.querySelector("img"), item.cover, title, item.source);
     document.getElementById("modalReadBtn").addEventListener("click", () => {
       el.detailModal.classList.add("hidden");
       openWebReaderForSeries(item);
@@ -659,11 +869,9 @@
     el.detailModal.classList.remove("hidden");
   }
 
-  // =========================================================================
-  // ONLINE WEBTOON READER + CHAPTER CONTINUITY VERIFIER
-  // =========================================================================
+  // Online Web Reader
   async function openWebReaderForSeries(item) {
-    const title = resolveTitle(item);
+    const title = item ? resolveTitle(item) : "VexinManwha Web Reader";
     readerState.seriesTitle = title;
     el.readerSeriesTitle.textContent = title;
     el.readerModal.classList.remove("hidden");
@@ -679,12 +887,18 @@
   async function loadChaptersFromApi(apiBase, seriesTitle) {
     el.readerPagesContainer.innerHTML = `<div class="reader-placeholder-card">Connecting to Reader API at <code>${apiBase}</code> for <strong>${seriesTitle}</strong>...</div>`;
     try {
-      // Compatible with Suwayomi-Server / custom JSON REST feeds
       const res = await fetch(`${apiBase}/search?q=${encodeURIComponent(seriesTitle)}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      const chapters = normalizeChapterList(data.chapters || []);
-      if (!chapters.length) throw new Error("No chapters returned by endpoint.");
+      const chapters = (data.chapters || [])
+        .map((c, idx) => {
+          const match = String(c.number ?? c.title ?? idx + 1).match(/(\d+(\.\d+)?)/);
+          const num = match ? parseFloat(match[1]) : idx + 1;
+          return { number: num, title: c.title || `Chapter ${num}`, pages: c.pages || [] };
+        })
+        .sort((a, b) => a.number - b.number);
+
+      if (!chapters.length) throw new Error("No chapters returned.");
       readerState.chapters = chapters;
       readerState.currentIdx = 0;
       renderReaderChapterSelect();
@@ -693,8 +907,7 @@
       el.readerPagesContainer.innerHTML = `
         <div class="reader-placeholder-card">
           <h3>Could not fetch chapters from configured API</h3>
-          <p class="muted" style="margin:0.5rem 0;">Reason: ${err.message}</p>
-          <p>Make sure your self-hosted Reader API (such as <strong>Suwayomi-Server</strong> or a custom JSON endpoint) has CORS enabled and returns <code>{ "chapters": [{ "number": 1, "title": "Chapter 1", "pages": ["https://..."] }] }</code>.</p>
+          <p class="muted" style="margin:0.5rem 0;">${err.message}</p>
         </div>
       `;
     }
@@ -703,14 +916,9 @@
   function loadDemoReaderSetup(item) {
     const title = item ? resolveTitle(item) : "VexinManwha Web Reader";
     const total = item?.chapters ? Math.min(item.chapters, 12) : 6;
-    // Generate sequential chapter index (1, 2, 3, 4, 5, 6...) with continuity verification
     const chapters = [];
     for (let i = 1; i <= total; i++) {
-      chapters.push({
-        number: i,
-        title: `Chapter ${i}`,
-        pages: item?.cover ? [item.cover] : []
-      });
+      chapters.push({ number: i, title: `Chapter ${i}`, pages: [] });
     }
     readerState.chapters = chapters;
     readerState.currentIdx = 0;
@@ -721,39 +929,19 @@
       <div class="reader-placeholder-card">
         <h3>📖 Online Web Reader — ${title}</h3>
         <p class="muted" style="margin:0.6rem 0;">
-          Browsers block cross-origin <code>&lt;iframe&gt;</code> embedding and image hotlinking from external scanlation websites.
-          To stream full chapters directly inside VexinManwha without downloading files:
+          Connect a CORS-enabled <strong>Reader API URL</strong> (such as a self-hosted <strong>Suwayomi-Server</strong> or custom JSON chapter feed) in the bar above to load chapter pages directly inside VexinManwha, or open a <strong>.CBZ / .ZIP</strong> archive.
         </p>
-        <ol style="margin-left:1.25rem; line-height:1.7;">
-          <li>Paste a CORS-enabled <strong>Reader API URL</strong> (e.g., your self-hosted <strong>Suwayomi-Server</strong> or custom JSON chapter feed) in the bar above and click <strong>Connect API</strong>.</li>
-          <li>VexinManwha automatically sorts chapters in strict ascending order (<code>Ch. 1 → 2 → 3 → 4 → 5 → 6</code>) and flags any missing chapters in red on the continuity strip above.</li>
-          <li>Or click <strong>📁 Open CBZ/ZIP</strong> in the toolbar to read any archive instantly in vertical webtoon mode.</li>
-        </ol>
+        <p class="muted small">Chapter Continuity Verifier automatically orders chapters (Ch. 1 → 2 → 3 → 4 → 5 → 6) and flags missing gaps in red.</p>
       </div>
     `;
-  }
-
-  function normalizeChapterList(rawChapters) {
-    return rawChapters
-      .map((c, idx) => {
-        const match = String(c.number ?? c.title ?? idx + 1).match(/(\d+(\.\d+)?)/);
-        const num = match ? parseFloat(match[1]) : idx + 1;
-        return {
-          number: num,
-          title: c.title || `Chapter ${num}`,
-          pages: c.pages || []
-        };
-      })
-      .sort((a, b) => a.number - b.number);
   }
 
   function verifyChapterContinuity(chapters) {
     el.readerContinuityBar.innerHTML = `<span>Continuity Check:</span>`;
     if (!chapters.length) return;
-
     const nums = new Set(chapters.map((c) => Math.floor(c.number)));
     const maxChap = Math.max(...nums);
-    const missing = [];
+    let missingCount = 0;
 
     for (let n = 1; n <= maxChap; n++) {
       const pill = document.createElement("span");
@@ -766,7 +954,7 @@
           renderReaderChapter(idx);
         });
       } else {
-        missing.push(n);
+        missingCount++;
         pill.className = "chap-pill missing";
         pill.textContent = `Missing Ch. ${n}`;
       }
@@ -775,9 +963,7 @@
 
     const summary = document.createElement("span");
     summary.style.marginLeft = "0.5rem";
-    summary.textContent = missing.length
-      ? `⚠️ ${missing.length} missing chapter(s)`
-      : "✅ Complete sequence (no gaps)";
+    summary.textContent = missingCount ? `⚠️ ${missingCount} missing` : "✅ Complete sequence (no gaps)";
     el.readerContinuityBar.appendChild(summary);
   }
 
@@ -797,8 +983,8 @@
     if (!chap) return;
     el.readerChapterSelect.value = idx;
     verifyChapterContinuity(readerState.chapters);
-
     if (!chap.pages || !chap.pages.length) return;
+
     el.readerPagesContainer.innerHTML = "";
     const frag = document.createDocumentFragment();
     for (const src of chap.pages) {
@@ -812,10 +998,8 @@
     el.readerPagesContainer.scrollTop = 0;
   }
 
-  // Optional CBZ/ZIP Archive Loader
   async function handleLocalArchive(file) {
     if (!file || typeof JSZip === "undefined") return;
-    el.readerPagesContainer.innerHTML = `<div class="reader-placeholder-card">Extracting <strong>${file.name}</strong>...</div>`;
     const zip = await JSZip.loadAsync(file);
     const imgEntries = Object.values(zip.files)
       .filter((f) => !f.dir && /\.(jpe?g|png|webp|gif)$/i.test(f.name))
@@ -824,7 +1008,6 @@
     const urls = await Promise.all(
       imgEntries.map(async (entry) => URL.createObjectURL(await entry.async("blob")))
     );
-
     readerState.seriesTitle = file.name.replace(/\.(cbz|zip)$/i, "");
     el.readerSeriesTitle.textContent = readerState.seriesTitle;
     readerState.chapters = [{ number: 1, title: "Chapter 1 (Archive)", pages: urls }];
@@ -833,15 +1016,21 @@
     renderReaderChapter(0);
   }
 
-  // Event Listeners
+  // Events
   function bindEvents() {
+    el.navTabs.forEach((tab) => {
+      tab.addEventListener("click", () => switchView(tab.dataset.view));
+    });
+
+    el.jumpToMatcherBtn.addEventListener("click", () => switchView("matcherView"));
+    el.refreshDashboardBtn.addEventListener("click", loadDashboardFeeds);
     el.themeSelect.addEventListener("change", (e) => applyTheme(e.target.value));
 
     el.titlePrefSelect.addEventListener("change", (e) => {
       titlePref = e.target.value;
       localStorage.setItem(STORAGE_KEYS.TITLE_PREF, titlePref);
       renderShelf();
-      if (currentRecommendations.length) sortAndRenderRecommendations();
+      loadDashboardFeeds();
     });
 
     el.searchInput.addEventListener("input", (e) => {
@@ -856,7 +1045,7 @@
         const results = await searchAllSources(q);
         el.searchSpinner.classList.add("hidden");
         renderSearchDropdown(results);
-      }, 320);
+      }, 300);
     });
 
     document.addEventListener("click", (e) => {
@@ -868,6 +1057,7 @@
       selectedTags.clear();
       saveJSON(STORAGE_KEYS.SHELF, shelf);
       renderShelf();
+      renderStarterCards();
     });
 
     el.addBanBtn.addEventListener("click", () => {
@@ -890,11 +1080,56 @@
     el.sortSelect.addEventListener("change", sortAndRenderRecommendations);
     el.closeDetailBtn.addEventListener("click", () => el.detailModal.classList.add("hidden"));
 
-    // Web Reader Events
-    el.openReaderBtn.addEventListener("click", () => {
-      el.readerModal.classList.remove("hidden");
-      loadDemoReaderSetup(shelf[0] || null);
+    // Settings Actions
+    el.settingsSaveApiBtn.addEventListener("click", () => {
+      const url = el.settingsReaderApiInput.value.trim();
+      localStorage.setItem(STORAGE_KEYS.READER_API, url);
+      el.readerApiUrlInput.value = url;
+      alert("Reader API endpoint saved.");
     });
+
+    el.exportJsonBtn.addEventListener("click", () => {
+      const payload = JSON.stringify({ shelf, bannedTerms, theme: el.themeSelect.value, titlePref }, null, 2);
+      const blob = new Blob([payload], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "vexinmanwha-backup.json";
+      a.click();
+    });
+
+    el.importJsonInput.addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const parsed = JSON.parse(await file.text());
+        if (Array.isArray(parsed.shelf)) shelf = parsed.shelf;
+        if (Array.isArray(parsed.bannedTerms)) bannedTerms = parsed.bannedTerms;
+        saveJSON(STORAGE_KEYS.SHELF, shelf);
+        saveJSON(STORAGE_KEYS.BANS, bannedTerms);
+        renderShelf();
+        renderStarterCards();
+        renderBanSection();
+        loadDashboardFeeds();
+        alert("Backup imported successfully.");
+      } catch {
+        alert("Invalid JSON backup file.");
+      }
+    });
+
+    el.reseedStartersBtn.addEventListener("click", async () => {
+      await seedDefaultStarterShelf();
+      renderShelf();
+      renderStarterCards();
+      loadDashboardFeeds();
+    });
+
+    el.clearCacheBtn.addEventListener("click", () => {
+      apiCache.clear();
+      updateCacheBadge();
+    });
+
+    // Web Reader Events
+    el.openReaderBtn.addEventListener("click", () => openWebReaderForSeries(shelf[0] || null));
     el.closeReaderBtn.addEventListener("click", () => {
       el.readerModal.classList.add("hidden");
       clearInterval(readerState.autoScrollTimer);
@@ -902,6 +1137,7 @@
     el.saveReaderApiBtn.addEventListener("click", () => {
       const url = el.readerApiUrlInput.value.trim();
       localStorage.setItem(STORAGE_KEYS.READER_API, url);
+      el.settingsReaderApiInput.value = url;
       if (url) loadChaptersFromApi(url.replace(/\/$/, ""), readerState.seriesTitle);
     });
     el.readerChapterSelect.addEventListener("change", (e) => {
@@ -952,15 +1188,17 @@
 
     const frag = document.createDocumentFragment();
     for (const item of items) {
+      const title = resolveTitle(item);
       const row = document.createElement("div");
       row.className = "dropdown-item";
       row.innerHTML = `
-        <img src="${item.cover}" alt="" />
+        <img alt="" />
         <div>
-          <div><strong>${resolveTitle(item)}</strong> <span class="mini-tag">${item.source}</span></div>
+          <div><strong>${title}</strong> <span class="mini-tag">${item.source}</span></div>
           <div class="muted small">${item.nativeTitle || ""} • ${item.chapters ? `${item.chapters} Ch.` : "Ongoing"}</div>
         </div>
       `;
+      applySafeImage(row.querySelector("img"), item.cover, title, item.source);
       row.addEventListener("click", () => {
         addToShelf(item);
         el.searchDropdown.classList.add("hidden");

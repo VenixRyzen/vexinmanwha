@@ -1,13 +1,21 @@
 {
   "starters": [
-    { "id": "al-105398", "title": "Solo Leveling", "native": "나 혼자만 레벨업", "chapters": 200, "score": 87 },
-    { "id": "al-119257", "title": "Omniscient Reader", "native": "전지적 독자 시점", "chapters": null, "score": 88 },
-    { "id": "oel-tbate", "title": "The Beginning After the End", "native": "끝이 아닌 시작 (TBATE)", "chapters": 205, "score": 89 },
-    { "id": "al-114578", "title": "Legend of the Northern Blade", "native": "북검전기", "chapters": 202, "score": 89 },
-    { "id": "al-128067", "title": "SSS-Class Revival Hunter", "native": "SSS급 죽어야 사는 헌터", "chapters": null, "score": 86 },
-    { "id": "al-117460", "title": "Villains Are Destined to Die", "native": "악역의 엔딩은 죽음뿐", "chapters": null, "score": 87 },
-    { "id": "al-85143", "title": "Tower of God", "native": "신의 탑", "chapters": null, "score": 84 },
-    { "id": "al-106929", "title": "Eleceed", "native": "일렉시드", "chapters": null, "score": 86 }
+    { "id": "al-105398", "title": "Solo Leveling", "native": "나 혼자만 레벨업", "chapters": 200, "score": 87, "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx105398-b673Vt5ZSfb3.jpg" },
+    { "id": "al-119257", "title": "Omniscient Reader", "native": "전지적 독자 시점", "chapters": 235, "score": 88, "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx119257-613v0E2k5X5P.jpg" },
+    { "id": "oel-tbate", "title": "The Beginning After the End", "native": "끝이 아닌 시작 (TBATE)", "chapters": 205, "score": 89, "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx105398-b673Vt5ZSfb3.jpg" },
+    { "id": "al-114578", "title": "Legend of the Northern Blade", "native": "북검전기", "chapters": 202, "score": 89, "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx114578-24672W941k8O.jpg" },
+    { "id": "al-128067", "title": "SSS-Class Revival Hunter", "native": "SSS급 죽어야 사는 헌터", "chapters": 125, "score": 86, "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx128067-93k0427t37vF.jpg" },
+    { "id": "al-117460", "title": "Villains Are Destined to Die", "native": "악역의 엔딩은 죽음뿐", "chapters": 162, "score": 87, "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx117460-c70g2F2E6l63.jpg" },
+    { "id": "al-85143", "title": "Tower of God", "native": "신의 탑", "chapters": 640, "score": 84, "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx85143-lW52P14sW8wB.jpg" },
+    { "id": "al-106929", "title": "Eleceed", "native": "일렉시드", "chapters": 325, "score": 86, "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx106929-M98s5J7pP5lA.jpg" },
+    { "id": "al-120829", "title": "Nano Machine", "native": "나노마신", "chapters": 235, "score": 82, "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx120829-f0M81O604H26.jpg" },
+    { "id": "al-131767", "title": "Return of the Mount Hua Sect", "native": "화산귀환", "chapters": 145, "score": 88, "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx131767-K93M4X0A08Z5.jpg" },
+    { "id": "al-137133", "title": "The Greatest Estate Developer", "native": "역대급 영지 설계사", "chapters": 170, "score": 90, "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx137133-sJ9Y2M8B85C9.jpg" },
+    { "id": "al-146747", "title": "Reaper of the Drifting Moon", "native": "표월", "chapters": 98, "score": 83, "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx146747-E85Z8K2L14P0.jpg" },
+    { "id": "al-139137", "title": "Doom Breaker", "native": "투신전생기", "chapters": 101, "score": 85, "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx139137-W74P9B2V10M8.jpg" },
+    { "id": "al-159507", "title": "Pick Me Up, Infinite Gacha", "native": "픽 미 업!", "chapters": 125, "score": 86, "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx159507-A12N8B4C90X1.jpg" },
+    { "id": "al-126297", "title": "Mercenary Enrollment", "native": "입학용병", "chapters": 215, "score": 82, "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx126297-L23P7V9M11Q4.jpg" },
+    { "id": "al-85858", "title": "Lookism", "native": "외모지상주의", "chapters": 530, "score": 83, "cover": "https://s4.anilist.co/file/anilistcdn/media/manga/cover/large/bx85858-K82R1N5B93T2.jpg" }
   ],
   "oelCatalog": [
     {
@@ -75,24 +83,66 @@
       "url": "https://www.webtoons.com/en/thriller/hand-jumper/list?title_no=2702"
     }
   ],
-  "extraGenres": [
-    "Action",
-    "Adventure",
-    "Fantasy",
-    "Drama",
-    "Mystery",
-    "Supernatural",
-    "Thriller",
-    "Sci-Fi",
-    "Comedy",
-    "Romance",
-    "Martial Arts"
+  "genreCategories": [
+    {
+      "category": "Core Genres",
+      "items": [
+        { "label": "Action", "type": "genre", "value": "Action" },
+        { "label": "Adventure", "type": "genre", "value": "Adventure" },
+        { "label": "Fantasy", "type": "genre", "value": "Fantasy" },
+        { "label": "Drama", "type": "genre", "value": "Drama" },
+        { "label": "Mystery", "type": "genre", "value": "Mystery" },
+        { "label": "Supernatural", "type": "genre", "value": "Supernatural" },
+        { "label": "Thriller", "type": "genre", "value": "Thriller" },
+        { "label": "Sci-Fi", "type": "genre", "value": "Sci-Fi" },
+        { "label": "Comedy", "type": "genre", "value": "Comedy" },
+        { "label": "Romance", "type": "genre", "value": "Romance" },
+        { "label": "Psychological", "type": "genre", "value": "Psychological" },
+        { "label": "Slice of Life", "type": "genre", "value": "Slice of Life" },
+        { "label": "Horror", "type": "genre", "value": "Horror" },
+        { "label": "Sports", "type": "genre", "value": "Sports" }
+      ]
+    },
+    {
+      "category": "Manhwa Worlds & Power Systems",
+      "items": [
+        { "label": "Murim / Martial Arts", "type": "tag", "value": "Martial Arts" },
+        { "label": "System / Leveling", "type": "tag", "value": "Video Games" },
+        { "label": "Regression / Time Travel", "type": "tag", "value": "Time Manipulation" },
+        { "label": "Reincarnation / Isekai", "type": "tag", "value": "Reincarnation" },
+        { "label": "Tower / Dungeon", "type": "tag", "value": "Dungeon" },
+        { "label": "Necromancer", "type": "tag", "value": "Necromancy" },
+        { "label": "Magic & Sorcery", "type": "tag", "value": "Magic" },
+        { "label": "Swordplay", "type": "tag", "value": "Swordplay" },
+        { "label": "Academy / School", "type": "tag", "value": "School" },
+        { "label": "Kingdom Building", "type": "tag", "value": "Politics" },
+        { "label": "Post-Apocalyptic", "type": "tag", "value": "Post-Apocalyptic" },
+        { "label": "Superpowers", "type": "tag", "value": "Superpowers" }
+      ]
+    },
+    {
+      "category": "Protagonist & Tone",
+      "items": [
+        { "label": "Overpowered MC", "type": "tag", "value": "Overpowered MC" },
+        { "label": "Anti-Hero", "type": "tag", "value": "Anti-Hero" },
+        { "label": "Revenge", "type": "tag", "value": "Revenge" },
+        { "label": "Villainess / Otome", "type": "tag", "value": "Villainess" },
+        { "label": "Cultivation", "type": "tag", "value": "Cultivation" },
+        { "label": "Survival", "type": "tag", "value": "Survival" },
+        { "label": "Crime / Gangster", "type": "tag", "value": "Crime" },
+        { "label": "Historical", "type": "tag", "value": "Historical" },
+        { "label": "Full Color", "type": "tag", "value": "Full Color" }
+      ]
+    }
   ],
   "collectorNotes": [
     { "id": "chapters100", "label": "100+ Chapters" },
+    { "id": "chapters200", "label": "200+ Chapters (Long Epic)" },
     { "id": "peakArt", "label": "High Rated / Peak Art (80+)" },
+    { "id": "masterpiece", "label": "Masterpiece Tier (86+)" },
     { "id": "fullColor", "label": "Full Color" },
     { "id": "completed", "label": "Completed Only" },
+    { "id": "releasing", "label": "Ongoing / Releasing" },
     { "id": "hiddenGems", "label": "Hidden Gems" }
   ],
   "banPresets": [
@@ -103,12 +153,57 @@
     { "id": "harem", "label": "Harem", "terms": ["harem", "male harem"] },
     { "id": "revharem", "label": "Reverse Harem", "terms": ["reverse harem", "female harem"] },
     { "id": "ecchi", "label": "Ecchi / Smut", "terms": ["ecchi", "smut", "erotica", "hentai"] },
+    { "id": "ntr", "label": "NTR / Netorare", "terms": ["ntr", "netorare", "cheating"] },
     { "id": "tragedy", "label": "Tragedy", "terms": ["tragedy"] },
-    { "id": "horror", "label": "Horror", "terms": ["horror", "gore"] },
+    { "id": "horror", "label": "Horror / Gore", "terms": ["horror", "gore"] },
     { "id": "psych", "label": "Psychological", "terms": ["psychological"] },
     { "id": "romance", "label": "Romance", "terms": ["romance"] },
     { "id": "mecha", "label": "Mecha", "terms": ["mecha"] },
     { "id": "sports", "label": "Sports", "terms": ["sports"] },
     { "id": "sol", "label": "Slice of Life", "terms": ["slice of life"] }
+  ],
+  "updateLogs": [
+    {
+      "version": "v4.0.0",
+      "date": "2026-11-28",
+      "badge": "Current Release",
+      "title": "Dashboard Restoration, 35-Genre Matrix, Settings & Update Logs",
+      "changes": [
+        "Added first-visit starter shelf seeding and live Dashboard discovery feeds (Top Taste Matches, Peak Art 85+, and 100+ Chapter Epics) so the landing screen is immediately populated.",
+        "Added dynamic SVG cover fallback generator on all image elements so zero cards ever render broken thumbnails.",
+        "Expanded genre & trope selector from 11 to 35 categorized filters across Core Genres, Manhwa Worlds & Power Systems, and Protagonist & Tone.",
+        "Added dedicated Settings & Configuration view (theme swatches, title resolution, JSON library export/import, cache clearing) and Update Logs view."
+      ]
+    },
+    {
+      "version": "v3.2.0",
+      "date": "2026-11-25",
+      "badge": "Architecture",
+      "title": "Modular 4-File Static Architecture & Online Web Reader",
+      "changes": [
+        "Separated monolithic HTML into index.html, styles.css, app.js, and catalog.json for clean Render static deployment.",
+        "Built Online Web Reader modal with CORS Reader API connector, CBZ/ZIP fallback, and sequential Chapter Continuity verification (Ch. 1 → 2 → 3 → 4 → 5 → 6)."
+      ]
+    },
+    {
+      "version": "v2.5.0",
+      "date": "2026-11-20",
+      "badge": "Engine",
+      "title": "Multi-Source Search, Ban Filter & 5-Theme Engine",
+      "changes": [
+        "Added parallel search across AniList KR, Kitsu, MAL/Jikan, and Verified OEL Catalog (including The Beginning After the End).",
+        "Introduced two-tier Ban/Block system for BL, GL, MLM, WLW, Harem, and custom keywords.",
+        "Added 5 CSS-variable themes (Moonlight, Crimson Red, Shadow Violet, Jade Murim, Daylight) with LRU caching and AbortController."
+      ]
+    },
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-15",
+      "badge": "Initial",
+      "title": "Initial VexinManwha Release",
+      "changes": [
+        "Launched AniList Korean manhwa search, Read & Loved shelf persistence, and Taste DNA trope matching."
+      ]
+    }
   ]
 }
